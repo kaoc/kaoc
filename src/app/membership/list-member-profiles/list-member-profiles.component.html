@@ -1,0 +1,74 @@
+<div>
+  <mat-card class="example-card">
+    <mat-card-header>
+      <mat-card-title>View/Edit Member profile</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="mat-elevation-z8"> 
+      <mat-form-field>
+        <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter">
+      </mat-form-field>
+
+      <table mat-table [dataSource]="dataSource"  class="mat-elevation-z8" matSort>
+      
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Reference Id</th>
+          <td mat-cell *matCellDef="let element">{{element.id}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="memberId">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Member Id</th>
+          <td mat-cell *matCellDef="let element">{{element.memberId}}</td>
+        </ng-container>
+      
+        <ng-container matColumnDef="firstName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>First Name</th>
+          <td mat-cell *matCellDef="let element">{{element.firstName}}</td>
+        </ng-container>
+      
+        <ng-container matColumnDef="lastName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Last Name</th>
+          <td mat-cell *matCellDef="let element">{{element.lastName}}</td>
+        </ng-container>
+              
+        <ng-container matColumnDef="emailId">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Email Id</th>
+          <td mat-cell *matCellDef="let element">{{element.emailId}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="mobileNo">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Mobile #</th>
+          <td mat-cell *matCellDef="let element">{{element.mobileNo}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="membershipType">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Membership Type</th>
+          <td mat-cell *matCellDef="let element">
+            <span *ngIf="element.membershipType==='FAM'">Family</span>
+            <span *ngIf="element.membershipType==='IND'">Individual</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="action">
+          <th mat-header-cell *matHeaderCellDef>Action</th>
+          <td mat-cell *matCellDef="let element">
+             <div>
+            <button  mat-mini-fab (click)="openEditDialog(element)" matTooltip="Edit Member">
+              <span> <mat-icon >edit</mat-icon></span>
+            </button>&nbsp;
+            <button  mat-mini-fab (click)="archiveRecord(element)" matTooltip="Disable Account">
+              <span> <mat-icon>person_add_disabled</mat-icon></span>
+            </button>
+          </div>
+           </td>
+        </ng-container>
+  
+        <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+        <tr mat-row *matRowDef="let element; columns: columnsToDisplay;"></tr>
+
+      </table>
+      <mat-paginator [pageSizeOptions]="[5, 10, 20, 50, 100]" showFirstLastButtons></mat-paginator>
+    </div>
+    </mat-card-content>
+  </mat-card>
+</div>

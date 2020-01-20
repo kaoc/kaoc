@@ -1,0 +1,14 @@
+mat-grid-tile {
+    background-color: brown;
+}
+
+
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  .content {
+    padding: 20px;
+  }

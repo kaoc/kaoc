@@ -1,0 +1,64 @@
+/* You can add global styles to this file, and also import other style files */
+@import '~@angular/material/prebuilt-themes/indigo-pink.css';
+
+html, body {
+    /*min-height: 100%; */
+    margin: 0;
+    padding: 0;
+    height:100%;
+     
+}
+
+.kaoc-default-font-family {
+    font-family: sans-serif,Arial,Helvetica!important;
+}
+.kaoc-primary-color {
+    color: #fff!important;
+    background-color: rgb(128, 8, 8)!important;
+    
+}
+
+ 
+.kaoc-btn-primary {
+    color: #fff!important;
+    background-color: rgb(78, 11, 11) !important;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.kaoc-main-header  {
+    background: rgb(78, 11, 11) !important;
+        text-align: left!important;
+        font-family: Arial,Helvetica,sans-serif!important;
+        color: #fff!important;
+        font-size: 11px!important;
+      }
+
+.kaoc-gl-mat-card  {
+    padding: 5px!important;
+    margin-top: 5px!important;
+ }
+
+ .kaoc-gl-mat-card-header-text {
+    margin: 0 0px !important;
+  }
+  
+  .mat-card-header-text {
+    margin: 0 0px!important;
+  }
+ .mat-step-icon-selected
+ {
+  color: #fff!important;
+  background-color: rgb(78, 11, 11) !important;
+}
+ .mat-step-icon-state-edit
+ {
+  color: #fff!important;
+  background-color: #ff4081 !important;
+}
+
+ 
+/* kaoc-modalbox is to used within PanelClass and to remove unwanted padding. */
+.kaoc-modalbox >  mat-dialog-container {
+    padding: 1px;
+}

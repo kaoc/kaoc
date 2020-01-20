@@ -1,0 +1,64 @@
+/*.fill-remaining-space {
+     This fills the remaining space, by using flexbox. 
+       Every toolbar row uses a flexbox row layout.  
+    flex: 1 1 auto;
+  }
+
+.companyName{
+    font-size: 150%;
+}
+
+
+
+button{
+  font-size: 110%;
+  min-width: min-content;
+}
+a{
+    text-decoration: none;
+    font-size: 110%;
+    white-space: normal;
+}
+.example-icon {
+    padding: 0 14px;
+  }
+.mat-toolbar{
+  height: 7vh;
+}
+
+.mat-sidenav {
+  width: 200px;
+}
+
+.mat-sidenav-container{
+  background-color: grey;
+  min-height: 88vh !important;  
+  max-height: 88vh !important;  
+}
+div {
+  overflow: inherit;
+}
+*/
+
+
+.mat-sidenav-content{
+  font-size: 200%;
+  text-align: center;
+} 
+
+.example-header-image {
+  background-image: url('../../../assets/images/kaoc-avatar-icon.png');
+  background-size: cover;
+}
+.example-spacer {
+  flex: 1 1 auto;
+}
+
+ @media  (max-width: 768px) {
+  .mat-sidenav-container{
+    background-color: grey;
+    min-height: 50vh !important;  
+    max-height: 88vh !important;  
+  }
+  
+}
