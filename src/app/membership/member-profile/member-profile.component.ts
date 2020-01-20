@@ -19,6 +19,8 @@ export class MemberProfileComponent implements OnInit {
   paymentList: string[] = ['Cash', 'Cheque', 'Square', 'Paypal', 'Zelle', 'Other'];
    
   member: Member = {
+	id:'',
+	membershipType:'',
     firstName:'',
     lastName:'',
     emailId:'',

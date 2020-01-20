@@ -1,0 +1,110 @@
+Install softwares
+1. Install Node.js version . Get the latest LTS version (12.14.1 )
+    https://nodejs.org/en/
+	Download the version for the OS and install
+	After installation is done , go to command prompt (type cmd in windows)
+	Check for node version	
+	command : node -v
+			will give v12.14.1 if specific version is installed. 
+			If you are getting 'node' is not recognized as an internal or external command after installation , 
+			set the path environment variable and take a new command prompt and check the version
+2. Install angular CLI from command prompt
+
+	command : npm install -g @angular/cli
+	
+	/***************************************** Start of Angular CLI Installation ***************************************
+	Note : For Reference Only
+	
+	C:\Users\Dileep> npm install -g @angular/cli
+	C:\Users\Dileep\AppData\Roaming\npm\ng -> C:\Users\Dileep\AppData\Roaming\npm\node_modules\@angular\cli\bin\ng
+
+	> @angular/cli@8.3.23 postinstall C:\Users\Dileep\AppData\Roaming\npm\node_modules\@angular\cli
+	> node ./bin/postinstall/script.js
+
+	+ @angular/cli@8.3.23
+	added 251 packages from 186 contributors in 64.453s
+	
+	/***************************************** End of Angular CLI Installation **************************************
+
+3. Make sure you have installed git and also added your ssh public key in git. If so proceed with checkout of kaoc project from github.
+
+   Navigate to the path where you want the checkout. Eg : c:\git_checkout folder
+   right click and select Git Bash here
+   
+   command : git clone git@github.com:kaoc/kaoc.git
+   
+   
+	/***************************************** Start of git checkout ***************************************
+	Note : For Reference Only . Once checkout is complete , you can close git bash window.
+	
+	$ git clone git@github.com:kaoc/kaoc.git
+	Cloning into 'kaoc'...
+	Warning: Permanently added the RSA host key for IP address '140.82.113.4' to the list of known hosts.
+	remote: Enumerating objects: 109, done.
+	remote: Counting objects: 100% (109/109), done.
+	remote: Compressing objects: 100% (85/85), done.
+	remote: Total 109 (delta 19), reused 108 (delta 18), pack-reused 0
+	Receiving objects: 100% (109/109), 149.96 KiB | 925.00 KiB/s, done.
+	Resolving deltas: 100% (19/19), done.
+
+	enter the command below to verify the location.
+	$ pwd
+	/c/dil/git_checkout
+
+	
+	/***************************************** End of git checkout **************************************
+	
+4. Navigate to the path where code is checked out in command prompt.
+   Eg : If code is checked out to c drive
+   in command prompt
+   change directory to C:\git_checkout\kaoc
+   
+5. Run the command to install all node modules for the application to start up. This will take a while.
+
+	command : npm install
+	
+	C:\git_checkout\kaoc>npm install
+	
+		/***************************************** Start of node module installation for application ***************************************
+		Note : For Reference Only .  
+	
+		> node ./bin/postinstall/script.js
+
+		npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@1.2.9 (node_modules\fsevents):
+		npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@1.2.9: wanted {"os":"darwin","arch":"any"} (current: {"os":"win32","arch":"x64"})
+
+		added 1368 packages from 1101 contributors and audited 21389 packages in 385.668s
+
+		23 packages are looking for funding
+		  run `npm fund` for details
+
+		found 2 high severity vulnerabilities
+		  run `npm audit fix` to fix them, or `npm audit` for details
+
+		C:\dil\git_checkout\kaoc>npm audit fix  
+		
+		/***************************************** End of node module installation for application **************************************
+		
+6. Start Kaoc application from command prompt
+	
+	command : ng serve --open
+	
+	--open will open in default browser. You can ignore --open if would like. in that case to open the browser and then type localhost:4200
+	
+	/***************************************** Start of kaoc application ***************************************
+	
+	C:\dil\git_checkout\kaoc>ng serve --open
+	10% building 3/3 modules 0 activei ｢wds｣: Project is running at http://localhost:4200/webpack-dev-server/
+	i ｢wds｣: webpack output is served from /
+	i ｢wds｣: 404s will fallback to //index.html
+
+	chunk {main} main.js, main.js.map (main) 137 kB [initial] [rendered]
+	chunk {polyfills} polyfills.js, polyfills.js.map (polyfills) 295 kB [initial] [rendered]
+	chunk {runtime} runtime.js, runtime.js.map (runtime) 6.15 kB [entry] [rendered]
+	chunk {styles} styles.js, styles.js.map (styles) 296 kB [initial] [rendered]
+	chunk {vendor} vendor.js, vendor.js.map (vendor) 8.79 MB [initial] [rendered]
+	Date: 2020-01-20T04:59:48.168Z - Hash: 32d2f0637332894b8312 - Time: 16047ms
+	** Angular Live Development Server is listening on localhost:4200, open your browser on http://localhost:4200/ **
+	i ｢wdm｣: Compiled successfully.
+	
+	 
