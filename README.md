@@ -1,4 +1,22 @@
-# KAOC
+#KAOC - Our Project READ ME
+
+## Basic steps to clone, build and start app
+1. Create workspace(directory) in your system
+2. Clone repo
+git clone https://github.com/kaoc/kaoc.git
+3. cd to repo
+4. Install dev kit(needs to figure out how to avoid this) 
+install --save-dev @angular-devkit/build-angular
+5. Build angular app 
+ng build
+6. Start the webserver
+ng serve start
+
+##
+
+## ############################## AUTO GENERATED CODE ###########################################
+
+# KAOC - generated READ ME
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.9.
 
