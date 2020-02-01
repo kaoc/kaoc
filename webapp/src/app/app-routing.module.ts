@@ -12,11 +12,11 @@ import { MadhuramMalayalamComponent } from './activities/madhuram-malayalam/madh
 const routes: Routes = [
   { path: '', component: HomeComponent  },
   { path: 'admin', component: AdminComponent },
-  { path: 'kaochistory', component: KaocHistoryComponent },
-  { path: 'kaocbyelaw', component: KaocByeLawComponent },
+  //{ path: 'kaochistory', component: KaocHistoryComponent },
+//  { path: 'kaocbyelaw', component: KaocByeLawComponent },
   { path: 'memberprofile', component: MemberProfileComponent },
   { path: 'listmembers', component: ListMemberProfilesComponent },
-  { path : 'madhuram-malayalam' , component: MadhuramMalayalamComponent}
+  //{ path : 'madhuram-malayalam' , component: MadhuramMalayalamComponent}
 
 ];
 
