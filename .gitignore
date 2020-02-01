@@ -49,3 +49,7 @@ Thumbs.db
 # Firebase
 /.firebaserc
 /.firebase
+database-debug.log
+firestore-debug.log
+pubsub-debug.log
+kaoc.code-workspace
