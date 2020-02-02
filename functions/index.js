@@ -37,12 +37,14 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
     var result = {};
 
     // 1. Add member
-    return addOrUpdateMember(memberData).then(pMemberId=> {
+    return addOrUpdateMember(memberData)
+    .then(pMemberId=> {
         result.userId = pMemberId;
         if(spouseData) {
             // 2. Add spouse.
             return addOrUpdateMember(spouseData);
         }
+        return null;
     }).then(spouseMemberId => {
         if(spouseMemberId) {
             result.spouseUserId = spouseMemberId;
@@ -52,6 +54,7 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
         if(membershipYear && membershipType) {
             return addMembership(result.userId, membershipYear, membershipType);
         }
+        return null;
     }).then(membershipId => {
         if(membershipId) {
             result.membershipId = membershipId;
@@ -60,11 +63,13 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
             // 4. Add membership for spouse
             return addMembership(result.spouseUserId, membershipYear, membershipType);
         }
+        return null;
     }).then(spouseMembershipId=> {
         if(spouseMembershipId) {
             result.spouseMembershipId = spouseMembershipId;
         }
         res.status(200).send(result);
+        return null;
     });
 });
 

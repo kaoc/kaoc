@@ -53,3 +53,4 @@ database-debug.log
 firestore-debug.log
 pubsub-debug.log
 kaoc.code-workspace
+Kaoc.postman_collection.json
