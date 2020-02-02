@@ -1,4 +1,9 @@
-#KAOC - Our Project READ ME
+## ######################         KAOC - Our Project READ ME       ######################
+
+All documentation is moved to onenote for convenience 
+https://1drv.ms/u/s!ApMO02VmOzE7bsN4SXbRqjuv9aQ?e=7tyab7
+
+
 
 ## Basic steps to clone, build and start app
 1. Create workspace(directory) in your system
