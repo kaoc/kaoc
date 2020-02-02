@@ -16,7 +16,7 @@
     <span class="example-spacer"></span>
 
     <div fxShow="true" fxHide.lt-md="true">
-      <button mat-button [matMenuTriggerFor]="aboutMenu">About
+      <!--<button mat-button [matMenuTriggerFor]="aboutMenu">About
         <mat-icon aria-hidden="false">arrow_drop_down</mat-icon>
       </button>
       <mat-menu #aboutMenu="matMenu">
@@ -25,7 +25,7 @@
         <button mat-menu-item>Current Committee</button>
         <button mat-menu-item>Past Committees</button>
         <button mat-menu-item>Online Magazine</button>
-      </mat-menu>
+      </mat-menu> 
 
       <button mat-button [matMenuTriggerFor]="activitiesMenu">Activities
         <mat-icon aria-hidden="false">arrow_drop_down</mat-icon> </button>
@@ -41,15 +41,12 @@
       <mat-menu #galleryMenu="matMenu">
         <button mat-menu-item>Photos</button>
         <button mat-menu-item>Videos</button>
-      </mat-menu>
+      </mat-menu>-->
 
       <button mat-button *ngIf="isKaocCommitteeMember===true" [matMenuTriggerFor]="adminMenu" >Admin
         <mat-icon aria-hidden="false">arrow_drop_down</mat-icon>
       </button>
-      <button mat-button>Sponsors</button>
-      <button mat-button>Links</button>
-      <button mat-button>Contact us</button>
-
+      
       <mat-menu #adminMenu="matMenu">
         <button mat-menu-item [matMenuTriggerFor]="membershipMenu">Membership</button>
       </mat-menu>
@@ -59,6 +56,13 @@
         <button mat-menu-item routerLink="listmembers">View/Edit Member</button>
       </mat-menu>
 
+      
+      
+     <!--<button mat-button>Sponsors</button>
+      <button mat-button>Links</button>
+      <button mat-button>Contact us</button>--> 
+
+            
       <button mat-icon-button [matMenuTriggerFor]="menu">
         <i class="fa fa-sign-in" aria-hidden="true"></i>
       </button>
@@ -77,6 +81,9 @@
           <span>KAOC Committee Login</span>
         </button>
       </mat-menu>
+
+
+
     </div>
   </mat-toolbar-row>
 </mat-toolbar>
@@ -84,7 +91,7 @@
  <mat-sidenav-container fxFlexFill  >
   <mat-sidenav  #sidenav >
     <div fxLayout="column"> 
-      <button mat-button [matMenuTriggerFor]="aboutSN">About <i class="fa fa-caret-down" aria-hidden="true"></i>
+      <!--<button mat-button [matMenuTriggerFor]="aboutSN">About <i class="fa fa-caret-down" aria-hidden="true"></i>
       </button>
       <mat-menu #aboutSN="matMenu">
         <button mat-menu-item routerLink="kaochistory">KAOC History</button>
@@ -92,7 +99,7 @@
         <button mat-menu-item>Current Committee</button>
         <button mat-menu-item>Past Committees</button>
         <button mat-menu-item>Online Magazine</button>
-      </mat-menu>
+      </mat-menu> 
 
       <button mat-button [matMenuTriggerFor]="activitiesSN">Activities<i class="fa fa-caret-down"
           aria-hidden="true"></i></button>
@@ -108,14 +115,14 @@
       <mat-menu #gallerySN="matMenu">
         <button mat-menu-item>Photos</button>
         <button mat-menu-item>Videos</button>
-      </mat-menu>
+      </mat-menu>-->
 
       <button mat-button *ngIf="isKaocCommitteeMember===true" [matMenuTriggerFor]="adminMenu" routerLink="admin">Admin
         <mat-icon aria-hidden="false">arrow_drop_down</mat-icon>
       </button>
-      <button mat-button>Sponsors</button>
+    <!-- <button mat-button>Sponsors</button>
       <button mat-button>Links</button>
-      <button mat-button>Contact us</button>
+      <button mat-button>Contact us</button>--> 
 
       <mat-menu #adminMenu="matMenu">
         <button mat-menu-item [matMenuTriggerFor]="membershipMenu">Membership</button>
