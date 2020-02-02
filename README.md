@@ -6,11 +6,11 @@
 git clone https://github.com/kaoc/kaoc.git
 3. cd to repo
 4. Install dev kit(needs to figure out how to avoid this) 
-install --save-dev @angular-devkit/build-angular
+ npm install --save-dev @angular-devkit/build-angular
 5. Build angular app 
-ng build
+ ng build
 6. Start the webserver
-ng serve start
+ ng serve start
 
 
 ## ############ Wed Development Notes ######################
