@@ -82,10 +82,14 @@ function addOrUpdateMemberAndMembership(members, membershipYear, membershipType,
                 addMemberPromises.push(addOrUpdateMembership(userId, membershipYear, membershipType, membershipGroupId, membershipStatus))
             });
             return Promise.all(addMemberPromises);
+        } else {
+            return null;
         }
     }).then(membershipInfos => {
-        result.membershipIds = membershipInfos.map(membershipInfo=>membershipInfo.membershipId);
-        result.membershipGroupId = membershipInfos[0].membershipGroupId;
+        if(membershipInfos) {
+            result.membershipIds = membershipInfos.map(membershipInfo=>membershipInfo.membershipId);
+            result.membershipGroupId = membershipInfos[0].membershipGroupId;
+        }
         return result;
     });
 }
