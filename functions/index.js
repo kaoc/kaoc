@@ -15,82 +15,104 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
 
     const membershipYear = importedMembershipData.membershipYear;
     const membershipType = importedMembershipData.membershipType;
-
-    const memberData = {
-        first_name: importedMembershipData.firstName,
-        last_name: importedMembershipData.lastName,
-        phone_number: importedMembershipData.phoneNumber,
-        email_id: importedMembershipData.emailId,
-        member_number: importedMembershipData.memberNumber
-    };
-    var spouseData = null;
+    const membershipGroupId = importedMembershipData.memberNumber; // This is to keep backward compatability with old member id
+    // This will effectively become the membershipgroupid.
+    let members = [];
+    members.push({
+        firstName: importedMembershipData.firstName,
+        lastName: importedMembershipData.lastName,
+        phoneNumber: importedMembershipData.phoneNumber,
+        emailId: importedMembershipData.emailId,
+    });
 
     if(importedMembershipData.spouseEmailId) {
-        spouseData = {
-            first_name: importedMembershipData.spouseFirstName,
-            last_name: importedMembershipData.spouseLastName,
-            phone_number: importedMembershipData.spousePhoneNumber,
-            email_id: importedMembershipData.spouseEmailId,
-            member_number: importedMembershipData.spouseMemberNumber
-        }
+        members.push({
+            firstName: importedMembershipData.spouseFirstName,
+            lastName: importedMembershipData.spouseLastName,
+            phoneNumber: importedMembershipData.spousePhoneNumber,
+            emailId: importedMembershipData.spouseEmailId,
+        });
     }
+
     var result = {};
+    return addOrUpdateMemberAndMembership(members, membershipYear, membershipType, membershipGroupId).then(resultsX=> {
+        result.userId           = resultsX.userIds[0];
+        result.membershipId     = resultsX.membershipIds[0];
+        result.membershipGroupId = resultsX.membershipGroupId;
 
-    // 1. Add member
-    return addOrUpdateMember(memberData)
-    .then(pMemberId=> {
-        result.userId = pMemberId;
-        if(spouseData) {
-            // 2. Add spouse.
-            return addOrUpdateMember(spouseData);
-        }
-        return null;
-    }).then(spouseMemberId => {
-        if(spouseMemberId) {
-            result.spouseUserId = spouseMemberId;
-        }
-
-        // 3. Add membership for main member
-        if(membershipYear && membershipType) {
-            return addMembership(result.userId, membershipYear, membershipType);
-        }
-        return null;
-    }).then(membershipId => {
-        if(membershipId) {
-            result.membershipId = membershipId;
-        }
-        if(membershipYear && membershipType && spouseData) {
-            // 4. Add membership for spouse
-            return addMembership(result.spouseUserId, membershipYear, membershipType);
-        }
-        return null;
-    }).then(spouseMembershipId=> {
-        if(spouseMembershipId) {
-            result.spouseMembershipId = spouseMembershipId;
+        if(resultsX.userIds.length > 1) {
+            result.spouseUserId = resultsX.userIds[1];
         }
         res.status(200).send(result);
-        return null;
+        return result; 
     });
 });
 
+/**
+ * Adds or update member and membership.
+ * 
+ * @param {Array<Member>} members 
+ * @param {number} membershipYear 
+ * @param {string} membershipType 
+ * @param {membershipGroupId} membershipGroupId 
+ * @param {membershipStatus} membershipStatus 
+ */
+function addOrUpdateMemberAndMembership(members, membershipYear, membershipType, membershipGroupId, membershipStatus) {
+    var result = {};
+    if(!(members && members.length > 0)) {
+        throw new Error(`Invalid members parameter. There should be at least 1 member in the array`);
+    }
+
+    var addMemberPromises = [];
+    members.forEach(member =>{
+        addMemberPromises.push(addOrUpdateMember(member));
+    });
+
+    return Promise.all(addMemberPromises)
+    .then(userIds => {
+
+        result.userIds = userIds;
+        if(membershipType) {
+
+            membershipGroupId = membershipGroupId || userIds[0];
+            membershipYear = membershipYear || (new Date()).getFullYear();
+
+            let addMemberPromises = [];
+            userIds.forEach(userId => {
+                addMemberPromises.push(addOrUpdateMembership(userId, membershipYear, membershipType, membershipGroupId, membershipStatus))
+            });
+            return Promise.all(addMemberPromises);
+        }
+    }).then(membershipInfos => {
+        result.membershipIds = membershipInfos.map(membershipInfo=>membershipInfo.membershipId);
+        result.membershipGroupId = membershipInfos[0].membershipGroupId;
+        return result;
+    });
+}
+
+/**
+ * Adds or update member object
+ * 
+ * @param {memberObject} memberObject 
+ */
 function addOrUpdateMember(memberObject) {
     if(!(memberObject 
-            && memberObject.email_id 
-            && memberObject.first_name 
-            && memberObject.last_name)) {
+            && memberObject.emailId 
+            && memberObject.firstName 
+            && memberObject.lastName)) {
         throw new Error(`Invalid Member object ${JSON.stringify(memberObject)}`);        
     }
     // Step 1 Validate if the member already exist. 
-    let userCollectionRef = admin.firestore().collection('/kaoc_users');
-    let query = userCollectionRef.where('email_id', "==", memberObject.email_id);
+    let userCollectionRef = admin.firestore().collection('/kaocUsers');
+    let query = userCollectionRef.where('emailId', "==", memberObject.emailId);
     return query.get().then(querySnapShot => {
         if(querySnapShot.empty) {
             // User does not exist. 
             // add a new one
-            console.log(`User record for email id ${memberObject.email_id} does not exist. Creating one.`)
+            console.log(`User record for email id ${memberObject.emailId} does not exist. Creating one.`)
             return userCollectionRef.add(memberObject);
         } else {
-            console.log(`User record for email id ${memberObject.email_id} already exist. Updating record.`)
+            console.log(`User record for email id ${memberObject.emailId} already exist. Updating record.`)
             // User exists. Update the document reference. 
             return querySnapShot.docs[0].ref.update(memberObject);
         }
@@ -100,44 +122,71 @@ function addOrUpdateMember(memberObject) {
         return querySnapShot.docs[0].ref.id;
     });
 }
-
-function addMembership(userId, year, membershipType) {
+/**
+ * Adds or update membership for the given record. 
+ * A given user can only contain 1 membership for a given year. 
+ * If such a record already exist, the record will be updated 
+ * with the new membership type and number. 
+ * 
+ * @param {string} userId 
+ * @param {number} year 
+ * @param {string} membershipType 
+ * @param {string} membershipGroupId 
+ * @param {string} membershipStatus
+ */
+function addOrUpdateMembership(userId, year, membershipType, membershipGroupId, membershipStatus) {
+    console.log(`Adding membership for ${userId}, ${year}, ${membershipType}, ${membershipGroupId}`);
     const membershipStartTime = admin.firestore.Timestamp.fromMillis(Date.parse(`01 Jan ${year} 00:00:00 MST`));
     const membershipEndTime = admin.firestore.Timestamp.fromMillis(Date.parse(`31 Dec ${year} 23:59:59 MST`));
-    const memberRef = admin.firestore().doc(`/kaoc_users/${userId}`);
+    const userRef = admin.firestore().doc(`/kaocUsers/${userId}`);
+    if(!membershipGroupId) {
+        console.warn(`Membership Number missing when adding membership for user: ${userId}. This is not a recomended practice. User id will of the user will be used as member id. `);
+        membershipGroupId = userId; // Membership number should be unique across all memebers in a family. 
+    }
 
-    return memberRef.get().then(userSnapshot => {
+    return userRef.get().then(userSnapshot => {
         // Validate the member first. 
         if(!userSnapshot.exists) {
             throw new Error(`Invalid user id ${userId}. Membership cannot be added.`);
         } else {
             let membershipCollectionRef = admin
                         .firestore()
-                        .collection('/kaoc_membership');
+                        .collection('/kaocMembership');
             let membershipQueryRef = membershipCollectionRef                                
-                        .where('kaoc_user_id', "==", memberRef)
-                        .where('start_date', "==", membershipStartTime)
-                        .where('end_time', "==", membershipEndTime);
+                        .where('kaocUserRef', "==", userRef)
+                        .where('startTime', "==", membershipStartTime)
+                        .where('endTime', "==", membershipEndTime);
             return membershipQueryRef
             .get()
             .then(querySnapShot => {
+                let membershipRecord = {
+                    'kaocUserRef' : userRef,
+                    'startTime' : membershipStartTime,
+                    'endTime' : membershipEndTime,
+                    'membershipType': membershipType,
+                    'membershipGroupId': membershipGroupId,
+                    'membershipStatus': membershipStatus || 'Active'
+                };
+
                 if(querySnapShot.empty) {
                     // Membership does not exist
                     console.log(`Membership does not exist for ${userId} for year - ${year}. Creeating new entry `);
-                    return membershipCollectionRef.add({
-                        'kaoc_user_id' : memberRef,
-                        'start_date' : membershipStartTime,
-                        'end_time' : membershipEndTime,
-                        'membership_type': membershipType
-                    });
+                    return membershipCollectionRef.add(membershipRecord);
                 } else {
-                    console.log(`Membership already exist for ${userId} for year - ${year}.`);
-                    return querySnapShot.docs[0].ref;
+                    console.log(`Membership already exist for ${userId} for year - ${year}. Updating membership type and number with the new information.`);
+                    return querySnapShot.docs[0].ref.update(membershipRecord);
                 }
-            }).then(membershipDocRef=> {
-                return membershipDocRef.get();
-            }).then(membershipSnapShot => {
-                return membershipSnapShot.id;
+            }).then(result=> {
+                return membershipQueryRef.get();
+            }).then(membershipQuerySnapShot => {
+
+                let result = {
+                    'membershipId': membershipQuerySnapShot.docs[0].ref.id,
+                    'membershipGroupId': membershipGroupId
+                };
+
+                console.log('Membership result ', result);
+                return result;
             });                                    
         }
     });
