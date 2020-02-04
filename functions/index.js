@@ -138,7 +138,7 @@ function _addOrUpdateMember(memberObject) {
             return userCollectionRef.add(memberObject);
         } else {
             console.log(`User record for email id ${memberObject.emailId} already exist. Updating record.`)
-            memberObject.updateTimeTime = currentTime;
+            memberObject.updateTime = currentTime;
             // User exists. Update the document reference. 
             return querySnapShot.docs[0].ref.update(memberObject);
         }
