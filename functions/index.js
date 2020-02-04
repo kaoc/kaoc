@@ -35,7 +35,7 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
     }
 
     var result = {};
-    return addOrUpdateMemberAndMembership(members, membershipYear, membershipType, membershipGroupId).then(resultsX=> {
+    return _addOrUpdateMemberAndMembership(members, membershipYear, membershipType, membershipGroupId).then(resultsX=> {
         result.userId           = resultsX.userIds[0];
         result.membershipId     = resultsX.membershipIds[0];
         result.membershipGroupId = resultsX.membershipGroupId;
@@ -49,6 +49,25 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
 });
 
 /**
+ * HTTPS callable function for web application
+ */
+exports.addOrUpdateMemberAndMembership = functions.https.onCall((data, context) => {
+    // Checking that the user is authenticated.
+    if (!context.auth) {
+        // TODO
+        // Throwing an HttpsError so that the client gets the error details.
+        //throw new functions.https.HttpsError('failed-precondition', 'The function must be called ' +
+        //    'while authenticated.');
+    }
+
+    return _addOrUpdateMemberAndMembership(
+            data.members, 
+            data.membershipYear, data.membershipType, data.membershipGroupId, data.membershipStatus);
+
+});
+  
+
+/**
  * Adds or update member and membership.
  * 
  * @param {Array<Member>} members 
@@ -57,7 +76,7 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
  * @param {membershipGroupId} membershipGroupId 
  * @param {membershipStatus} membershipStatus 
  */
-function addOrUpdateMemberAndMembership(members, membershipYear, membershipType, membershipGroupId, membershipStatus) {
+function _addOrUpdateMemberAndMembership(members, membershipYear, membershipType, membershipGroupId, membershipStatus) {
     var result = {};
     if(!(members && members.length > 0)) {
         throw new Error(`Invalid members parameter. There should be at least 1 member in the array`);
@@ -65,7 +84,7 @@ function addOrUpdateMemberAndMembership(members, membershipYear, membershipType,
 
     var addMemberPromises = [];
     members.forEach(member =>{
-        addMemberPromises.push(addOrUpdateMember(member));
+        addMemberPromises.push(_addOrUpdateMember(member));
     });
 
     return Promise.all(addMemberPromises)
@@ -79,7 +98,7 @@ function addOrUpdateMemberAndMembership(members, membershipYear, membershipType,
 
             let addMemberPromises = [];
             userIds.forEach(userId => {
-                addMemberPromises.push(addOrUpdateMembership(userId, membershipYear, membershipType, membershipGroupId, membershipStatus))
+                addMemberPromises.push(_addOrUpdateMembership(userId, membershipYear, membershipType, membershipGroupId, membershipStatus))
             });
             return Promise.all(addMemberPromises);
         } else {
@@ -99,7 +118,7 @@ function addOrUpdateMemberAndMembership(members, membershipYear, membershipType,
  * 
  * @param {memberObject} memberObject 
  */
-function addOrUpdateMember(memberObject) {
+function _addOrUpdateMember(memberObject) {
     if(!(memberObject 
             && memberObject.emailId 
             && memberObject.firstName 
@@ -107,16 +126,19 @@ function addOrUpdateMember(memberObject) {
         throw new Error(`Invalid Member object ${JSON.stringify(memberObject)}`);        
     }
     // Step 1 Validate if the member already exist. 
+    const currentTime = admin.firestore.Timestamp.fromMillis(new Date());
     let userCollectionRef = admin.firestore().collection('/kaocUsers');
     let query = userCollectionRef.where('emailId', "==", memberObject.emailId);
     return query.get().then(querySnapShot => {
         if(querySnapShot.empty) {
             // User does not exist. 
             // add a new one
+            memberObject.createTime = currentTime;
             console.log(`User record for email id ${memberObject.emailId} does not exist. Creating one.`)
             return userCollectionRef.add(memberObject);
         } else {
             console.log(`User record for email id ${memberObject.emailId} already exist. Updating record.`)
+            memberObject.updateTimeTime = currentTime;
             // User exists. Update the document reference. 
             return querySnapShot.docs[0].ref.update(memberObject);
         }
@@ -138,10 +160,12 @@ function addOrUpdateMember(memberObject) {
  * @param {string} membershipGroupId 
  * @param {string} membershipStatus
  */
-function addOrUpdateMembership(userId, year, membershipType, membershipGroupId, membershipStatus) {
+function _addOrUpdateMembership(userId, year, membershipType, membershipGroupId, membershipStatus) {
     console.log(`Adding membership for ${userId}, ${year}, ${membershipType}, ${membershipGroupId}`);
     const membershipStartTime = admin.firestore.Timestamp.fromMillis(Date.parse(`01 Jan ${year} 00:00:00 MST`));
     const membershipEndTime = admin.firestore.Timestamp.fromMillis(Date.parse(`31 Dec ${year} 23:59:59 MST`));
+    const currentTime = admin.firestore.Timestamp.fromMillis(new Date());
+
     const userRef = admin.firestore().doc(`/kaocUsers/${userId}`);
     if(!membershipGroupId) {
         console.warn(`Membership Number missing when adding membership for user: ${userId}. This is not a recomended practice. User id will of the user will be used as member id. `);
@@ -169,14 +193,16 @@ function addOrUpdateMembership(userId, year, membershipType, membershipGroupId, 
                     'endTime' : membershipEndTime,
                     'membershipType': membershipType,
                     'membershipGroupId': membershipGroupId,
-                    'membershipStatus': membershipStatus || 'Active'
+                    'membershipStatus': membershipStatus || 'Active',
                 };
 
                 if(querySnapShot.empty) {
                     // Membership does not exist
                     console.log(`Membership does not exist for ${userId} for year - ${year}. Creeating new entry `);
+                    membershipRecord.createTime = currentTime;
                     return membershipCollectionRef.add(membershipRecord);
                 } else {
+                    membershipRecord.updateTime = currentTime;
                     console.log(`Membership already exist for ${userId} for year - ${year}. Updating membership type and number with the new information.`);
                     return querySnapShot.docs[0].ref.update(membershipRecord);
                 }

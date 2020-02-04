@@ -1,0 +1,14 @@
+{
+    "members" : [{
+        "firstName": "Test FN1",
+        "lastName" : "Test LN1",
+        "phoneNumber": "3333333333",
+        "emailId": "test@gmail.com"
+    }, {
+        "firstName": "Test Spouse FN1",
+        "lastName": "Test Spouse LN1",
+        "phoneNumber": "2222222222",
+        "emailId": "testSpouse@gmail.com"
+    }],
+	"membershipType": "FAMILY"
+}
