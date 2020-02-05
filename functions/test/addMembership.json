@@ -10,5 +10,16 @@
         "phoneNumber": "2222222222",
         "emailId": "testSpouse@gmail.com"
     }],
-	"membershipType": "FAMILY"
+
+    "membership": {
+        "membershipType": "FAMILY"
+    },
+
+    "payment": {
+        "paymentMethod": "Square",
+        "paymentAmount": 80,
+        "paymentNotes": "Test Notes",
+        "paymentState": "Pending",
+        "paymentExternalSystemRef": "Some Reference"
+    }
 }
