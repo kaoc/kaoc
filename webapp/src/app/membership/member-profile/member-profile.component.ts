@@ -1,7 +1,7 @@
-import {Component, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup, Validators, FormControl} from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, FormControl, FormArray } from '@angular/forms';
 import { MemberService } from '../member.service';
-import { Member } from '../Member';
+import { Membership } from '../Membership';
 
 
 @Component({
@@ -11,85 +11,70 @@ import { Member } from '../Member';
 })
 export class MemberProfileComponent implements OnInit {
   isLinear = true;
-  saved= false;
+  saved = false;
   memberdet;
   paymentdet;
   memberForm: FormGroup;
   paymentForm: FormGroup;
+  public carForm: FormGroup;
+  profileForm: FormGroup;
   paymentList: string[] = ['Cash', 'Cheque', 'Square', 'Paypal', 'Zelle', 'Other'];
-   
-  member: Member = {
-	id:'',
-	membershipType:'',
-    firstName:'',
-    lastName:'',
-    emailId:'',
-    mobileNo:'',
-    memberId:'',
-    preferredNotification:''
-  }
+  members: FormArray;
 
-  constructor(private _formBuilder: FormBuilder ,
-              private memberService: MemberService) {}
+  memberShipDet: Membership;
+
+   /* orderForm: FormGroup;
+  members: FormArray;
+
+   form: FormGroup;
+ 
+ constructor(private fb: FormBuilder) {
+     this.form = this.fb.group({
+       membershipType:'',
+       members: this.fb.array([]),
+     });
+     this.addMember();
+   }
+ 
+   addMember() {
+     const member = this.form.controls.members as FormArray;
+     member.push(this.fb.group({
+       emailId:'',
+       firstName: '',
+       lastName: '',
+       phoneNumber:''
+     }));
+   }  */
+
+
+  constructor(private formBuilder: FormBuilder) { }
 
   ngOnInit() {
+    this.memberForm = this.formBuilder.group({
+       membershipType: '',
+       members: this.formBuilder.array([this.createMember()])
+    });
+  }
 
- this.memberForm = this._formBuilder.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      mobileNo: ['', Validators.required],
-      emailId: ['',  Validators.email],
-      memberId:  new FormControl(''),
-    }); 
+  createMember(): FormGroup {
+    return this.formBuilder.group({
+       emailId:'',
+       firstName: '',
+       lastName: '',
+       phoneNumber:''
+    });
+  }
 
-   /*   this.memberInfo = new FormGroup({
-      firstName:  new FormControl(),
-      lastName:  new FormControl(''),
-      mobileNo:  new FormControl(''), 
-      emailId:  new FormControl(''),
-      memberId:  new FormControl(''),
-     
-    }); 
+  addMember(): void {
+    this.members = this.memberForm.get('members') as FormArray;
+    this.members.push(this.createMember());
+  }
 
-    this.paymentForm = new FormGroup({
-      membershipType:  new FormControl('') ,
-      referenceNo:  new FormControl('') ,
-      paymode:  new FormControl('')
-    }); */
+  doSubmit() {
+    if (this.memberForm.valid) {
+      console.log(JSON.stringify(this.memberForm.value));
+    }
+  }
 
-    this.paymentForm = this._formBuilder.group({
-      membershipType:  ['', Validators.required] ,
-      referenceNo:  '',
-      memo:  '',
-      paymode:  ['', Validators.required]
-    }); 
-
-   /*  this.memberInfo = this._formBuilder.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      mobileNo: ['', Validators.required],
-      emailId: ['', Validators.required ],
-      toppings:[''],
-    }); */
    
-  }
-
-  saveMemberInfo() {
-    console.log(JSON.stringify(this.memberForm.value));
-    console.log(JSON.stringify(this.paymentForm.value));
-    this.memberdet=JSON.stringify(this.memberForm.value);
-    this.paymentdet=JSON.stringify(this.paymentForm.value);
-
-   /* this.member.firstName=this.memberForm.get('firstName').value ;
-    this.member.lastName=this.memberForm.get('lastName').value ;
-    this.member.mobileNo=this.memberForm.get('mobileNo').value ;
-    this.member.emailId=this.memberForm.get('emailId').value ;
-    this.member.preferredNotification='Email' ; */
-
-    this.saved=true;
-    this.memberForm.reset;
-    this.paymentForm.reset;
-    //this.memberService.addMember(this.member);
-  }
-
 }

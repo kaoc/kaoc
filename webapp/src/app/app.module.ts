@@ -25,6 +25,7 @@ import { FooterComponent } from './common/footer/footer.component';
 import { DefaultComponent } from './default/default.component';
 import { MadhuramMalayalamComponent } from './activities/madhuram-malayalam/madhuram-malayalam.component';
 import { EditMemberComponent } from './membership/edit-member/edit-member.component';
+import { PaymentComponent } from './payment/payment.component';
 
 
 @NgModule({
@@ -42,7 +43,7 @@ import { EditMemberComponent } from './membership/edit-member/edit-member.compon
     ContentFrameComponent,
     HomeComponent,
     FooterComponent,
-    DefaultComponent,MadhuramMalayalamComponent, EditMemberComponent
+    DefaultComponent,MadhuramMalayalamComponent, EditMemberComponent, PaymentComponent
   ],
   imports: [
     BrowserModule,BrowserAnimationsModule,

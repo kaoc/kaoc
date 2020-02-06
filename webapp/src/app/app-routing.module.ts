@@ -8,6 +8,7 @@ import { AdminComponent } from './admin/admin.component';
 import { HomeComponent } from './common/home/home.component';
 import { DefaultComponent } from './default/default.component';
 import { MadhuramMalayalamComponent } from './activities/madhuram-malayalam/madhuram-malayalam.component';
+import { PaymentComponent } from './payment/payment.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent  },
@@ -16,6 +17,7 @@ const routes: Routes = [
 //  { path: 'kaocbyelaw', component: KaocByeLawComponent },
   { path: 'memberprofile', component: MemberProfileComponent },
   { path: 'listmembers', component: ListMemberProfilesComponent },
+  { path:'processpayment' , component: PaymentComponent}
   //{ path : 'madhuram-malayalam' , component: MadhuramMalayalamComponent}
 
 ];

@@ -19,7 +19,7 @@ export class MemberService {
       map(actions => actions.map(a => {
         const data = a.payload.doc.data() as Member;
         console.log("members data" + JSON.stringify(data));
-        data.id = a.payload.doc.id;
+        //data.id = a.payload.doc.id; commented due to error.
         return data;
       }))
     );
