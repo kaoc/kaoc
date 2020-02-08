@@ -364,19 +364,19 @@ function _addPayment(paymentObject, auth) {
     }            
 }
 
+// _updatePayment(paymentId(CUSTOMER_ID), paymentObject (status=COMPLETED))
 function _updatePayment(paymentId, paymentObject, auth) {
     const paymentRef = admin.firestore().doc(`/kaocPayments/${paymentId}`);
     return paymentRef.get().then(paymentDocSnapshot=>{
         if(paymentDocSnapshot.exists) {
             return paymentRef.update(_addAuditFields(paymentObject, false, auth));
         } else {
-            return Promise.reject(`No payment found with reference id ${paymentId}`);
+            return Promise.reject(new Error(`No payment found with reference id ${paymentId}`));
         }
     }).then(result=> {
         return {paymentId};
     });
 }
-
 
 /**
  * A method to consistently add audit fields to records that are inserted 
@@ -402,3 +402,13 @@ function _addAuditFields(record, newRecord, auth) {
     }
     return record;
 }
+
+/**
+ * Callback from SquareServer after a Point of Sale is handled (from kaoc app) 
+ */
+exports.squareServerPaymentCallback = functions.https.onRequest(async (req, res) => {
+    console.log(JSON.stringify(req.query));
+    console.log(JSON.stringify(req.body));
+    res.status(200).send("OK");
+    return Promise.resolve("OK");
+});

@@ -26,7 +26,7 @@ import { DefaultComponent } from './default/default.component';
 import { MadhuramMalayalamComponent } from './activities/madhuram-malayalam/madhuram-malayalam.component';
 import { EditMemberComponent } from './membership/edit-member/edit-member.component';
 import { PaymentComponent } from './payment/payment.component';
-
+import { AngularFireFunctionsModule } from '@angular/fire/functions';
 
 @NgModule({
   declarations: [
@@ -52,6 +52,7 @@ import { PaymentComponent } from './payment/payment.component';
     AngularFirestoreModule,AngularFireStorageModule,AngularFireAuthModule,
     AppRoutingModule,
     MaterialModule,
+    AngularFireFunctionsModule,
   ],
   entryComponents: [ EditMemberComponent ],
   providers: [],
