@@ -1,3 +1,4 @@
+import { PaymentResultComponent } from './payment/payment-result/payment-result.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -49,7 +50,8 @@ import { SecuredModule } from './secured/secured.module';
     DefaultComponent,
     MadhuramMalayalamComponent,
     EditMemberComponent,
-    PaymentComponent
+    PaymentComponent,
+    PaymentResultComponent
   ],
   imports: [
     BrowserModule,
