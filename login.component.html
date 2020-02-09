@@ -1,0 +1,55 @@
+<!--Login -->
+<ngx-auth-firebaseui-login
+  *ngIf="activity === 'login'"
+  [providers]="supportedProviders"
+  (onCreateAccountRequested)="activity='registration'"
+  (onResetPasswordRequested)="activity='resetPassword'"
+  >
+</ngx-auth-firebaseui-login>
+
+<!-- Register -->
+<ngx-auth-firebaseui-register
+  *ngIf="activity === 'registration'"
+  (onLoginRequested)="activity='login'"
+  (onSuccess)="handleRegistrationSuccess($event)"
+  (onError)="handleRegistrationError($event)">
+</ngx-auth-firebaseui-register>
+
+<!--Reset Password -->
+<div *ngIf="activity === 'resetPassword'" fxLayout="column" fxLayoutAlign="center center" style="width:100%;padding:10px;padding-top: 50px;">
+  <div class="reset-password">
+    <form [formGroup]="resetPasswordFormGroup" (ngSubmit)="resetPasswordFormGroup.valid && resetPassword()">
+      <mat-card class="reset-password-card">
+        <mat-card-content>
+          <mat-form-field class="full-width">
+            <mat-label>Email Address to Reset Password</mat-label>
+            <input matInput
+                  title="Email Address to Reset Password"
+                  formControlName="email"
+                  required>
+            <mat-icon matSuffix color="primary">email</mat-icon>
+            <mat-error *ngIf="resetPasswordEmailFormControl.hasError('required')">
+              {{resetPasswordErrorRequiredText}}
+            </mat-error>
+            <mat-error *ngIf="resetPasswordEmailFormControl.hasError('pattern')">
+              {{resetPasswordErrorPatternText}}
+            </mat-error>
+          </mat-form-field>
+          <p *ngIf="passReset">{{resetPasswordInstructionsText}}</p>
+        </mat-card-content>
+        <mat-card-actions fxLayoutAlign="center">
+          <!--<mat-progress-bar *ngIf="isLoading" mode="indeterminate"></mat-progress-bar>-->
+          <button mat-button
+                  (click)="activity='login';passReset=false">
+            Login
+          </button>
+          <button mat-raised-button
+                  type="submit"
+                  color="primary">
+            Reset
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </form>
+  </div>
+</div>

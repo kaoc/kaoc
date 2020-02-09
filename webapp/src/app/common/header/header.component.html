@@ -1,4 +1,4 @@
- 
+
 <div  >
 <mat-toolbar class="kaoc-primary-color" fxLayoutAlign="space-between center"  fxLayout="row" fxLayoutGap="20px">
   <mat-toolbar-row>
@@ -8,7 +8,7 @@
     </button>
   </div>
 
- 
+
     <a mat-button routerLink="/">
       <img src="../../../assets/images/kaoc-avatar-icon.png" style="height:70px; width:75px;  " />
       <span>&nbsp;Kerala Association of Colorado</span>
@@ -25,7 +25,7 @@
         <button mat-menu-item>Current Committee</button>
         <button mat-menu-item>Past Committees</button>
         <button mat-menu-item>Online Magazine</button>
-      </mat-menu> 
+      </mat-menu>
 
       <button mat-button [matMenuTriggerFor]="activitiesMenu">Activities
         <mat-icon aria-hidden="false">arrow_drop_down</mat-icon> </button>
@@ -46,7 +46,7 @@
       <button mat-button *ngIf="isKaocCommitteeMember===true" [matMenuTriggerFor]="adminMenu" >Admin
         <mat-icon aria-hidden="false">arrow_drop_down</mat-icon>
       </button>
-      
+
       <mat-menu #adminMenu="matMenu">
         <button mat-menu-item [matMenuTriggerFor]="membershipMenu">Membership</button>
       </mat-menu>
@@ -56,41 +56,24 @@
         <button mat-menu-item routerLink="listmembers">View/Edit Member</button>
       </mat-menu>
 
-      
-      
+
+
      <!--<button mat-button>Sponsors</button>
       <button mat-button>Links</button>
-      <button mat-button>Contact us</button>--> 
+      <button mat-button>Contact us</button>-->
 
-            
-      <button mat-icon-button [matMenuTriggerFor]="menu">
+      <ngx-auth-firebaseui-avatar>
+      </ngx-auth-firebaseui-avatar>
+      <button mat-icon-button [matMenuTriggerFor]="menu" *ngIf="!loggedIn" (click)="navigateToLoginPage()">
         <i class="fa fa-sign-in" aria-hidden="true"></i>
       </button>
-
-      <mat-menu #menu="matMenu">
-        <button mat-menu-item>
-          <i class="fa fa-facebook-official" aria-hidden="true">&nbsp;</i>
-          <span>FaceBook</span>
-        </button>
-        <button mat-menu-item>
-          <i class="fa fa-google-plus-official" aria-hidden="true">&nbsp;</i>
-          <span>Gmail</span>
-        </button>
-        <button mat-menu-item>
-          <i class="fa fa-sign-in" aria-hidden="true">&nbsp;</i>
-          <span>KAOC Committee Login</span>
-        </button>
-      </mat-menu>
-
-
-
     </div>
   </mat-toolbar-row>
 </mat-toolbar>
 
  <mat-sidenav-container fxFlexFill  >
   <mat-sidenav  #sidenav >
-    <div fxLayout="column"> 
+    <div fxLayout="column">
       <!--<button mat-button [matMenuTriggerFor]="aboutSN">About <i class="fa fa-caret-down" aria-hidden="true"></i>
       </button>
       <mat-menu #aboutSN="matMenu">
@@ -99,7 +82,7 @@
         <button mat-menu-item>Current Committee</button>
         <button mat-menu-item>Past Committees</button>
         <button mat-menu-item>Online Magazine</button>
-      </mat-menu> 
+      </mat-menu>
 
       <button mat-button [matMenuTriggerFor]="activitiesSN">Activities<i class="fa fa-caret-down"
           aria-hidden="true"></i></button>
@@ -122,7 +105,7 @@
       </button>
     <!-- <button mat-button>Sponsors</button>
       <button mat-button>Links</button>
-      <button mat-button>Contact us</button>--> 
+      <button mat-button>Contact us</button>-->
 
       <mat-menu #adminMenu="matMenu">
         <button mat-menu-item [matMenuTriggerFor]="membershipMenu">Membership</button>
@@ -133,27 +116,12 @@
         <button mat-menu-item routerLink="listmembers">View/Edit Member</button>
       </mat-menu>
 
-      <button mat-icon-button [matMenuTriggerFor]="menu">
+      <button mat-icon-button [matMenuTriggerFor]="menu" *ngIf="!loggedIn" (click)="navigateToLoginPage()">
         <i class="fa fa-sign-in" aria-hidden="true"></i>
       </button>
-
-      <mat-menu #menu="matMenu">
-        <button mat-menu-item>
-          <i class="fa fa-facebook-official" aria-hidden="true">&nbsp;</i>
-          <span>FaceBook</span>
-        </button>
-        <button mat-menu-item>
-          <i class="fa fa-google-plus-official" aria-hidden="true">&nbsp;</i>
-          <span>Gmail</span>
-        </button>
-        <button mat-menu-item>
-          <i class="fa fa-sign-in" aria-hidden="true">&nbsp;</i>
-          <span>KAOC Committee Login</span>
-        </button>
-      </mat-menu>
     </div>
   </mat-sidenav>
   <mat-sidenav-content fxFlexFill>
   </mat-sidenav-content>
-</mat-sidenav-container> 
+</mat-sidenav-container>
  </div>

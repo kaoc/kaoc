@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { AuthService } from 'src/app/secured/auth/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'header',
@@ -9,8 +11,19 @@ export class HeaderComponent implements OnInit {
 
   isKaocCommitteeMember:boolean = true;
   kaocCommitteeMemberAccessType:string = 'RW';
+  loggedIn = false;
 
-  constructor() { }
+  constructor(private authService: AuthService, private router: Router) {
+    authService.firebaseUser.subscribe(firebaseUser => {
+      if (typeof firebaseUser !== 'undefined') {
+          this.loggedIn = (firebaseUser != null);
+      }
+    });
+  }
+
+  navigateToLoginPage() {
+      this.router.navigate(['/secured/login']);
+  }
 
   ngOnInit() {
   }

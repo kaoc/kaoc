@@ -27,6 +27,9 @@ import { MadhuramMalayalamComponent } from './activities/madhuram-malayalam/madh
 import { EditMemberComponent } from './membership/edit-member/edit-member.component';
 import { PaymentComponent } from './payment/payment.component';
 import { AngularFireFunctionsModule } from '@angular/fire/functions';
+import { NgxAuthFirebaseUIModule } from 'ngx-auth-firebaseui';
+import { SecuredModule } from './secured/secured.module';
+
 
 @NgModule({
   declarations: [
@@ -43,16 +46,24 @@ import { AngularFireFunctionsModule } from '@angular/fire/functions';
     ContentFrameComponent,
     HomeComponent,
     FooterComponent,
-    DefaultComponent,MadhuramMalayalamComponent, EditMemberComponent, PaymentComponent
+    DefaultComponent,
+    MadhuramMalayalamComponent,
+    EditMemberComponent,
+    PaymentComponent
   ],
   imports: [
-    BrowserModule,BrowserAnimationsModule,
+    BrowserModule,
+    BrowserAnimationsModule,
     FlexLayoutModule,
     AngularFireModule.initializeApp(environment.firebase),
-    AngularFirestoreModule,AngularFireStorageModule,AngularFireAuthModule,
-    AppRoutingModule,
+    NgxAuthFirebaseUIModule.forRoot(environment.firebase),
+    AngularFirestoreModule,
+    AngularFireStorageModule,
+    AngularFireAuthModule,
     MaterialModule,
     AngularFireFunctionsModule,
+    SecuredModule,
+    AppRoutingModule
   ],
   entryComponents: [ EditMemberComponent ],
   providers: [],
