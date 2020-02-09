@@ -55,3 +55,4 @@ pubsub-debug.log
 kaoc.code-workspace
 Kaoc.postman_collection.json
 .angulardoc.json
+functions/firebase-debug.log

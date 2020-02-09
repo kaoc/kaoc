@@ -1,3 +1,4 @@
+
 import { Injectable } from '@angular/core';
 
 
@@ -25,7 +26,8 @@ export class PaymentService {
 function startSquarePayment(paymentForm) {
   console.log('===>>>> PaymentService.processPayment.Square implementation logic goes here'  );
   // The URL where the Point of Sale app will send the transaction results.
-  const callbackUrl = 'https://us-central1-kaocproject.cloudfunctions.net/squareServerPaymentCallback';
+  //const callbackUrl = 'https://us-central1-kaocproject.cloudfunctions.net/squareServerPaymentCallback';
+  const callbackUrl = 'http://192.168.0.136:4200/processpaymentresult';
 
   // Your application ID
   // Obtained from https://developer.squareup.com/apps/sq0idp-SwIIqsQfPszLsEDFFyupkg
