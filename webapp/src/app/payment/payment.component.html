@@ -4,10 +4,17 @@
         <mat-card-title>Payment details</mat-card-title>
     </mat-card-header> <br>
     <mat-card-content>
+<<<<<<< HEAD
         <div fxLayout="column" fxLayoutAlign="space-evenly start">
             <form [formGroup]="paymentForm">
 
                 <mat-form-field class="form-full-width">
+=======
+        <div fxLayout="column" fxLayoutAlign="space-evenly start"  >
+        <form [formGroup]="paymentForm">
+
+                <mat-form-field  class="form-full-width"  >
+>>>>>>> updating payment result component
                     <mat-label>Payment method</mat-label>
                     <mat-select formControlName="paymode">
                         <mat-option *ngFor="let paymode of paymentList" [value]="paymode">{{paymode}}

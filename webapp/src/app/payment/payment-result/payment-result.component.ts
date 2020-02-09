@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { AngularFireFunctions } from '@angular/fire/functions';
 
 @Component({
   selector: 'payment-result',
@@ -7,9 +8,11 @@ import { Component, OnInit } from '@angular/core';
 })
 export class PaymentResultComponent implements OnInit {
 
-  constructor() { }
+  constructor(private ngFireFunctions: AngularFireFunctions ) {
+  }
 
   ngOnInit() {
+    // this.ngFireFunctions.httpsCallable('updatePayment', {paymentId: "gmMAGLnfysI0v9UQ0L0A", paymentState:"Paid"});
   }
 
 }

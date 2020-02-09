@@ -5,9 +5,13 @@ import { Injectable } from '@angular/core';
 })
 export class PaymentService {
 
+<<<<<<< HEAD
   public showspinner: boolean = false;
   public processStatus: string = '';
   constructor() { }
+=======
+  constructor() {}
+>>>>>>> updating payment result component
 
   processPayment(paymentForm, referenceNo) {
 
@@ -35,8 +39,9 @@ export class PaymentService {
 function startSquarePayment(paymentForm) {
   console.log('===>>>> PaymentService.processPayment.Square implementation logic goes here'  );
   // The URL where the Point of Sale app will send the transaction results.
-  //const callbackUrl = 'https://us-central1-kaocproject.cloudfunctions.net/squareServerPaymentCallback';
-  const callbackUrl = 'http://192.168.0.136:4200/processpaymentresult';
+  // This also needs to updated for the Point of Sale api app settings in SquareUp site
+  // eg) https://developer.squareup.com/apps/sq0idp-SwIIqsQfPszLsEDFFyupkg/point-of-sale-api
+  const callbackUrl = 'https://kaocproject.firebaseapp.com/processpaymentresult';
 
   // Your application ID
   // Obtained from https://developer.squareup.com/apps/sq0idp-SwIIqsQfPszLsEDFFyupkg
@@ -44,14 +49,19 @@ function startSquarePayment(paymentForm) {
 
   // The total and currency code should come from your transaction flow.
   // For now, we are hardcoding them.
-  let transactionTotal = paymentForm.amount;
+  const transactionTotal = paymentForm.amount;
   const currencyCode = 'USD';
 
   // The version of the Point of Sale SDK that you are using.
   const sdkVersion = 'v2.0';
 
   // Configure the allowable tender types
-  const tenderTypes = 'com.squareup.pos.TENDER_CASH, com.squareup.pos.TENDER_CARD, com.squareup.pos.TENDER_CARD_ON_FILE, com.squareup.pos.TENDER_CASH, com.squareup.pos.TENDER_OTHER';
+  const tenderTypes =
+    'com.squareup.pos.TENDER_CASH, ' +
+    'com.squareup.pos.TENDER_CARD, ' +
+    'com.squareup.pos.TENDER_CARD_ON_FILE, ' +
+    'com.squareup.pos.TENDER_CASH, ' +
+    'com.squareup.pos.TENDER_OTHER';
 
   let posUrl =
     'intent:#Intent;' +
@@ -64,17 +74,8 @@ function startSquarePayment(paymentForm) {
     'i.com.squareup.pos.TOTAL_AMOUNT=' + transactionTotal + ';' +
     'S.com.squareup.pos.CURRENCY_CODE=' + currencyCode + ';' +
     'S.com.squareup.pos.TENDER_TYPES=' + tenderTypes + ';' +
+    'l.com.squareup.pos.AUTO_RETURN_TIMEOUT_MS=3200;' +
     'end';
-
-  //  posUrl = 'intent://scan/#Intent;scheme=zxing;package=com.google.zxing.client.android;end';
-
-
-  //  posUrl = "intent:#Intent;action=com.squareup.pos.action.CHARGE;package=com.squareup;S.browser_fallback_url=" + /*payment.fallback_url*/ "_blank" + ";S.com.squareup.pos.WEB_CALLBACK_URI=" +
-  //   "abcd" + ";S.com.squareup.pos.CLIENT_ID=" + applicationId + ";S.com.squareup.pos.API_VERSION=v2.0;i.com.squareup.pos.TOTAL_AMOUNT=" + "0.01" + ";S.com.squareup.pos.CURRENCY_CODE=" +
-  //   "USD" + ";S.com.squareup.pos.TENDER_TYPES=com.squareup.pos.TENDER_CARD;end";
-
-  // posUrl = "intent:#Intent;" + "action=com.squareup.pos.action.CHARGE;" + "package=com.squareup;" + "S.com.squareup.pos.WEB_CALLBACK_URI="+callbackUrl+";S.com.squareup.pos.CLIENT_ID="+applicationId+";S.com.squareup.pos.API_VERSION=v2.0;"+
-  // "i.com.squareup.pos.TOTAL_AMOUNT=0.01;S.com.squareup.pos.CURRENCY_CODE=USD;S.com.squareup.pos.TENDER_TYPES=com.squareup.pos.TENDER_CARD;end";
 
   console.log(posUrl);
 

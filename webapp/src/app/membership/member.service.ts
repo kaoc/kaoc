@@ -40,5 +40,5 @@ export class MemberService {
     }) */
 
     //this.membersCollection.add(member);
-  }  
+  }
 }
