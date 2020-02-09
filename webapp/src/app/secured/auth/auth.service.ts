@@ -63,7 +63,9 @@ export class AuthService {
       .then(querySnapshot => {
           if (!querySnapshot.empty) {
             querySnapshot.forEach(userDoc => {
-              this.kaocUserSource.next(userDoc.data() as Member);
+              const kaocUserData = userDoc.data();
+              console.debug(`Kaoc User Loaded for account ${JSON.stringify(kaocUserData)}`);
+              this.kaocUserSource.next(kaocUserData as Member);
             });
           } else {
             // Maybe this is the first time user is loggin in.

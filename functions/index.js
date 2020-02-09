@@ -61,6 +61,25 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
             );
 });
 
+exports.handleUserAdded = functions.auth.user().onCreate((user) => {
+    var userNameSplit = user.displayName.split(' ');
+    var firstName = userNameSplit[0];
+    var lastName = userNameSplit[userNameSplit.length - 1];
+
+    const kaocMemberData = {
+        'emailId': user.email,
+        'firstName': firstName,
+        'lastName': lastName,
+        'loginId': user.uid
+    };
+
+    if(user.phoneNumber) {
+        kaocMemberData.phoneNumber = user.phoneNumber;
+    }
+
+    return _addOrUpdateMember(kaocMemberData);
+});
+
 /**
  * HTTPS callable function for web application
  * 
@@ -206,6 +225,8 @@ function _addOrUpdateMember(memberObject) {
             && memberObject.lastName)) {
         throw new Error(`Invalid Member object ${JSON.stringify(memberObject)}`);        
     }
+    console.log(`Add or Update Member ${JSON.stringify(memberObject)}`);
+    
     // Step 1 Validate if the member already exist. 
     const currentTime = admin.firestore.Timestamp.fromMillis(new Date());
     let userCollectionRef = admin.firestore().collection('/kaocUsers');

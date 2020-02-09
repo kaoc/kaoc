@@ -43,7 +43,7 @@
         <button mat-menu-item>Videos</button>
       </mat-menu>-->
 
-      <button mat-button *ngIf="isKaocCommitteeMember===true" [matMenuTriggerFor]="adminMenu" >Admin
+      <button mat-button *ngIf="isAdmin===true" [matMenuTriggerFor]="adminMenu" >Admin
         <mat-icon aria-hidden="false">arrow_drop_down</mat-icon>
       </button>
 
@@ -64,7 +64,7 @@
 
       <ngx-auth-firebaseui-avatar>
       </ngx-auth-firebaseui-avatar>
-      <button mat-icon-button [matMenuTriggerFor]="menu" *ngIf="!loggedIn" (click)="navigateToLoginPage()">
+      <button mat-icon-button *ngIf="!loggedIn" (click)="navigateToLoginPage()">
         <i class="fa fa-sign-in" aria-hidden="true"></i>
       </button>
     </div>
@@ -100,7 +100,7 @@
         <button mat-menu-item>Videos</button>
       </mat-menu>-->
 
-      <button mat-button *ngIf="isKaocCommitteeMember===true" [matMenuTriggerFor]="adminMenu" routerLink="admin">Admin
+      <button mat-button *ngIf="isAdmin===true" [matMenuTriggerFor]="adminMenu" routerLink="admin">Admin
         <mat-icon aria-hidden="false">arrow_drop_down</mat-icon>
       </button>
     <!-- <button mat-button>Sponsors</button>
@@ -116,7 +116,7 @@
         <button mat-menu-item routerLink="listmembers">View/Edit Member</button>
       </mat-menu>
 
-      <button mat-icon-button [matMenuTriggerFor]="menu" *ngIf="!loggedIn" (click)="navigateToLoginPage()">
+      <button mat-icon-button *ngIf="!loggedIn" (click)="navigateToLoginPage()">
         <i class="fa fa-sign-in" aria-hidden="true"></i>
       </button>
     </div>
