@@ -144,7 +144,7 @@ exports.getCurrentMembershipDataByMemberId = functions.https.onCall((data, conte
                 // Add only members other than the queried user. This is to ensure that
                 // the first member in the list is the queried user itself
                 kaocUserRefs.forEach(ref => {
-                    if(ref.id != kaocUserRef.id) {
+                    if(ref.id !== kaocUserRef.id) {
                         kaocMemberRefs.push(ref);
                     }
                 });
