@@ -12,14 +12,14 @@
     }],
 
     "membership": {
-        "membershipType": "FAMILY"
+        "membershipType": "FAMILY"    
     },
 
     "payment": {
         "paymentMethod": "Square",
         "paymentAmount": 80,
         "paymentNotes": "Test Notes",
-        "paymentState": "Pending",
+        "paymentStatus": "Pending",
         "paymentExternalSystemRef": "Some Reference"
     }
 }

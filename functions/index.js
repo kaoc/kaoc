@@ -16,15 +16,15 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
     // collect membership info
     const membershipYear = importedMembershipData.membershipYear;
     const membershipType = importedMembershipData.membershipType;
-    const membershipGroupId = importedMembershipData.memberNumber; // This is to keep backward compatability with old member id
-    const membership = {membershipYear, membershipType, membershipGroupId};
+    const legacyMembershipId = importedMembershipData.memberNumber; // This is to keep backward compatability with old member id
+    const membership = {membershipYear, membershipType, legacyMembershipId};
 
     // collect payment info
     const {paymentMethod, paymentAmount, paymentNotes, checkNumber}  = importedMembershipData;
     let payment = {paymentMethod, paymentAmount, paymentNotes};
     payment.paymentExternalSystemRef = checkNumber;
 
-    // This will effectively become the membershipgroupid.
+    // This will effectively become the legacyMembershipId.
     let members = [];
     members.push({
         firstName: importedMembershipData.firstName,
@@ -46,14 +46,12 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
     return _addOrUpdateMemberMembershipAndPayment(members, membership, payment)
             .then(resultsX=> {
                     result.userId           = resultsX.userIds[0];
-                    result.membershipId     = resultsX.membershipIds[0];
-                    result.membershipGroupId = resultsX.membershipGroupId;
-                    if(resultsX.paymentId) {
-                        result.paymentId         = resultsX.paymentId;
-                    }
-
                     if(resultsX.userIds.length > 1) {
                         result.spouseUserId = resultsX.userIds[1];
+                    }
+                    result.membershipId     = resultsX.membershipId;
+                    if(resultsX.paymentId) {
+                        result.paymentId         = resultsX.paymentId;
                     }
                     res.status(200).send(result);
                     return result; 
@@ -90,8 +88,8 @@ exports.handleUserAdded = functions.auth.user().onCreate((user) => {
  *      Expected Fields
  *        {number} membershipYear
  *        {string} membershipType
- *        {string} membershipGroupId membership group id typing together memberships for all members
- *        {string} membershipStatus - Status of membership.
+ *        {string} legacyMembershipId membership group id typing together memberships for all members
+ *        {string} paymentStatus - Status of payment.
  *    {object}  payment 
  *      
  */
@@ -126,13 +124,13 @@ exports.updatePayment = functions.https.onCall((data, context) => {
  *  Expected fields
  *      {number} membershipYear 
  *      {string} membershipType 
- *      {membershipGroupId} membershipGroupId 
- *      {membershipStatus} membershipStatus 
+ *      {legacyMembershipId} legacyMembershipId 
+ *      {paymentStatus} paymentStatus 
  * @param {object} payment
  *  Expected Fields
  *      {string} paymentMethod    - Payment Source {Supported Types - Check, Cash, Square, Paypal}
  *      {number} paymentAmount    - The payment amount. 
- *      {string} paymentState     - The state of the payment (Complete/Pending/Declined). Default will be Complete.
+ *      {string} paymentStatus     - The state of the payment (UnPaid/Pending/Paid/Declined). Default will be Paid.
  *      {string} paymentExternalSystemRef- A reference to the payment in external system. This could be the check number, paypay id etc.
  *      {string} paymentNotes            - Any paymentNotes regarding the payment.    
  * @param {object} auth - Authentication Object
@@ -141,54 +139,43 @@ exports.updatePayment = functions.https.onCall((data, context) => {
 function _addOrUpdateMemberMembershipAndPayment(members, membership, payment, auth) {
     let result = {};
     
-    let {membershipYear, membershipType, membershipGroupId, membershipStatus} = membership || {};
-    let {paymentMethod, paymentAmount, paymentState, paymentExternalSystemRef, paymentNotes} = payment || {};
+    let {membershipYear, membershipType, legacyMembershipId} = membership || {};
+    let {paymentMethod, paymentAmount, paymentStatus, paymentExternalSystemRef, paymentNotes} = payment || {};
 
     if(!(members && members.length > 0)) {
         throw new Error(`Invalid members parameter. There should be at least 1 member in the array`);
     }
 
     var addMemberPromises = [];
-    members.forEach(member =>{
+    members.forEach(member => {
         addMemberPromises.push(_addOrUpdateMember(member));
     });
 
     return Promise.all(addMemberPromises)
-    .then(userIds => {
-
-        result.userIds = userIds;
+    .then(kaocUserIds => {
+        result.userIds = kaocUserIds;
         if(membershipType) {
-
-            membershipGroupId = membershipGroupId || userIds[0];
             membershipYear = membershipYear || (new Date()).getFullYear();
-
-            let addMemberPromises = [];
-            userIds.forEach(kaocUserId => {
-                addMemberPromises.push(
-                    _addOrUpdateMembership(
-                        {
-                            kaocUserId, membershipYear, 
-                            membershipType, membershipGroupId, 
-                            membershipStatus
-                        },
-                        auth
-                    )
-                )
-            });
-            return Promise.all(addMemberPromises);
+            return _addOrUpdateMembership(
+                {
+                    kaocUserIds, membershipYear, 
+                    membershipType, legacyMembershipId, 
+                    paymentStatus
+                },
+                auth
+            );
         } else {
             return Promise.resolve(null);
         }
-    }).then(membershipInfos => {
-        if(membershipInfos) {
-            result.membershipIds = membershipInfos.map(membershipInfo=>membershipInfo.membershipId);
-            result.membershipGroupId = membershipInfos[0].membershipGroupId;
+    }).then(membershipId => {
+        if(membershipId) {
+            result.membershipId = membershipId;
         }
         // If there are payment records, add them 
         if(paymentMethod && paymentAmount) {
 
-            // add payment reference back to the membership group id. 
-            const paymentTypeRef = result.membershipGroupId;
+            // add payment reference back to the membership record. 
+            const paymentTypeRef = admin.firestore().doc(`/kaocMemberships/${membershipId}`);
             // Use the first users id for payment
             const kaocUserId = result.userIds[0];
             // The payment will be recorded as membership fee
@@ -197,7 +184,7 @@ function _addOrUpdateMemberMembershipAndPayment(members, membership, payment, au
             return _addPayment({
                 kaocUserId, paymentMethod, 
                 paymentAmount, paymentType, 
-                paymentTypeRef, paymentState,
+                paymentTypeRef, paymentStatus,
                 paymentExternalSystemRef,
                 paymentNotes                
             }, auth);
@@ -217,6 +204,7 @@ function _addOrUpdateMemberMembershipAndPayment(members, membership, payment, au
  * Adds or update member object
  * 
  * @param {memberObject} memberObject 
+ * @return {string} - KAOC User id.
  */
 function _addOrUpdateMember(memberObject) {
     if(!(memberObject 
@@ -259,77 +247,75 @@ function _addOrUpdateMember(memberObject) {
  * 
  * @param {object} membership
  * Expected fields
- *      {string} kaocUserId 
+ *      {Array} kaocUserIds 
  *      {number} membershipYear
  *      {string} membershipType 
- *      {string} membershipGroupId 
- *      {string} membershipStatus
+ *      {string} legacyMembershipId 
+ *      {string} paymentStatus
  * @param {object} auth - Authentication Object
+ * @return {string} membership id.
  */
 function _addOrUpdateMembership(membership, auth) {
-    let {kaocUserId, membershipYear, membershipType, membershipGroupId, membershipStatus} = membership || {};
+    let {kaocUserIds, membershipYear, membershipType, legacyMembershipId, paymentStatus} = membership || {};
 
     membershipYear = membershipYear || (new Date()).getFullYear();
-    membershipStatus = membershipStatus || 'Active';
+    paymentStatus = paymentStatus || 'Paid';
     membershipType = membershipType || 'Individual';
-    if(!membershipGroupId) {
-        console.warn(`Membership Number missing when adding membership for user: ${kaocUserId}. This is not a recomended practice. User id will of the user will be used as member id. `);
-        membershipGroupId = kaocUserId; // Membership number should be unique across all memebers in a family. 
-    }
 
-    console.log(`Adding membership for ${kaocUserId}, ${membershipYear}, ${membershipType}, ${membershipGroupId}`);
+    console.log(`Adding membership for ${kaocUserIds}, ${membershipYear}, ${membershipType}, ${legacyMembershipId}`);
     const membershipStartTime = admin.firestore.Timestamp.fromMillis(Date.parse(`01 Jan ${membershipYear} 00:00:00 MST`));
     const membershipEndTime = admin.firestore.Timestamp.fromMillis(Date.parse(`31 Dec ${membershipYear} 23:59:59 MST`));
 
-    const userRef = admin.firestore().doc(`/kaocUsers/${kaocUserId}`);
+    const userRefs = kaocUserIds.map(kaocUserId => admin.firestore().doc(`/kaocUsers/${kaocUserId}`));
 
-    return userRef.get().then(userSnapshot => {
+    return Promise.all(userRefs.map(userRef => userRef.get()))
+        .then(userSnapshots => {
         // Validate the member first. 
-        if(!userSnapshot.exists) {
-            throw new Error(`Invalid user id ${kaocUserId}. Membership cannot be added.`);
-        } else {
-            let membershipCollectionRef = admin
-                        .firestore()
-                        .collection('/kaocMemberships');
-            let membershipQueryRef = membershipCollectionRef                                
-                        .where('kaocUserRef', "==", userRef)
-                        .where('startTime', "==", membershipStartTime)
-                        .where('endTime', "==", membershipEndTime);
-            return membershipQueryRef
-            .get()
-            .then(querySnapShot => {
-                let membershipRecord = {
-                    'kaocUserRef' : userRef,
-                    'startTime' : membershipStartTime,
-                    'endTime' : membershipEndTime,
-                    'membershipType': membershipType,
-                    'membershipGroupId': membershipGroupId,
-                    'membershipStatus': membershipStatus || 'Active',
-                };
+        userSnapshots.forEach(userSnapShot => {
+            if(!userSnapShot.exists) {
+                throw new Error(`Invalid user reference ${userSnapShot.ref}. Membership cannot be added.`);
+            }            
+        })
 
-                if(querySnapShot.empty) {
-                    // Membership does not exist
-                    console.log(`Membership does not exist for ${kaocUserId} for year - ${membershipYear}. Creeating new entry `);
-                    _addAuditFields(membershipRecord, true, auth);
-                    return membershipCollectionRef.add(membershipRecord);
-                } else {
-                    _addAuditFields(membershipRecord, false, auth);
-                    console.log(`Membership already exist for ${kaocUserId} for year - ${membershipYear}. Updating membership type and number with the new information.`);
-                    return querySnapShot.docs[0].ref.update(membershipRecord);
-                }
-            }).then(result=> {
-                return membershipQueryRef.get();
-            }).then(membershipQuerySnapShot => {
+        let membershipCollectionRef = admin
+                    .firestore()
+                    .collection('/kaocMemberships');
+        let membershipQueryRef = membershipCollectionRef                                
+                    .where('kaocUserRefs', "array-contains-any", userRefs)
+                    .where('startTime', "==", membershipStartTime)
+                    .where('endTime', "==", membershipEndTime);
+        return membershipQueryRef
+        .get()
+        .then(querySnapShot => {
+            let membershipRecord = {
+                'kaocUserRefs' : userRefs,
+                'startTime' : membershipStartTime,
+                'endTime' : membershipEndTime,
+                'membershipType': membershipType,
+                'paymentStatus': paymentStatus || 'Paid',
+            };
 
-                let result = {
-                    'membershipId': membershipQuerySnapShot.docs[0].ref.id,
-                    'membershipGroupId': membershipGroupId
-                };
+            if (legacyMembershipId) {
+                membershipRecord.legacyMembershipId = legacyMembershipId;
+            }
 
-                console.log('Membership result ', result);
-                return result;
-            });                                    
-        }
+            if(querySnapShot.empty) {
+                // Membership does not exist
+                console.log(`Membership does not exist for ${kaocUserIds} for year - ${membershipYear}. Creeating new entry `);
+                _addAuditFields(membershipRecord, true, auth);
+                return membershipCollectionRef.add(membershipRecord);
+            } else {
+                _addAuditFields(membershipRecord, false, auth);
+                console.log(`Membership already exist for ${kaocUserIds} for year - ${membershipYear}. Updating membership type and number with the new information.`);
+                return querySnapShot.docs[0].ref.update(membershipRecord);
+            }
+        }).then(result=> {
+            return membershipQueryRef.get();
+        }).then(membershipQuerySnapShot => {
+            let membershipId = membershipQuerySnapShot.docs[0].ref.id;
+            console.log('Updated/New Membership Id ', membershipId);
+            return membershipId;
+        });                                    
     });
 }
 
@@ -341,7 +327,7 @@ function _addOrUpdateMembership(membership, auth) {
  *      {string} kaocUserId           - Required the KAOC user who is making the payment.
  *      {string} paymentMethod        - Payment Source {Supported Types - Check, Cash, Square, Paypal}
  *      {number} paymentAmount        - The payment amount. 
- *      {string} paymentState         - The state of the payment (Complete/Pending/Declined). Default will be Complete.
+ *      {string} paymentStatus         - The state of the payment (Unpain/Pending/PaidDeclined). Default will be Paid.
  *      {string} paymentType          - Type of Payment (Membership, Event, Participant Fee etc)  
  *      {string} paymentTypeRef       - A reference related to record for which the payment is intented for. (e.g. reference to the membership group id.)
  *                                    - This field is kept loose at this time. This may or may not refer to the primary key of the record.   
@@ -355,7 +341,7 @@ function _addOrUpdateMembership(membership, auth) {
  */
 function _addPayment(paymentObject, auth) {
     let {kaocUserId, paymentMethod, 
-        paymentAmount, paymentState, 
+        paymentAmount, paymentStatus, 
         paymentType, paymentTypeRef, 
         paymentExternalSystemRef,
         paymentNotes} = paymentObject || {};
@@ -363,13 +349,13 @@ function _addPayment(paymentObject, auth) {
     if (!(kaocUserId && paymentMethod && paymentAmount && paymentType)) {
         return Promise.reject(new Error('Invalid payment parameters.'));
     } else {
-        paymentState = paymentState || 'Completed';
+        paymentStatus = paymentStatus || 'Paid';
         const kaocUserRef = admin.firestore().doc(`/kaocUsers/${kaocUserId}`); 
         const paymentDoc = {
             kaocUserRef,
             paymentMethod,
             paymentAmount,
-            paymentState,
+            paymentStatus,
             paymentType,  
             paymentTypeRef,
             paymentExternalSystemRef,
@@ -385,7 +371,7 @@ function _addPayment(paymentObject, auth) {
     }            
 }
 
-// _updatePayment(paymentId(CUSTOMER_ID), paymentObject (status=COMPLETED))
+// _updatePayment(paymentId(CUSTOMER_ID), paymentObject (paymentStatus=Paid))
 function _updatePayment(paymentId, paymentObject, auth) {
     const paymentRef = admin.firestore().doc(`/kaocPayments/${paymentId}`);
     return paymentRef.get().then(paymentDocSnapshot=>{
