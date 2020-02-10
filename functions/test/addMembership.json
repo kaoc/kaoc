@@ -12,7 +12,7 @@
     }],
 
     "membership": {
-        "membershipType": "FAMILY"    
+        "membershipType": "Family"     
     },
 
     "payment": {
