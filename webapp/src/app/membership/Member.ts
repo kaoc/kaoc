@@ -6,4 +6,5 @@ export interface Member {
     lastName:string;
     mobileNo:string;
     roles: MemberRoles;
+    adultFlag:string;
 }

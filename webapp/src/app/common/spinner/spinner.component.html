@@ -1,0 +1,19 @@
+<mat-card>
+    <mat-card-header>
+        <mat-card-title>
+            {{paymentService.processStatus}}
+        </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <div fxLayout="row" fxLayoutAlign="center end">
+            <div *ngIf="paymentService.showspinner">
+                <mat-progress-spinner class="example-margin" [color]="color" [mode]="mode" [value]="value">
+                </mat-progress-spinner>
+            </div>
+
+            <div *ngIf="!paymentService.showspinner">
+                <button mat-raised-button color="primary" matDialogClose>Close</button>
+            </div>
+        </div>
+    </mat-card-content>
+</mat-card>

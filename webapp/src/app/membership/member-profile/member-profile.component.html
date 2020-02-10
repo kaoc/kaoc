@@ -16,29 +16,88 @@
   <button (click)="doSubmit()">Save</button>
   </form> -->
 
-<mat-card>
-  <mat-card-header class="kaoc-main-header">
-    <mat-card-title>Add member</mat-card-title>
-  </mat-card-header> <br>
-  <mat-card-content>
-
+<div fxLayout="column" fxLayoutAlign="space-evenly start">
+  <div fxLayout="column" fxLayoutAlign="space-evenly center"> Add member
+    <!--     <mat-vertical-stepper [linear]="isLinear" #stepper>-->
     <mat-horizontal-stepper [linear]="isLinear" #stepper>
       <mat-step [stepControl]="memberForm">
         <form [formGroup]="memberForm">
           <ng-template matStepLabel>Member Details</ng-template>
-          <div formArrayName="members" *ngFor="let member of memberForm.get('members').controls; let i = index;">
-            <ng-container [formGroupName]="i">
+          <mat-card>
+            <table>
+              <tr>
+                <td>
+                  <label>Membership Type</label>
+                  <mat-radio-group formControlName="membershipType" [(ngModel)]="membershipAmt" required>
+                    <mat-radio-button value="IND">Individual</mat-radio-button>
+                    <mat-radio-button value="FAM">Family</mat-radio-button>
+                    <mat-radio-button value="SRCTZN">Sr.Citizen</mat-radio-button>
+                  </mat-radio-group>
+                </td>
+              </tr>
+              <tr>
+                <td>Membership amount :
+                  <span *ngIf="membershipAmt==='SRCTZN'">$35</span>
+                  <span *ngIf="membershipAmt==='IND'">$55</span>
+                  <span *ngIf="membershipAmt==='FAM'">$95</span>
+                </td>
+              </tr>
+            </table> <br>
+
+            <mat-form-field class="example-full-width">
+              <input matInput placeholder="Email Id" formControlName="emailId" required>
+            </mat-form-field>
+
+            <mat-form-field class="example-full-width">
+              <input matInput placeholder="First name" formControlName="firstName" required>
+            </mat-form-field>
+
+            <mat-form-field class="example-full-width">
+              <input matInput placeholder="Last name" formControlName="lastName" required>
+            </mat-form-field>
+
+            <mat-form-field class="example-full-width">
+              <input matInput placeholder="Mobile number" formControlName="phoneNumber" required>
+            </mat-form-field>
+
+            <div fxLayout="row" fxLayoutAlign="end end" fxLayoutGap="5px">
+              <button mat-raised-button class="kaoc-btn-primary" matStepperNext (click)="addMember(0)">Next</button>
+              <button mat-raised-button class="kaoc-btn-primary" matStepperNext (click)="addMember(0)">Pay </button>
+            </div>
+
+          </mat-card>
+        </form>
+      </mat-step>
+      <mat-step [stepControl]="memberDetForm" optional>
+        <form [formGroup]="memberDetForm">
+          <ng-template matStepLabel>Family Details </ng-template> <br />
+ 
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>
+                Add Family Member(s)
+              </mat-card-title> 
+            </mat-card-header>
+            <mat-card-content>
+
               <mat-form-field class="example-full-width">
                 <input matInput placeholder="Email Id" formControlName="emailId" required>
               </mat-form-field>
 
-              <mat-form-field class="example-full-width">
-                <input matInput placeholder="First name" formControlName="firstName" required>
-              </mat-form-field>
-
-              <mat-form-field class="example-full-width">
-                <input matInput placeholder="Last name" formControlName="lastName" required>
-              </mat-form-field>
+              <table class="example-full-width">
+                <tr>
+                  <td>
+                    <mat-form-field class="example-full-width">
+                      <input matInput placeholder="First name" formControlName="firstName" required>
+                    </mat-form-field>
+                  </td>
+                  <td>
+                    <mat-form-field class="example-full-width">
+                      <input matInput placeholder="Last name" formControlName="lastName" required>
+                    </mat-form-field>
+                  </td>
+                </tr>
+              </table>
 
               <table class="example-full-width">
                 <tr>
@@ -47,26 +106,88 @@
                       <input matInput placeholder="Mobile number" formControlName="phoneNumber" required>
                     </mat-form-field>
                   </td>
+                  <td>
 
+                    <mat-form-field>
+                      <mat-select formControlName="adultFlag" placeholder="Age group">
+                        <mat-option value="adult" selected>Adult</mat-option>
+                        <mat-option value="child">Child</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+
+                  </td>
+ 
                 </tr>
+ 
               </table>
-
-              <div>
-                <button mat-raised-button matStepperNext class="kaoc-btn-primary">Next</button>
-              </div>
-            </ng-container>
-          </div>
-
+              <div fxLayout="row" fxLayoutAlign="end end" fxLayoutGap="5px">
+                <button mat-raised-button color="primary" (click)="addFamily()" >
+                  <mat-icon matTooltip="Add Member">group_add</mat-icon> Add</button>
+                <button mat-raised-button class="kaoc-btn-primary" matStepperNext (click)="addFamily()" >
+                  <mat-icon  matTooltip="Pay KAOC">payment</mat-icon> Pay</button>
+             </div>
+            </mat-card-content>
+          </mat-card>
         </form>
+        <br />
+
+        <mat-card class="kaoc-gl-mat-card">
+          <mat-card-header class="kaoc-gl-mat-card-header-text">
+            <mat-title>List of members</mat-title>
+          </mat-card-header>
+          <mat-card-content>
+            <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>
+              <!-- Index Column -->
+              <ng-container matColumnDef="index">
+                <th mat-header-cell *matHeaderCellDef>No.</th>
+                <td mat-cell *matCellDef="let index = index"> {{index +1}} </td>
+              </ng-container>
+              <ng-container matColumnDef="emailId">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Email Id</th>
+                <td mat-cell *matCellDef="let element">{{element.emailId}}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="firstName">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>First Name</th>
+                <td mat-cell *matCellDef="let element">{{element.firstName}}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="lastName">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Last Name</th>
+                <td mat-cell *matCellDef="let element">{{element.lastName}}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="phoneNumber">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Phone Number</th>
+                <td mat-cell *matCellDef="let element">{{element.phoneNumber}}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="adultFlag">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Age Group</th>
+                <td mat-cell *matCellDef="let element">{{element.adultFlag}}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="action">
+                <th mat-header-cell *matHeaderCellDef>Action</th>
+                <td mat-cell *matCellDef="let element">
+                  <div>
+                    <mat-icon (click)="openEditDialog(element)" matTooltip="Edit Member">edit</mat-icon>
+                    <mat-icon (click)="deleteMember(element)" matTooltip="Delete member">delete</mat-icon>
+                  </div>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let element; columns: displayedColumns;"></tr>
+
+            </table>
+          </mat-card-content>
+        </mat-card>
       </mat-step>
-
-      <!--<mat-step [stepControl]="paymentForm">
-     
-        </mat-step>-->
-
+      <mat-step  >
+        <ng-template matStepLabel>Payment</ng-template> 
+        <payment></payment>
+       </mat-step>
+      
     </mat-horizontal-stepper>
-
-
-
-  </mat-card-content>
-</mat-card>
+  </div>

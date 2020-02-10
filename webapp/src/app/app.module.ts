@@ -30,7 +30,7 @@ import { PaymentComponent } from './payment/payment.component';
 import { AngularFireFunctionsModule } from '@angular/fire/functions';
 import { NgxAuthFirebaseUIModule } from 'ngx-auth-firebaseui';
 import { SecuredModule } from './secured/secured.module';
-
+import { SpinnerComponent } from './common/spinner/spinner.component';
 
 @NgModule({
   declarations: [
@@ -48,10 +48,11 @@ import { SecuredModule } from './secured/secured.module';
     HomeComponent,
     FooterComponent,
     DefaultComponent,
-    MadhuramMalayalamComponent,
-    EditMemberComponent,
-    PaymentComponent,
-    PaymentResultComponent
+    MadhuramMalayalamComponent, 
+    EditMemberComponent, 
+    PaymentComponent, 
+    PaymentResultComponent,
+    SpinnerComponent
   ],
   imports: [
     BrowserModule,
@@ -67,7 +68,7 @@ import { SecuredModule } from './secured/secured.module';
     SecuredModule,
     AppRoutingModule
   ],
-  entryComponents: [ EditMemberComponent ],
+  entryComponents: [ EditMemberComponent, SpinnerComponent ],
   providers: [],
   bootstrap: [AppComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]

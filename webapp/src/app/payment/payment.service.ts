@@ -1,24 +1,33 @@
-
 import { Injectable } from '@angular/core';
-
 
 @Injectable({
   providedIn: 'root'
 })
 export class PaymentService {
 
+  public showspinner: boolean = false;
+  public processStatus: string = '';
   constructor() { }
 
-  processPayment(paymentForm) {
+  processPayment(paymentForm, referenceNo) {
 
-    console.log('PaymentService.processPayment.paymentMode=' + paymentForm.paymode);
+    console.log("PaymentService.processPayment.paymentMode=" + paymentForm.paymode);
 
-    if ( paymentForm.paymode === 'Zelle' ||  paymentForm.paymode==='Cash' || paymentForm.paymode === 'Cheque') {
-      console.log('Make member active');
-    } else if ( paymentForm.paymode === 'Square' ) {
+    if (paymentForm.paymode === 'Cash' || paymentForm.paymode === 'Cheque') {
+      console.log("Make member active");
+    }
+    else if (paymentForm.paymode === 'Square') {
+      this.showspinner = true;
+      this.processStatus = "Transaction in progress , please wait.."
+      console.log("===>>>> PaymentService.processPayment.Square implementation logic goes here");
       startSquarePayment(paymentForm);
-    } else if ( paymentForm.paymode==='Paypal' ) {
-      console.log('===>>>> PaymentService.processPayment.Paypal implementation logic goes here'  );
+      setTimeout(() => {
+        this.processStatus = "Transaction Complete for reference number " +  referenceNo;
+        this.showspinner = false;
+      },5000 )
+
+    } else if (paymentForm.paymode === 'Paypal') {
+      console.log("===>>>> PaymentService.processPayment.Paypal implementation logic goes here");
     }
   }
 }
