@@ -33,7 +33,7 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
         emailId: importedMembershipData.emailId,
     });
 
-    if(importedMembershipData.spouseEmailId) {
+    if(importedMembershipData.spouseFirstName || importedMembershipData.spouseLastName || importedMembershipData.spouseEmailId) {
         members.push({
             firstName: importedMembershipData.spouseFirstName,
             lastName: importedMembershipData.spouseLastName,
@@ -300,9 +300,7 @@ function _addOrUpdateMemberMembershipAndPayment(members, membership, payment, au
  */
 function _addOrUpdateMember(memberObject) {
     if(!(memberObject 
-            && memberObject.emailId 
-            && memberObject.firstName 
-            && memberObject.lastName)) {
+            && (memberObject.firstName || memberObject.lastName || memberObject.emailId))) {
         throw new Error(`Invalid Member object ${JSON.stringify(memberObject)}`);        
     }
     console.log(`Add or Update Member ${JSON.stringify(memberObject)}`);
@@ -310,13 +308,28 @@ function _addOrUpdateMember(memberObject) {
     // Step 1 Validate if the member already exist. 
     const currentTime = admin.firestore.Timestamp.fromMillis(new Date());
     let userCollectionRef = admin.firestore().collection('/kaocUsers');
-    let query = userCollectionRef.where('emailId', "==", memberObject.emailId);
-    return query.get().then(querySnapShot => {
-        if(querySnapShot.empty) {
+
+    Object.keys(memberObject).forEach(key=> {
+        if(!memberObject[key]) {
+            delete memberObject[key];
+        }
+    });
+    
+    let query = null;
+    if(memberObject.emailId) {
+        // A match can only be looked up if the user has an email. 
+        // Otherwise, it is not possible to see if user is existing.
+        query = userCollectionRef.where('emailId', "==", memberObject.emailId);
+    } else {
+        console.warn(`Adding user without email id ${memberObject.firstName} ${memberObject.lastName}. Duplicate entry check cannot be perfomed.`)
+    }
+    return ((query != null) ? query.get() : Promise.resolve(null))
+    .then(querySnapShot => {
+        if(!(querySnapShot && !querySnapShot.empty)) {
             // User does not exist. 
             // add a new one
             memberObject.createTime = currentTime;
-            console.log(`User record for email id ${memberObject.emailId} does not exist. Creating one.`)
+            console.log(`User record for email id ${JSON.stringify(memberObject)} does not exist. Creating one.`)
             return userCollectionRef.add(memberObject);
         } else {
             console.log(`User record for email id ${memberObject.emailId} already exist. Updating record.`)
@@ -325,9 +338,13 @@ function _addOrUpdateMember(memberObject) {
             return querySnapShot.docs[0].ref.update(memberObject);
         }
     }).then(result => {
-        return query.get();
+        // If query was not formed, then a new record is added.
+        return query ? query.get(): result;
     }).then(querySnapShot => {
-        return querySnapShot.docs[0].ref.id;
+        // The result here could be a documentReference or a querySnapshot.
+        // If the object is a querySnapshot, then the object will have 'query' field.
+        // Use that to check the type of object received here.
+        return querySnapShot.query ? querySnapShot.docs[0].ref.id: querySnapShot.id;
     });
 }
 
