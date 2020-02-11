@@ -288,9 +288,9 @@ function _addOrUpdateMemberMembershipAndPayment(members, membership, payment, au
         } else {
             return Promise.resolve(null);
         }
-    }).then(paymentInfo => {
-        if(paymentInfo) {
-            result.paymentId = paymentInfo.paymentId;
+    }).then(paymentId => {
+        if(paymentId) {
+            result.paymentId = paymentId;
         }
 
         return result;
@@ -452,6 +452,7 @@ function _addOrUpdateMembership(membership, auth) {
  *      {string} paymentNotes                - Optional paymentNotes. 
  * 
  * @param {Object} auth - Authentication object. 
+ * @return {string} paymentId
  */
 function _addPayment(paymentObject, auth) {
     let {kaocUserId, paymentMethod, 
@@ -478,9 +479,7 @@ function _addPayment(paymentObject, auth) {
         return admin.firestore().collection('kaocPayments')
         .add(_addAuditFields(paymentDoc, true, auth))
         .then(paymentDocRef => {
-            return {
-                'paymentId': paymentDocRef.id
-            };
+            return paymentDocRef.id;
         });
     }            
 }
@@ -488,14 +487,28 @@ function _addPayment(paymentObject, auth) {
 // _updatePayment(paymentId(CUSTOMER_ID), paymentObject (paymentStatus=Paid))
 function _updatePayment(paymentId, paymentObject, auth) {
     const paymentRef = admin.firestore().doc(`/kaocPayments/${paymentId}`);
+    let paymentTypeRef = null;
     return paymentRef.get().then(paymentDocSnapshot=>{
         if(paymentDocSnapshot.exists) {
+            paymentTypeRef = paymentDocSnapshot.data().paymentTypeRef;
             return paymentRef.update(_addAuditFields(paymentObject, false, auth));
         } else {
             return Promise.reject(new Error(`No payment found with reference id ${paymentId}`));
         }
     }).then(result=> {
-        return {paymentId};
+        if(paymentTypeRef) {
+            return paymentTypeRef.get();
+        }
+        return null;
+    }).then(paymentRefSnapshot=> {
+        if(paymentRefSnapshot && paymentRefSnapshot.exists) {
+            return paymentTypeRef.update({
+                'paymentStatus': paymentObject.paymentStatus
+            });
+        }
+        return null;
+    }).then(result => {
+        return paymentId;
     });
 }
 
