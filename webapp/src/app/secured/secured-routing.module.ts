@@ -5,6 +5,7 @@ import { ProfileComponent } from './profile/profile.component';
 import { SecuredComponent } from './secured.component';
 import { AuthGuardService } from './auth/auth-guard.service';
 import { AdminComponent } from '../admin/admin.component';
+import { VerifyEmailComponent } from './verify-email/verify-email.component';
 
 
 const routes: Routes = [{
@@ -14,6 +15,10 @@ const routes: Routes = [{
     {
         path: 'login',
         component: LoginComponent
+    },
+    {
+        path: 'verify',
+        component: VerifyEmailComponent
     },
     {
         path: 'profile',

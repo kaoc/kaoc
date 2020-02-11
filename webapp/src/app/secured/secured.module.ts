@@ -11,6 +11,7 @@ import { MatCardModule} from '@angular/material/card';
 import { MatFormFieldModule} from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { ReactiveFormsModule} from '@angular/forms';
+import { VerifyEmailComponent } from './verify-email/verify-email.component';
 
 
 
@@ -19,7 +20,8 @@ import { ReactiveFormsModule} from '@angular/forms';
     ProfileComponent,
     SecuredComponent,
     AdminComponent,
-    LoginComponent],
+    LoginComponent,
+    VerifyEmailComponent],
   imports: [
     CommonModule,
     SecuredRoutingModule,

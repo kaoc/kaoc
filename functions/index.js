@@ -33,7 +33,7 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
         emailId: importedMembershipData.emailId,
     });
 
-    if(importedMembershipData.spouseEmailId == importedMembershipData.emailId) {
+    if(importedMembershipData.spouseEmailId === importedMembershipData.emailId) {
         //special case, some records have the same emails listed for both spouse and primary member
         importedMembershipData.spouseEmailId = null;
     }
@@ -328,7 +328,7 @@ function _addOrUpdateMember(memberObject) {
     } else {
         console.warn(`Adding user without email id ${memberObject.firstName} ${memberObject.lastName}. Duplicate entry check cannot be perfomed.`)
     }
-    return ((query != null) ? query.get() : Promise.resolve(null))
+    return ((query !== null) ? query.get() : Promise.resolve(null))
     .then(querySnapShot => {
         if(!(querySnapShot && !querySnapShot.empty)) {
             // User does not exist. 

@@ -20,10 +20,15 @@ export class AuthGuardService implements CanActivate {
     const firebaseUser = this.authService.getFirebaseUser();
 
     if (firebaseUser != null) {
-      return true;
+        if (firebaseUser.emailVerified) {
+          return true;
+        } else {
+          this.router.navigate(['/secured/verify']);
+          return false;
+        }
     } else {
-      this.router.navigate(['/secured/login']);
-      return false;
+        this.router.navigate(['/secured/login']);
+        return false;
     }
   }
 }

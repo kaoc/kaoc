@@ -13,7 +13,11 @@ export class SecuredComponent implements OnInit {
     authService.firebaseUser.subscribe(firebaseUser => {
         if (typeof firebaseUser !== 'undefined') {
             if (firebaseUser != null) {
-                router.navigate(['/secured/profile']);
+              if (firebaseUser.emailVerified) {
+                  router.navigate(['/secured/profile']);
+              } else {
+                  router.navigate(['/secured/verify']);
+              }
             } else {
               router.navigate(['/secured/login']);
             }

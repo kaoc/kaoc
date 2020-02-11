@@ -5,12 +5,16 @@ import { UserInfo } from 'firebase';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Member } from 'src/app/membership/Member';
 
+export interface UserInfoExt extends UserInfo {
+  emailVerified: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  private firebaseUserSource = new BehaviorSubject<UserInfo>(undefined);
+  private firebaseUserSource = new BehaviorSubject<UserInfoExt>(undefined);
   public firebaseUser = this.firebaseUserSource.asObservable();
 
   private kaocUserSource = new BehaviorSubject<Member>(undefined);
@@ -25,7 +29,7 @@ export class AuthService {
    * @param firestoreDB - Angular Firestore Database Reference.
    */
   constructor(private fireAuth: AngularFireAuth, private fireStoreDB: AngularFirestore) {
-    fireAuth.user.subscribe((fireUser: UserInfo) => {
+    fireAuth.user.subscribe((fireUser: UserInfoExt) => {
       this.firebaseUserSource.next(fireUser);
       if (fireUser) {
         this.loadKaocUser(fireUser.uid);
@@ -38,7 +42,7 @@ export class AuthService {
   /**
    * Returns the current logged in user.
    */
-  getFirebaseUser(): UserInfo {
+  getFirebaseUser(): UserInfoExt {
     return this.firebaseUserSource.getValue();
   }
 

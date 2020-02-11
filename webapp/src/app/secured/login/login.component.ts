@@ -32,7 +32,7 @@ export class LoginComponent implements OnInit {
     private fireAuth: AngularFireAuth,
     private snackBar: MatSnackBar,
     private router: Router) {
-    this.supportedProviders = [AuthProvider.Google, AuthProvider.Twitter, AuthProvider.Facebook, AuthProvider.EmailAndPassword];
+    this.supportedProviders = [AuthProvider.Google, AuthProvider.Facebook, AuthProvider.EmailAndPassword];
   }
   ngOnInit() {
     this._initResetPasswordFormGroupBuilder();
