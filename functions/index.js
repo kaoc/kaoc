@@ -33,6 +33,11 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
         emailId: importedMembershipData.emailId,
     });
 
+    if(importedMembershipData.spouseEmailId == importedMembershipData.emailId) {
+        //special case, some records have the same emails listed for both spouse and primary member
+        importedMembershipData.spouseEmailId = null;
+    }
+
     if(importedMembershipData.spouseFirstName || importedMembershipData.spouseLastName || importedMembershipData.spouseEmailId) {
         members.push({
             firstName: importedMembershipData.spouseFirstName,
