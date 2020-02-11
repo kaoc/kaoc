@@ -496,7 +496,7 @@ function _updatePayment(paymentId, paymentObject, auth) {
             return Promise.reject(new Error(`No payment found with reference id ${paymentId}`));
         }
     }).then(result=> {
-        if(paymentTypeRef) {
+        if(paymentTypeRef && paymentObject.paymentStatus) {
             return paymentTypeRef.get();
         }
         return null;
