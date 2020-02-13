@@ -1,3 +1,6 @@
+import { AngularFirestoreCollection } from '@angular/fire/firestore';
+import { Observable } from 'rxjs';
+import { Payment } from './Payment';
 import { AngularFireModule } from '@angular/fire';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder ,Validators, FormGroup } from '@angular/forms';
@@ -23,14 +26,16 @@ import { map } from 'rxjs/operators';
 export class PaymentComponent implements OnInit {
   paymentForm: FormGroup;
   paymentList: string[] = ['Cash', 'Cheque', 'Square' ];
+  paymentsCollection: AngularFirestoreCollection<Payment>;
+  payments: Observable<Payment[]>;
+
+  constructor(private formBuilder: FormBuilder,
+              private paymentService: PaymentService,
+              public dialog: MatDialog,
+              private ngFireFunctions: AngularFireFunctions ) {
+ }
 
   paymentDocumentRefNo = 'ABCedfGhijklMn0P';
-
-  constructor( private formBuilder: FormBuilder,
-               private paymentService: PaymentService,
-	             public dialog: MatDialog
-              /* private ngFireFunctions: AngularFireFunctions*/ ) {
-              }
 
   ngOnInit() {
     this.paymentForm = this.formBuilder.group({
@@ -41,13 +46,12 @@ export class PaymentComponent implements OnInit {
     });
   }
 
-   submitPayment(referenceNo) {
-
+  submitPayment(referenceNo) {
     console.log('Processing Payment for ReferenceNo=' + referenceNo);
     const dialogRef = this.dialog.open(SpinnerComponent , {
       width: '400px',
       height: '200px',
-       panelClass: 'kaoc-modalbox'
+        panelClass: 'kaoc-modalbox'
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -89,7 +93,7 @@ export class PaymentComponent implements OnInit {
 
     //this.paymentUpdate = this.db.collection('kaocPayments', ref => ref.where('categoria','==', categoriaToFilter )).valueChanges();
 
-    this.paymentService.processPayment(this.paymentForm.value);
+    this.paymentService.processPayment(this.paymentForm.value, referenceNo);
   }
 
 }

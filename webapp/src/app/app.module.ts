@@ -48,18 +48,11 @@ import { SpinnerComponent } from './common/spinner/spinner.component';
     HomeComponent,
     FooterComponent,
     DefaultComponent,
-<<<<<<< HEAD
-    MadhuramMalayalamComponent, 
-    EditMemberComponent, 
-    PaymentComponent, 
-    PaymentResultComponent,
-    SpinnerComponent
-=======
     MadhuramMalayalamComponent,
     EditMemberComponent,
     PaymentComponent,
-    PaymentResultComponent
->>>>>>> updating payment result component
+    PaymentResultComponent,
+    SpinnerComponent
   ],
   imports: [
     BrowserModule,

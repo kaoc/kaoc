@@ -5,13 +5,9 @@ import { Injectable } from '@angular/core';
 })
 export class PaymentService {
 
-<<<<<<< HEAD
   public showspinner: boolean = false;
   public processStatus: string = '';
   constructor() { }
-=======
-  constructor() {}
->>>>>>> updating payment result component
 
   processPayment(paymentForm, referenceNo) {
 
