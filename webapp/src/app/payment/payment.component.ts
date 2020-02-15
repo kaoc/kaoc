@@ -1,12 +1,14 @@
-import { AngularFirestoreCollection } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { Payment } from './Payment';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { PaymentService } from './payment.service';
-import { SpinnerComponent } from '../common/spinner/spinner.component';
+import { AngularFireFunctions } from '@angular/fire/functions';
 import { MatDialog } from '@angular/material';
-import {AngularFireFunctions} from '@angular/fire/functions';
+import { SpinnerComponent } from '../common/spinner/spinner.component';
+
+import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-payment',
@@ -25,7 +27,7 @@ export class PaymentComponent implements OnInit {
               private ngFireFunctions: AngularFireFunctions ) {
  }
 
-  paymentDocumentRefNo = 'ABCedfGhijklMn0P';
+  paymentDocumentRefNo = 'INVALID_PAYMENT_DOCUMENT_REF_NO';
 
   ngOnInit() {
     this.paymentForm = this.formBuilder.group({
@@ -37,19 +39,66 @@ export class PaymentComponent implements OnInit {
   }
 
   submitPayment(referenceNo) {
-    console.log('Processing Payment for ReferenceNo=' + referenceNo);
-    const dialogRef = this.dialog.open(SpinnerComponent , {
-      width: '400px',
-      height: '200px',
-        panelClass: 'kaoc-modalbox'
+    // TODO: This data needs to be filled up from paymentForm
+    const data = {
+        'members' : [{
+            'firstName': 'Test FN2',
+            'lastName' : 'Test LN2',
+            'phoneNumber': '1231231231',
+            'emailId': 'rafeeq@gmail.com'
+        }, {
+            'firstName': 'Test Spouse FN2',
+            'lastName': 'Test Spouse LN2',
+            'phoneNumber': '2342342342',
+            'emailId': 'rafeeqSpouse@gmail.com'
+        }],
+
+        'membership': {
+            'membershipType': 'Family'
+        },
+
+        'payment': {
+            'paymentMethod': 'Square',
+            'paymentAmount': 88,
+            'paymentNotes': 'Test Notes',
+            'paymentStatus': 'Pending',
+            'paymentExternalSystemRef': 'Some Reference'
+        }
+    };
+
+    const addOrUpdateMemberAndMembership = this.ngFireFunctions.httpsCallable('addOrUpdateMemberAndMembership');
+    addOrUpdateMemberAndMembership(data).toPromise().then((result) => {
+      // Read result of the Cloud Function.
+      this.paymentDocumentRefNo = result['paymentId'];
+      console.log('addOrUpdateMemberAndMembership paymentRef ' + this.paymentDocumentRefNo);
+      console.log('Calling processPayment');
+      this.paymentService.processPayment(this.paymentForm.value , this.paymentDocumentRefNo);
+    }).catch((error) => {
+      // Getting the Error details.
+      console.log('addOrUpdateMemberAndMembership error.code ' +  error.code);
+      console.log('addOrUpdateMemberAndMembership error.message ' +  error.message);
+      console.log('addOrUpdateMemberAndMembership error.details ' +  error.details);
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      console.log('The Payment processing dialog was closed');
-    });
+    /*********************** TODO: IGNORE REST - TO BE REMOVED ***************************/
+    /*
 
-    this.paymentService.processPayment(this.paymentForm.value , referenceNo);
-    console.log('PaymentService.processPayment.formDetails ' + JSON.stringify(this.paymentForm.value));
+    then (function(result) {
+      const dialogRef = this.dialog.open(SpinnerComponent , {
+        width: '400px',
+        height: '200px',
+          panelClass: 'kaoc-modalbox'
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        console.log('The Payment processing dialog was closed');
+      });
+
+      console.log('Processing Payment for ReferenceNo=' + this.paymentDocumentRefNo);
+      console.log('PaymentService.processPayment.formDetails ' + JSON.stringify(this.paymentForm.value));
+      this.paymentService.processPayment(this.paymentForm.value , this.paymentDocumentRefNo);
+      */
+
 
     //this.paymentsCollection = this.db.collection<Payment>('kaocPayments', ref => ref.orderBy('updateTime', 'desc'));
 
@@ -82,8 +131,6 @@ export class PaymentComponent implements OnInit {
 
 
     //this.paymentUpdate = this.db.collection('kaocPayments', ref => ref.where('categoria','==', categoriaToFilter )).valueChanges();
-
-    this.paymentService.processPayment(this.paymentForm.value, referenceNo);
   }
 
 }

@@ -208,6 +208,7 @@ function validateAuth(context, expectedRole) {
 }
 
 exports.updatePayment = functions.https.onCall((data, context) => { 
+    console.log('updatePayment called for ' + data.paymentId);
     return _updatePayment(data.paymentId, data.payment, context.auth);
 });   
 
