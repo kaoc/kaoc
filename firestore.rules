@@ -1,17 +1,56 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // This rule allows anyone on the internet to view, edit, and delete
-    // all data in your Firestore database. It is useful for getting
-    // started, but it is configured to expire after 30 days because it
-    // leaves your app open to attackers. At that time, all client
-    // requests to your Firestore database will be denied.
-    //
-    // Make sure to write security rules for your app before that time, or else
-    // your app will lose access to your Firestore database
-    match /{document=**} {
-      allow read, write: if request.time < timestamp.date(2020, 1, 30);
+    	function isAdmin() {
+      	return
+        	exists(/databases/$(database)/documents/kaocRoles/$(request.auth.uid))
+          && get(/databases/$(database)/documents/kaocRoles/$(request.auth.uid)).data.admin != null
+        	&& get(/databases/$(database)/documents/kaocRoles/$(request.auth.uid)).data.admin.startTime <= request.time
+          && get(/databases/$(database)/documents/kaocRoles/$(request.auth.uid)).data.admin.endTime >= request.time;
+      }
+		
+    // By default decline all read and writes
+		match /{document=**} {
+      allow read, write: if false;
     }
-  }
+
+		// KAOC Users 
+		match /kaocUsers/{kaocUserId} {
+      allow  read, write: if (resource != null && resource.data != null && resource.data.loginId == request.auth.uid) || isAdmin();
+    }
+
+		// KAOC Memberships
+		match /kaocMemberships/{kaocMembershipId} {
+      function isLoggedInUser(kaocUserRef) {
+      	return kaocUserRef != null && exists(kaocUserRef) && get(kaocUserRef).data.loginId == request.auth.uid;
+      }
+      // Due to limitations of recursive rule execution, the users have 
+      // to be checked by using explicit references. The assumption here 
+      // is that the max number of members in the membership is 6
+      allow  read, write: if isAdmin() || 
+      											(resource != null 
+      											  && resource.data != null 
+                              && resource.data.kaocUserRefs != null 
+                              && (
+                              		(resource.data.kaocUserRefs.size() > 0 && isLoggedInUser(resource.data.kaocUserRefs[0])) || 
+                                  (resource.data.kaocUserRefs.size() > 1 && isLoggedInUser(resource.data.kaocUserRefs[1])) || 
+                                  (resource.data.kaocUserRefs.size() > 2 && isLoggedInUser(resource.data.kaocUserRefs[2])) || 
+                                  (resource.data.kaocUserRefs.size() > 3 && isLoggedInUser(resource.data.kaocUserRefs[3])) || 
+                                  (resource.data.kaocUserRefs.size() > 4 && isLoggedInUser(resource.data.kaocUserRefs[4])) || 
+                                  (resource.data.kaocUserRefs.size() > 5 && isLoggedInUser(resource.data.kaocUserRefs[5]))
+                                	)
+                            );
+    }
+
+		// KAOC Payments
+		match /kaocPayments/{kaocPaymentId} {
+      allow  read, write: if (resource != null && resource.data != null && exists(resource.data.kaocUserRef) && get(resource.data.kaocUserRef).data.loginId == request.auth.uid) || isAdmin();
+    }
+
+		// KAOC Rules
+		match /kaocRules/{loginId} {
+      allow  read, write: if (request.auth.uid == loginId) || isAdmin();
+    }
+
+}
 }
