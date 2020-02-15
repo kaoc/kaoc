@@ -10,7 +10,7 @@
     </ng-container>
     <button (click)="addMember()">Add</button>
     EmailId {{ memberForm.controls.members.controls[i].controls.emailId.value }}
-   
+
   </div>
 
   <button (click)="doSubmit()">Save</button>
@@ -71,12 +71,12 @@
       <mat-step [stepControl]="memberDetForm" optional>
         <form [formGroup]="memberDetForm">
           <ng-template matStepLabel>Family Details </ng-template> <br />
- 
+
           <mat-card>
             <mat-card-header>
               <mat-card-title>
                 Add Family Member(s)
-              </mat-card-title> 
+              </mat-card-title>
             </mat-card-header>
             <mat-card-content>
 
@@ -116,9 +116,9 @@
                     </mat-form-field>
 
                   </td>
- 
+
                 </tr>
- 
+
               </table>
               <div fxLayout="row" fxLayoutAlign="end end" fxLayoutGap="5px">
                 <button mat-raised-button color="primary" (click)="addFamily()" >
@@ -185,9 +185,9 @@
         </mat-card>
       </mat-step>
       <mat-step  >
-        <ng-template matStepLabel>Payment</ng-template> 
-        <payment></payment>
+        <ng-template matStepLabel>Payment</ng-template>
+        <app-payment></app-payment>
        </mat-step>
-      
+
     </mat-horizontal-stepper>
   </div>

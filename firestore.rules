@@ -3,8 +3,8 @@ service cloud.firestore {
   match /databases/{database}/documents {
     	function isAdmin() {
       	return
-        	request.auth != null && 
-        	exists(/databases/$(database)/documents/kaocRoles/$(request.auth.uid))
+        	request.auth != null 
+          && exists(/databases/$(database)/documents/kaocRoles/$(request.auth.uid))
           && get(/databases/$(database)/documents/kaocRoles/$(request.auth.uid)).data.admin != null
         	&& get(/databases/$(database)/documents/kaocRoles/$(request.auth.uid)).data.admin.startTime <= request.time
           && get(/databases/$(database)/documents/kaocRoles/$(request.auth.uid)).data.admin.endTime >= request.time;
@@ -48,8 +48,8 @@ service cloud.firestore {
       allow  read, write: if (resource != null && resource.data != null && exists(resource.data.kaocUserRef) && get(resource.data.kaocUserRef).data.loginId == request.auth.uid) || isAdmin();
     }
 
-		// KAOC Rules
-		match /kaocRules/{loginId} {
+		// KAOC Roles
+		match /kaocRoles/{loginId} {
       allow  read, write: if (request.auth.uid == loginId) || isAdmin();
     }
 

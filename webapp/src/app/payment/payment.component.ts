@@ -1,25 +1,15 @@
 import { AngularFirestoreCollection } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { Payment } from './Payment';
-import { AngularFireModule } from '@angular/fire';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder ,Validators, FormGroup } from '@angular/forms';
+import { FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { PaymentService } from './payment.service';
-<<<<<<< HEAD
-import { AngularFireFunctions } from '@angular/fire/functions';
-import { MatDialog } from '@angular/material';
 import { SpinnerComponent } from '../common/spinner/spinner.component';
-=======
-
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
-import { Payment } from './Payment';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-
->>>>>>> updating payment result component
+import { MatDialog } from '@angular/material';
+import {AngularFireFunctions} from '@angular/fire/functions';
 
 @Component({
-  selector: 'payment',
+  selector: 'app-payment',
   templateUrl: './payment.component.html',
   styleUrls: ['./payment.component.css']
 })

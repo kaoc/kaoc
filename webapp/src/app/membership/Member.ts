@@ -1,10 +1,8 @@
-import {MemberRoles} from './MemberRoles';
 
 export interface Member {
-    emailId:string;
-    firstName:string;
-    lastName:string;
-    mobileNo:string;
-    roles: MemberRoles;
-    adultFlag:string;
+    emailId: string;
+    firstName: string;
+    lastName: string;
+    mobileNo: string;
+    adultFlag: string;
 }

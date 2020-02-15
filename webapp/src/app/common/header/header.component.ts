@@ -23,10 +23,12 @@ export class HeaderComponent implements OnInit {
           }
       }
     });
-    authService.kaocUser.subscribe(kaocUser => {
-      if (kaocUser) {
+    authService.kaocRoles.subscribe(kaocRoles => {
+      if (kaocRoles) {
           // TODO - check the time validity of admin.
-          this.isAdmin = kaocUser.roles && kaocUser.roles.admin != null;
+          this.isAdmin = kaocRoles.admin != null;
+      } else {
+        this.isAdmin = false;
       }
     });
   }

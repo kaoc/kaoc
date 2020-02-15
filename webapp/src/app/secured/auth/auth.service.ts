@@ -4,6 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 import { UserInfo } from 'firebase';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Member } from 'src/app/membership/Member';
+import { MemberRoles } from 'src/app/membership/MemberRoles';
 
 export interface UserInfoExt extends UserInfo {
   emailVerified: boolean;
@@ -20,6 +21,9 @@ export class AuthService {
   private kaocUserSource = new BehaviorSubject<Member>(undefined);
   public kaocUser = this.kaocUserSource.asObservable();
 
+  private kaocRolesSource = new BehaviorSubject<MemberRoles>(undefined);
+  public kaocRoles = this.kaocRolesSource.asObservable();
+
   private attempt = 0;
 
   /**
@@ -33,8 +37,10 @@ export class AuthService {
       this.firebaseUserSource.next(fireUser);
       if (fireUser) {
         this.loadKaocUser(fireUser.uid);
+        this.loadKaocRoles(fireUser.uid);
       } else {
         this.kaocUserSource.next(null);
+        this.kaocRolesSource.next(null);
       }
     });
   }
@@ -52,6 +58,24 @@ export class AuthService {
    */
   getKaocUser(): Member {
     return this.kaocUserSource.getValue();
+  }
+
+  getKaocRoles(): MemberRoles {
+    return this.kaocRolesSource.getValue();
+  }
+
+  private loadKaocRoles(loginId: string): void {
+    this.fireStoreDB.firestore.doc(`/kaocRoles/${loginId}`)
+    .get()
+    .then(rulesResultSnapShot => {
+      if (rulesResultSnapShot.exists) {
+        this.kaocRolesSource.next(rulesResultSnapShot.data() as MemberRoles);
+      } else {
+        this.kaocRolesSource.next(null);
+      }
+    }).catch(e => {
+      console.error('Error retrieving user roles ', e);
+    });
   }
 
   /**
