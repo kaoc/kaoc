@@ -73,6 +73,19 @@ export class PaymentComponent implements OnInit {
       console.log('addOrUpdateMemberAndMembership paymentRef ' + this.paymentDocumentRefNo);
       console.log('Calling processPayment');
       this.paymentService.processPayment(this.paymentForm.value , this.paymentDocumentRefNo);
+
+      // OPTIONAL: TODO: Checkout if we need this
+      /*
+      const dialogRef = this.dialog.open(SpinnerComponent , {
+        width: '400px',
+        height: '200px',
+          panelClass: 'kaoc-modalbox'
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        console.log('The Payment processing dialog was closed');
+      });
+      */
     }).catch((error) => {
       // Getting the Error details.
       console.log('addOrUpdateMemberAndMembership error.code ' +  error.code);
@@ -84,15 +97,6 @@ export class PaymentComponent implements OnInit {
     /*
 
     then (function(result) {
-      const dialogRef = this.dialog.open(SpinnerComponent , {
-        width: '400px',
-        height: '200px',
-          panelClass: 'kaoc-modalbox'
-      });
-
-      dialogRef.afterClosed().subscribe(result => {
-        console.log('The Payment processing dialog was closed');
-      });
 
       console.log('Processing Payment for ReferenceNo=' + this.paymentDocumentRefNo);
       console.log('PaymentService.processPayment.formDetails ' + JSON.stringify(this.paymentForm.value));

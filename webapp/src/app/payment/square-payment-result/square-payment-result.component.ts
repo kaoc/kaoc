@@ -52,16 +52,26 @@ export class SquarePaymentResultComponent implements OnInit {
     const os = this.platformUtils.getMobileOperatingSystem();
     console.log('Mobile OS = ' + os);
     if (os === 'iOS') {
-      // TBD
-      // If successful, Square Point of Sale returns the following parameters.
-      const REQUEST_METADATA_STR = 'REQUEST_METADATA';
-      const CLIENT_TRANSACTION_STR = 'client_transaction_id';
-      const TRANSACTION_ID_STR = 'transaction_id';
+      console.log('iOS parseCallbackUrlAndSetIds responseUrl: ' + responseUrl);
+      const url = new URL(responseUrl);
+      const data = decodeURI(url.searchParams.get('data'));
+      console.log('iOS parseCallbackUrlAndSetIds data: ' + data);
 
-      //const data = decodeURI(responseUrl.searchParams.get('data'));
-      //console.log('IOS data: ' + data);
-      //const transactionInfo = JSON.parse(data);
-    } else if (os === 'Android') {
+      // If successful, Square Point of Sale returns the following parameters.
+      const REQUEST_METADATA_STR = 'state';
+      const TRANSACTION_ID_STR = 'transaction_id';
+      const STATUS_STR = 'status';
+      const ERROR_CODE_STR = 'error_code';
+
+      const transactionInfo = JSON.parse(data);
+
+      if (transactionInfo[STATUS_STR] === 'ok') {
+        this.kaocPaymentsDocId = transactionInfo[REQUEST_METADATA_STR];
+        this.squareServerPaymentRefId = transactionInfo[TRANSACTION_ID_STR];
+      } else {
+        console.log('ERROR: iOS Square error code: ' + transactionInfo[ERROR_CODE_STR]);
+      }
+    } else if (this.platformUtils.getMobileOperatingSystem() === 'Android') {
       // If successful, Square Point of Sale returns the following parameters.
       const REQUEST_METADATA_STR = 'com.squareup.pos.REQUEST_METADATA';
       const SERVER_TRANSACTION_ID_STR = 'com.squareup.pos.SERVER_TRANSACTION_ID';
