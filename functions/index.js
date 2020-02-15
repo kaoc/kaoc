@@ -140,7 +140,7 @@ exports.getCurrentMembershipDataByMemberId = functions.https.onCall((data, conte
                 let membershipRef = querySnapShot.docs[0].ref;
                 let membershipRecord = querySnapShot.docs[0].data();
                 let {membershipType, endTime, startTime, paymentStatus, kaocUserRefs} = membershipRecord;
-                let membership = {membershipType, paymentStatus};
+                let membership = {membershipType, paymentStatus, kaocMembershipId: membershipRef.id};
                 membership.startTime = startTime.toMillis();
                 membership.endTime = endTime.toMillis();
 
@@ -175,7 +175,7 @@ exports.getCurrentMembershipDataByMemberId = functions.https.onCall((data, conte
         }).then(paymentQuerySnapshot => {
             if(paymentQuerySnapshot && !paymentQuerySnapshot.empty) {
                 let {paymentMethod, paymentAmount, paymentNotes, paymentStatus, paymentExternalSystemRef} = paymentQuerySnapshot.docs[0].data();
-                result.payment = {paymentMethod, paymentAmount, paymentNotes, paymentStatus, paymentExternalSystemRef};
+                result.payment = {paymentMethod, paymentAmount, paymentNotes, paymentStatus, paymentExternalSystemRef, kaocPaymentId: paymentQuerySnapshot.docs[0].id};
             }
             return Promise.all(
                             kaocMemberRefs.map(kaocRef => {
@@ -186,8 +186,8 @@ exports.getCurrentMembershipDataByMemberId = functions.https.onCall((data, conte
         }).then(memberDocumentSnapshots => {
             result.members = memberDocumentSnapshots.map(memberDocumentSnapshot => {
                 if(memberDocumentSnapshot.exists) {
-                    let {firstName, lastName, email, phoneNumber, loginId} = memberDocumentSnapshot.data();
-                    return {firstName, lastName, email, phoneNumber, loginId};
+                    let {firstName, lastName, emailId, phoneNumber} = memberDocumentSnapshot.data();
+                    return {firstName, lastName, emailId, phoneNumber, kaocUserId: memberDocumentSnapshot.id};
                 } else {
                     return {};
                 }
@@ -236,7 +236,7 @@ exports.updatePayment = functions.https.onCall((data, context) => {
 function _addOrUpdateMemberMembershipAndPayment(members, membership, payment, auth) {
     let result = {};
     
-    let {membershipYear, membershipType, legacyMembershipId} = membership || {};
+    let {membershipYear, membershipType, legacyMembershipId, kaocMembershipId, startTime, endTime} = membership || {};
     let {paymentMethod, paymentAmount, paymentStatus, paymentExternalSystemRef, paymentNotes} = payment || {};
 
     if(!(members && members.length > 0)) {
@@ -257,7 +257,8 @@ function _addOrUpdateMemberMembershipAndPayment(members, membership, payment, au
                 {
                     kaocUserIds, membershipYear, 
                     membershipType, legacyMembershipId, 
-                    paymentStatus
+                    paymentStatus, kaocMembershipId,
+                    startTime, endTime
                 },
                 auth
             );
@@ -305,7 +306,7 @@ function _addOrUpdateMemberMembershipAndPayment(members, membership, payment, au
  */
 function _addOrUpdateMember(memberObject) {
     if(!(memberObject 
-            && (memberObject.firstName || memberObject.lastName || memberObject.emailId))) {
+            && (memberObject.kaocUserId || memberObject.firstName || memberObject.lastName || memberObject.emailId))) {
         throw new Error(`Invalid Member object ${JSON.stringify(memberObject)}`);        
     }
     console.log(`Add or Update Member ${JSON.stringify(memberObject)}`);
@@ -321,35 +322,46 @@ function _addOrUpdateMember(memberObject) {
     });
     
     let query = null;
-    if(memberObject.emailId) {
+    let kaocUserRef = null;
+    if(memberObject.kaocUserId) {
+        kaocUserRef = userCollectionRef.doc(memberObject.kaocUserId);
+        delete memberObject.kaocUserId;
+    } else if(memberObject.emailId) {
         // A match can only be looked up if the user has an email. 
         // Otherwise, it is not possible to see if user is existing.
         query = userCollectionRef.where('emailId', "==", memberObject.emailId);
     } else {
-        console.warn(`Adding user without email id ${memberObject.firstName} ${memberObject.lastName}. Duplicate entry check cannot be perfomed.`)
+        console.warn(`Adding user without kaocUserId or email id ${memberObject.firstName} ${memberObject.lastName}. Duplicate entry check cannot be perfomed.`)
     }
     return ((query !== null) ? query.get() : Promise.resolve(null))
     .then(querySnapShot => {
-        if(!(querySnapShot && !querySnapShot.empty)) {
+        if(kaocUserRef) {
+            console.log(`Updaing user record ${JSON.stringify(memberObject)} using preexisting id ${kaocUserRef.id}.`)
+            return kaocUserRef.update(memberObject);
+        } else if(!(querySnapShot && !querySnapShot.empty)) {
             // User does not exist. 
             // add a new one
             memberObject.createTime = currentTime;
-            console.log(`User record for email id ${JSON.stringify(memberObject)} does not exist. Creating one.`)
+            console.log(`User record ${JSON.stringify(memberObject)} does not exist. Creating one.`)
             return userCollectionRef.add(memberObject);
         } else {
             console.log(`User record for email id ${memberObject.emailId} already exist. Updating record.`)
             memberObject.updateTime = currentTime;
+            kaocUserRef = querySnapShot.docs[0].ref;
             // User exists. Update the document reference. 
-            return querySnapShot.docs[0].ref.update(memberObject);
+            return kaocUserRef.update(memberObject);
         }
-    }).then(result => {
-        // If query was not formed, then a new record is added.
-        return query ? query.get(): result;
-    }).then(querySnapShot => {
-        // The result here could be a documentReference or a querySnapshot.
+    }).then(updateResult => {
+        // The result here could be a writeResult, documentReference or a querySnapshot.
         // If the object is a querySnapshot, then the object will have 'query' field.
         // Use that to check the type of object received here.
-        return querySnapShot.query ? querySnapShot.docs[0].ref.id: querySnapShot.id;
+        if(kaocUserRef) {
+            // Simply return the reference id
+            return kaocUserRef.id;
+        } else {
+            // updateResult is a document reference. 
+            return updateResult.id;
+        }
     });
 }
 
@@ -370,7 +382,7 @@ function _addOrUpdateMember(memberObject) {
  * @return {string} membership id.
  */
 function _addOrUpdateMembership(membership, auth) {
-    let {kaocUserIds, membershipYear, membershipType, legacyMembershipId, paymentStatus} = membership || {};
+    let {kaocUserIds, membershipYear, membershipType, legacyMembershipId, paymentStatus, kaocMembershipId} = membership || {};
 
     membershipYear = membershipYear || (new Date()).getFullYear();
     paymentStatus = paymentStatus || 'Paid';
@@ -382,54 +394,67 @@ function _addOrUpdateMembership(membership, auth) {
 
     const userRefs = kaocUserIds.map(kaocUserId => admin.firestore().doc(`/kaocUsers/${kaocUserId}`));
 
-    return Promise.all(userRefs.map(userRef => userRef.get()))
-        .then(userSnapshots => {
-        // Validate the member first. 
+    let membershipCollectionRef;
+    let membershipQueryRef;
+    let membershipRef;
+
+    return Promise
+    .all(userRefs.map(userRef => userRef.get()))
+    .then(userSnapshots => {
+        // Validate the members first. 
         userSnapshots.forEach(userSnapShot => {
             if(!userSnapShot.exists) {
                 throw new Error(`Invalid user reference ${userSnapShot.ref}. Membership cannot be added.`);
             }            
         })
-
-        let membershipCollectionRef = admin
+        membershipCollectionRef = admin
                     .firestore()
                     .collection('/kaocMemberships');
-        let membershipQueryRef = membershipCollectionRef                                
-                    .where('kaocUserRefs', "array-contains-any", userRefs)
-                    .where('startTime', "==", membershipStartTime)
-                    .where('endTime', "==", membershipEndTime);
-        return membershipQueryRef
-        .get()
-        .then(querySnapShot => {
-            let membershipRecord = {
-                'kaocUserRefs' : userRefs,
-                'startTime' : membershipStartTime,
-                'endTime' : membershipEndTime,
-                'membershipType': membershipType,
-                'paymentStatus': paymentStatus || 'Paid',
-            };
-
-            if (legacyMembershipId) {
-                membershipRecord.legacyMembershipId = legacyMembershipId;
-            }
-
-            if(querySnapShot.empty) {
-                // Membership does not exist
-                console.log(`Membership does not exist for ${kaocUserIds} for year - ${membershipYear}. Creeating new entry `);
-                _addAuditFields(membershipRecord, true, auth);
-                return membershipCollectionRef.add(membershipRecord);
-            } else {
-                _addAuditFields(membershipRecord, false, auth);
-                console.log(`Membership already exist for ${kaocUserIds} for year - ${membershipYear}. Updating membership type and number with the new information.`);
-                return querySnapShot.docs[0].ref.update(membershipRecord);
-            }
-        }).then(result=> {
+        if(kaocMembershipId) {
+            membershipRef = membershipCollectionRef.doc(kaocMembershipId);
+            return null;
+        } else {
+            membershipQueryRef = membershipCollectionRef                                
+            .where('kaocUserRefs', "array-contains-any", userRefs)
+            .where('startTime', "==", membershipStartTime)
+            .where('endTime', "==", membershipEndTime);
             return membershipQueryRef.get();
-        }).then(membershipQuerySnapShot => {
-            let membershipId = membershipQuerySnapShot.docs[0].ref.id;
-            console.log('Updated/New Membership Id ', membershipId);
-            return membershipId;
-        });                                    
+        }
+    }).then(querySnapShot => {    
+        let membershipRecord = {
+            'kaocUserRefs' : userRefs,
+            'startTime' : membershipStartTime,
+            'endTime' : membershipEndTime,
+            'membershipType': membershipType,
+            'paymentStatus': paymentStatus || 'Paid',
+        };
+
+        if (legacyMembershipId) {
+            membershipRecord.legacyMembershipId = legacyMembershipId;
+        }
+
+        if(membershipRef) {
+            console.log(`Membership referred using membership id ${kaocMembershipId} `);
+            _addAuditFields(membershipRecord, false, auth);
+            return membershipRef.update(membershipRecord);
+        } else if(querySnapShot.empty) {
+            // Membership does not exist
+            console.log(`Membership does not exist for ${kaocUserIds} for year - ${membershipYear}. Creeating new entry `);
+            _addAuditFields(membershipRecord, true, auth);
+            return membershipCollectionRef.add(membershipRecord);
+        } else {
+            _addAuditFields(membershipRecord, false, auth);
+            console.log(`Membership already exist for ${kaocUserIds} for year - ${membershipYear}. Updating membership type and number with the new information.`);
+            membershipRef = querySnapShot.docs[0].ref;
+            kaocMembershipId = membershipRef.id;
+            return membershipRef.update(membershipRecord);
+        }
+    }).then(result => {
+        if(!kaocMembershipId) {
+            // A new record is created. The result would be a data snaptshot at that time. 
+            kaocMembershipId = result.id;
+        }
+        return kaocMembershipId;
     });
 }
 

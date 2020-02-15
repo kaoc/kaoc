@@ -3,6 +3,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
     	function isAdmin() {
       	return
+        	request.auth != null && 
         	exists(/databases/$(database)/documents/kaocRoles/$(request.auth.uid))
           && get(/databases/$(database)/documents/kaocRoles/$(request.auth.uid)).data.admin != null
         	&& get(/databases/$(database)/documents/kaocRoles/$(request.auth.uid)).data.admin.startTime <= request.time
