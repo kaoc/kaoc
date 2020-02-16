@@ -34,24 +34,26 @@ export class MemberService {
     return this.members;
   }
 
-  addMember(members, membership, paymentForm) {
+  addMember(members, membership, payment) {
 
     this.spinner.show();
 
     this.ngFireFunctions.httpsCallable('addOrUpdateMemberAndMembership')({
-      members, membership, paymentForm
+      members, membership, payment
     })
       .subscribe(result => {
         console.log('got result' + JSON.stringify(result));
 
-        console.log('PaymentService.processPayment.paymentMode = ' + paymentForm.paymentMethod);
+        console.log('PaymentService.processPayment.paymentMode = ' + payment.paymentMethod);
         const paymentDocumentRefNo = result['paymentId'];
-
-        if (paymentForm.paymentMethod === 'Square' ) {
-          this.paymentService.startSquarePayment(paymentForm, paymentDocumentRefNo);
-        } else {
+        const membershipId = result['membershipId'];
+        console.log ("paymentDocumentRefNo="  + paymentDocumentRefNo );
+        console.log ("membershipId="  + membershipId );
+        if (payment.paymentMethod === 'Square' && null!=paymentDocumentRefNo) {
+          this.paymentService.startSquarePayment(payment, paymentDocumentRefNo);
+        } /*else {
           console.log('ERROR: Unsupported payment method ' + paymentForm.paymentMethod);
-        }
+        } */
         this.spinner.hide();
       }, err => {
         console.error( 'Error while adding member ' +  err );
