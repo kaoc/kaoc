@@ -72,7 +72,7 @@ export class PaymentComponent implements OnInit {
       this.paymentDocumentRefNo = result['paymentId'];
       console.log('addOrUpdateMemberAndMembership paymentRef ' + this.paymentDocumentRefNo);
       console.log('Calling processPayment');
-      this.paymentService.processPayment(this.paymentForm.value , this.paymentDocumentRefNo);
+      // this.paymentService.processPayment(this.paymentForm.value , this.paymentDocumentRefNo);
 
       // OPTIONAL: TODO: Checkout if we need this
       /*

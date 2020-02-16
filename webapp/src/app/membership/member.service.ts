@@ -1,10 +1,11 @@
+import { PaymentService } from '../payment/payment.service';
 import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { Member } from './Member';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AngularFireFunctions } from '@angular/fire/functions';
-import { NgxSpinnerService } from "ngx-spinner";
+import { NgxSpinnerService } from 'ngx-spinner';
 @Injectable({
   providedIn: 'root'
 })
@@ -14,14 +15,15 @@ export class MemberService {
 
   constructor(public db: AngularFirestore,
     private ngFireFunctions: AngularFireFunctions,
-    private spinner: NgxSpinnerService) {
+    private spinner: NgxSpinnerService,
+    private paymentService: PaymentService) {
      this.membersCollection = this.db.collection<Member>('kaocUsers', ref => ref.orderBy('lastName', 'asc'));
     // this.members = this.membersCollection.valueChanges();
 
     this.members = this.membersCollection.snapshotChanges().pipe(
       map(actions => actions.map(a => {
         const data = a.payload.doc.data() as Member;
-        console.log("members data" + JSON.stringify(data));
+        console.log('members data' + JSON.stringify(data));
         data.docId = a.payload.doc.id;
         return data;
       }))
@@ -32,15 +34,24 @@ export class MemberService {
     return this.members;
   }
 
-  addMember(members, membership, payment) {
+  addMember(members, membership, paymentForm) {
 
     this.spinner.show();
 
     this.ngFireFunctions.httpsCallable('addOrUpdateMemberAndMembership')({
-      members, membership, payment
+      members, membership, paymentForm
     })
-      .subscribe(resp => {
-        console.log("got result" + JSON.stringify(resp));
+      .subscribe(result => {
+        console.log('got result' + JSON.stringify(result));
+
+        console.log('PaymentService.processPayment.paymentMode = ' + paymentForm.paymentMethod);
+        const paymentDocumentRefNo = result['paymentId'];
+
+        if (paymentForm.paymentMethod === 'Square' ) {
+          this.paymentService.startSquarePayment(paymentForm, paymentDocumentRefNo);
+        } else {
+          console.log('ERROR: Unsupported payment method ' + paymentForm.paymentMethod);
+        }
         this.spinner.hide();
       }, err => {
         console.error( 'Error while adding member ' +  err );

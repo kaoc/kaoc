@@ -10,22 +10,6 @@ export class PaymentService {
   public processStatus: string = '';
   constructor(public platformUtils: PlatformUtilsService) { }
 
-  processPayment(paymentForm, referenceNo: string) {
-    console.log('PaymentService.processPayment.paymentMode = ' + paymentForm.paymode);
-    if (paymentForm.paymode === 'Cash' || paymentForm.paymode === 'Cheque') {
-      console.log('Make member active');
-    } else if (paymentForm.paymode === 'Square') {
-      this.showspinner = true;
-      this.processStatus = 'Square transaction in progress , please wait..'
-      this.startSquarePayment(paymentForm, referenceNo);
-      setTimeout(() => {
-        this.processStatus = 'Transaction Complete for reference number ' +  referenceNo;
-        this.showspinner = false;
-      }, 5000) } else if (paymentForm.paymode === 'Paypal') {
-      console.log('===>>>> PaymentService.processPayment.Paypal implementation logic goes here');
-    }
-  }
-
   startSquarePayment(paymentForm, referenceNo: string) {
     const os = this.platformUtils.getMobileOperatingSystem();
     // The URL where the Point of Sale app will send the transaction results.
@@ -94,9 +78,5 @@ export class PaymentService {
     } else {
       console.log('ERROR: startSquarePayment: Unsupported Mobile OS')
     }
-
-
   }
 }
-
-
