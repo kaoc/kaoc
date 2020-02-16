@@ -1,8 +1,9 @@
 
 export interface Member {
+    docId: string;
     emailId: string;
     firstName: string;
     lastName: string;
-    mobileNo: string;
+    phoneNumber: string;
     adultFlag: string;
 }

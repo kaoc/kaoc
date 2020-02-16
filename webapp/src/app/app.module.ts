@@ -10,6 +10,7 @@ import { AngularFireStorageModule } from '@angular/fire/storage';
 import { AngularFireAuthModule } from '@angular/fire/auth';
 import { environment } from '../environments/environment';
 import { FlexLayoutModule } from "@angular/flex-layout";
+import { NgxSpinnerModule } from "ngx-spinner";
 import { HeaderComponent } from './common/header/header.component';
 import { MaterialModule }  from './material.module';
 import { MemberProfileComponent } from './membership/member-profile/member-profile.component';
@@ -66,7 +67,8 @@ import { SpinnerComponent } from './common/spinner/spinner.component';
     MaterialModule,
     AngularFireFunctionsModule,
     SecuredModule,
-    AppRoutingModule
+    AppRoutingModule,
+    NgxSpinnerModule
   ],
   entryComponents: [ EditMemberComponent, SpinnerComponent ],
   providers: [],

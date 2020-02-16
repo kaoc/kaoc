@@ -1,77 +1,62 @@
-<!--<form [formGroup]="memberForm">
-  <input placeholder="Membership Type" formControlName="membershipType">
-  <div formArrayName="members"
-    *ngFor="let member of memberForm.get('members').controls; let i = index;">
-    <ng-container [formGroupName]="i">
-      <input formControlName="emailId" placeholder="Email Id">
-      <input formControlName="firstName" placeholder="First name">
-      <input formControlName="lastName" placeholder="Last name">
-      <input formControlName="phoneNumber" placeholder="phoneNumber">
-    </ng-container>
-    <button (click)="addMember()">Add</button>
-    EmailId {{ memberForm.controls.members.controls[i].controls.emailId.value }}
-
-  </div>
-
-  <button (click)="doSubmit()">Save</button>
-  </form> -->
-
 <div fxLayout="column" fxLayoutAlign="space-evenly start">
+
+  <ngx-spinner bdColor="rgba(51,51,51,0.8)" size="medium" color="#fff" type="ball-scale-multiple">
+    <p style="font-size: 20px; color: white">Loading...</p>
+  </ngx-spinner>
+
   <div fxLayout="column" fxLayoutAlign="space-evenly center"> Add member
-    <!--     <mat-vertical-stepper [linear]="isLinear" #stepper>-->
     <mat-horizontal-stepper [linear]="isLinear" #stepper>
       <mat-step [stepControl]="memberForm">
+        <form [formGroup]="membershipTypeForm">
+          <table>
+            <tr>
+              <td>
+                <label>Membership Type</label>
+                <mat-radio-group formControlName="membershipType" [(ngModel)]="membershipType" required>
+                  <mat-radio-button value="INDIVIDUAL" (click)="setPaymentAmount('INDIVIDUAL')">Individual
+                  </mat-radio-button>
+                  <mat-radio-button value="FAMILY" (click)="setPaymentAmount('FAMILY')">Family</mat-radio-button>
+                  <mat-radio-button value="SRCITIZEN" (click)="setPaymentAmount('SRCITIZEN')"> Sr.Citizen
+                  </mat-radio-button>
+                </mat-radio-group>
+              </td>
+            </tr>
+            <tr>
+              <td>Membership amount : ${{membershipAmt}}
+              </td>
+            </tr>
+          </table> <br>
+        </form>
         <form [formGroup]="memberForm">
           <ng-template matStepLabel>Member Details</ng-template>
           <mat-card>
-            <table>
-              <tr>
-                <td>
-                  <label>Membership Type</label>
-                  <mat-radio-group formControlName="membershipType" [(ngModel)]="membershipAmt" required>
-                    <mat-radio-button value="IND">Individual</mat-radio-button>
-                    <mat-radio-button value="FAM">Family</mat-radio-button>
-                    <mat-radio-button value="SRCTZN">Sr.Citizen</mat-radio-button>
-                  </mat-radio-group>
-                </td>
-              </tr>
-              <tr>
-                <td>Membership amount :
-                  <span *ngIf="membershipAmt==='SRCTZN'">$35</span>
-                  <span *ngIf="membershipAmt==='IND'">$55</span>
-                  <span *ngIf="membershipAmt==='FAM'">$95</span>
-                </td>
-              </tr>
-            </table> <br>
-
-            <mat-form-field class="example-full-width">
+            <mat-form-field class="form-full-width">
               <input matInput placeholder="Email Id" formControlName="emailId" required>
             </mat-form-field>
 
-            <mat-form-field class="example-full-width">
+            <mat-form-field class="form-full-width">
               <input matInput placeholder="First name" formControlName="firstName" required>
             </mat-form-field>
 
-            <mat-form-field class="example-full-width">
+            <mat-form-field class="form-full-width">
               <input matInput placeholder="Last name" formControlName="lastName" required>
             </mat-form-field>
 
-            <mat-form-field class="example-full-width">
+            <mat-form-field class="form-full-width">
               <input matInput placeholder="Mobile number" formControlName="phoneNumber" required>
             </mat-form-field>
 
             <div fxLayout="row" fxLayoutAlign="end end" fxLayoutGap="5px">
               <button mat-raised-button class="kaoc-btn-primary" matStepperNext (click)="addMember(0)">Next</button>
-              <button mat-raised-button class="kaoc-btn-primary" matStepperNext (click)="addMember(0)">Pay </button>
+              <button mat-raised-button class="kaoc-btn-primary" matStepperNext (click)="addMember(0)">Skip Family &
+                Pay</button>
             </div>
-
           </mat-card>
         </form>
       </mat-step>
       <mat-step [stepControl]="memberDetForm" optional>
         <form [formGroup]="memberDetForm">
           <ng-template matStepLabel>Family Details </ng-template> <br />
-
           <mat-card>
             <mat-card-header>
               <mat-card-title>
@@ -80,52 +65,52 @@
             </mat-card-header>
             <mat-card-content>
 
-              <mat-form-field class="example-full-width">
-                <input matInput placeholder="Email Id" formControlName="emailId" required>
+              <mat-form-field class="form-full-width">
+                <input matInput placeholder="Email Id" formControlName="emailId">
               </mat-form-field>
 
-              <table class="example-full-width">
+              <table class="form-full-width">
                 <tr>
                   <td>
-                    <mat-form-field class="example-full-width">
+                    <mat-form-field class="form-full-width">
                       <input matInput placeholder="First name" formControlName="firstName" required>
                     </mat-form-field>
                   </td>
                   <td>
-                    <mat-form-field class="example-full-width">
+                    <mat-form-field class="form-full-width">
                       <input matInput placeholder="Last name" formControlName="lastName" required>
                     </mat-form-field>
                   </td>
                 </tr>
               </table>
 
-              <table class="example-full-width">
+              <table class="form-full-width">
                 <tr>
                   <td>
-                    <mat-form-field class="example-full-width">
-                      <input matInput placeholder="Mobile number" formControlName="phoneNumber" required>
+                    <mat-form-field class="form-full-width">
+                      <input matInput placeholder="Mobile number" formControlName="phoneNumber">
                     </mat-form-field>
                   </td>
                   <td>
-
                     <mat-form-field>
-                      <mat-select formControlName="adultFlag" placeholder="Age group">
+                      <mat-select formControlName="adultFlag" placeholder="Age group" required>
                         <mat-option value="adult" selected>Adult</mat-option>
                         <mat-option value="child">Child</mat-option>
                       </mat-select>
                     </mat-form-field>
-
                   </td>
-
                 </tr>
 
               </table>
               <div fxLayout="row" fxLayoutAlign="end end" fxLayoutGap="5px">
-                <button mat-raised-button color="primary" (click)="addFamily()" >
-                  <mat-icon matTooltip="Add Member">group_add</mat-icon> Add</button>
-                <button mat-raised-button class="kaoc-btn-primary" matStepperNext (click)="addFamily()" >
-                  <mat-icon  matTooltip="Pay KAOC">payment</mat-icon> Pay</button>
-             </div>
+                <button mat-raised-button color="primary" (click)="addFamily('Add')">
+                  <mat-icon matTooltip="Add Member">group_add</mat-icon> Add
+                </button>
+                <button mat-raised-button class="kaoc-btn-primary" matStepperNext
+                  (click)="addFamily('CreateMemberNPay')">
+                  <mat-icon matTooltip="Pay KAOC">payment</mat-icon>Pay
+                </button>
+              </div>
             </mat-card-content>
           </mat-card>
         </form>
@@ -137,7 +122,7 @@
           </mat-card-header>
           <mat-card-content>
             <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>
-              <!-- Index Column -->
+              <div></div>
               <ng-container matColumnDef="index">
                 <th mat-header-cell *matHeaderCellDef>No.</th>
                 <td mat-cell *matCellDef="let index = index"> {{index +1}} </td>
@@ -169,10 +154,10 @@
 
               <ng-container matColumnDef="action">
                 <th mat-header-cell *matHeaderCellDef>Action</th>
-                <td mat-cell *matCellDef="let element">
+                <td mat-cell *matCellDef="let element ; let index = index">
                   <div>
                     <mat-icon (click)="openEditDialog(element)" matTooltip="Edit Member">edit</mat-icon>
-                    <mat-icon (click)="deleteMember(element)" matTooltip="Delete member">delete</mat-icon>
+                    <mat-icon (click)="deleteMember(index)" matTooltip="Delete member">delete</mat-icon>
                   </div>
                 </td>
               </ng-container>
@@ -184,10 +169,48 @@
           </mat-card-content>
         </mat-card>
       </mat-step>
-      <mat-step  >
-        <ng-template matStepLabel>Payment</ng-template>
-        <app-payment></app-payment>
-       </mat-step>
+      <mat-step [stepControl]="paymentForm">
+        <form [formGroup]="paymentForm">
+          <ng-template matStepLabel>Payment</ng-template> <br />
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>
+                Payment Details
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div fxLayout="row" fxLayoutGap="5px">
+                <mat-form-field class="form-full-width">
+                  <mat-label>Payment method</mat-label>
+                  <mat-select formControlName="paymode" required>
+                    <mat-option *ngFor="let paymode of paymentList" [value]="paymode">{{paymode}}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
 
+                <mat-form-field class="form-full-width">
+                  <input matInput placeholder="Amount" formControlName="amount" readonly="true">
+                </mat-form-field>
+              </div>
+              <div fxLayout="row">
+                <mat-form-field class="form-full-width">
+                  <input matInput placeholder="Transaction Reference No" formControlName="referenceNo">
+                </mat-form-field>
+              </div>
+              <div fxLayout="row">
+                <mat-form-field class="form-full-width">
+                  <textarea matInput placeholder="Memo" formControlName="memo" rows="3"></textarea>
+                </mat-form-field>
+              </div>
+              <div fxLayout="row" fxLayoutAlign="end end" fxLayoutGap="5px">
+                <button mat-raised-button class="kaoc-btn-primary" (click)="submitPayment()">
+                  <mat-icon matTooltip="Pay KAOC">payment</mat-icon> Submit Payment
+                </button>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </form>
+
+      </mat-step>
     </mat-horizontal-stepper>
   </div>

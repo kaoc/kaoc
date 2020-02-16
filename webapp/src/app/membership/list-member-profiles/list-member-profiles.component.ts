@@ -8,6 +8,9 @@ import { MemberService } from '../member.service';
 import { Member } from '../Member';
 import { MatDialog } from '@angular/material';
 import { EditMemberComponent } from '../edit-member/edit-member.component';
+import {AngularFireFunctions} from '@angular/fire/functions';
+import { first } from 'rxjs/operators';
+import { analytics } from 'firebase';
 
 @Component({
   selector: 'list-member-profiles',
@@ -17,16 +20,20 @@ import { EditMemberComponent } from '../edit-member/edit-member.component';
 
 export class ListMemberProfilesComponent implements OnInit {
   dataSource: MatTableDataSource<Member>; 
-  columnsToDisplay: string[] = ['id','memberId','firstName', 'lastName', 'emailId', 'mobileNo' ,'membershipType' ,'action' ];
-  expandedElement: Member | null;
-
+ // columnsToDisplay: string[] = ['id','memberId','firstName', 'lastName', 'emailId', 'mobileNo' ,'membershipType' ,'action' ];
+  
+ expandedElement: Member | null;
+ columnsToDisplay: string[] = ['docId','firstName', 'lastName', 'emailId', 'phoneNumber' ,'action' ];
+  
   @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
   @ViewChild(MatSort, {static: true}) sort: MatSort;
   members : Member[];
   editState: boolean= false;
   memberToEdit: Member;
+
   constructor(private memberService: MemberService,
-    public dialog: MatDialog) { }
+    public dialog: MatDialog,
+    private ngFireFunctions: AngularFireFunctions) { }
   
   ngOnInit() {
     this.memberService.getAllMembers().subscribe( members => {
@@ -37,6 +44,21 @@ export class ListMemberProfilesComponent implements OnInit {
     });
   }
  
+  getMembershipDetails (member : Member) {
+ 
+    var response : any;
+    console.log("Inside getMembershipDetails.member.docId=" + member.docId);
+  
+    var addMessage = this.ngFireFunctions.httpsCallable('getCurrentMembershipDataByMemberId')({ kaocUserId: member.docId })
+    .pipe(first())
+    .subscribe(resp => {
+      console.log("got result" + JSON.stringify( resp));
+    }, err => {
+      console.error({ err });
+    });   
+    console.log( JSON.stringify( addMessage ));
+  }
+
   openEditDialog ( member : Member) {
     console.log('memberProfile' + JSON.stringify(member));
     const dialogRef = this.dialog.open(EditMemberComponent, {

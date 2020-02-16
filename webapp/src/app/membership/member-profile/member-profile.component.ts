@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators, FormControl, FormArray } from '@ang
 import { MemberService } from '../member.service';
 import { Membership } from '../Membership';
 import { Member } from '../Member';
-import {MatTableDataSource} from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material';
 
 @Component({
@@ -12,38 +12,27 @@ import { MatSort } from '@angular/material';
   styleUrls: ['./member-profile.component.css']
 })
 export class MemberProfileComponent implements OnInit {
-  dataSource: MatTableDataSource<any>; 
-   @ViewChild(MatSort, {static: true}) sort: MatSort;
+  dataSource: MatTableDataSource<any>;
+  @ViewChild(MatSort, { static: true }) sort: MatSort;
 
   isLinear = true;
   saved = false;
 
-  displayedColumns: string[] = ['index','emailId', 'firstName', 'lastName', 'phoneNumber','adultFlag' ,'action'];
+  displayedColumns: string[] = ['index', 'emailId', 'firstName', 'lastName', 'phoneNumber', 'adultFlag', 'action'];
 
+  membershipTypeForm: FormGroup;
+  memberForm: FormGroup;
+  memberDetForm: FormGroup;
+  paymentForm: FormGroup;
+  paymentList: string[] = ['Cash', 'Cheque', 'Square'];
+  memberShip: Membership;
 
   memberdet;
   paymentdet;
 
-  memberForm: FormGroup;
-  memberDetForm: FormGroup;
-
-  paymentForm: FormGroup;
-  public carForm: FormGroup;
-  paymentList: string[] = ['Cash', 'Cheque', 'Square'];
   membershipAmt;
   member: Member[];
   members: FormArray;
-  membersdet: FormArray;
-
-  memberDet = {
-    members: [{
-    firstName: '',
-    lastName: '',
-    phoneNumber: '',
-    emailId: '',
-    adultFlag:''
-  }]
-}
 
   data = {
     members: [{
@@ -58,53 +47,39 @@ export class MemberProfileComponent implements OnInit {
     }
   }
 
-  /* orderForm: FormGroup;
- members: FormArray;
-
-  form: FormGroup;
- 
-constructor(private fb: FormBuilder) {
-    this.form = this.fb.group({
-      membershipType:'',
-      members: this.fb.array([]),
-    });
-    this.addMember();
-  }
- 
-  addMember() {
-    const member = this.form.controls.members as FormArray;
-    member.push(this.fb.group({
-      emailId:'',
-      firstName: '',
-      lastName: '',
-      phoneNumber:''
-    }));
-  }  */
-
-
-  constructor(private formBuilder: FormBuilder) { }
+  constructor(private formBuilder: FormBuilder,
+    private service: MemberService) { }
 
   ngOnInit() {
 
-    this.memberForm = this.formBuilder.group({
+    this.membershipTypeForm = this.formBuilder.group({
       membershipType: '',
+    });
+
+    this.memberForm = this.formBuilder.group({
       emailId: ['', Validators.required],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       phoneNumber: ['', Validators.required],
+      adultFlag: 'Adult',
     });
 
     this.memberDetForm = this.formBuilder.group({
-      emailId: ['', Validators.required],
+      emailId: '',
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      phoneNumber: ['', Validators.required],
+      phoneNumber: '',
       adultFlag: '',
     });
-   
-  
 
-   }
+    this.paymentForm = this.formBuilder.group({
+      paymode: ['', Validators.required],
+      amount: '0',
+      referenceNo: '',
+      memo: '',
+    });
+
+  }
 
   createMember(): FormGroup {
     return this.formBuilder.group({
@@ -116,45 +91,62 @@ constructor(private fb: FormBuilder) {
     });
   }
 
-  addMember( index) {
-    console.log("index="+index);
-    console.log("Member Details:" + JSON.stringify(this.memberForm.value));
+  setPaymentAmount(membershipType) {
 
-    this.data.members[index]=this.memberForm.value;
- 
-    console.log("After adding Member Details:" + JSON.stringify(this.data.members));
-    console.log("Member Details array size:" +  this.data.members.length);
+    console.log('setPaymentAmount.membershipType=' + membershipType);
+    if (membershipType === 'SRCITIZEN') {
+      this.membershipAmt = 35;
+    } else if (membershipType === 'INDIVIDUAL') {
+      this.membershipAmt = 55;
+    } else if (membershipType === 'FAMILY') {
+      this.membershipAmt = 95;
+    }
+    this.paymentForm.controls.amount.patchValue(this.membershipAmt);
+
+  }
+
+  addMember(index) {
+    console.log("index=" + index);
+    this.data.members[index] = this.memberForm.value;
+    this.setMatTable();
+  }
+
+  addFamily(action) {
+
+    if (this.memberDetForm.invalid) {
+      console.log('Member Detail form is invalid')
+      return;
+    } else {
+      this.data.members.push(this.memberDetForm.value);
+      this.memberDetForm.reset();
+    }
+
+    this.setMatTable();
+    console.log("Creating membership for " + JSON.stringify(this.data));
+
+  }
+
+  deleteMember(index) {
+    console.log('deleteMember member at index=' + index);
+    this.data.members.splice(index, 1);
+    this.setMatTable();
+  }
+
+  setMatTable() {
     this.dataSource = new MatTableDataSource(this.data.members);
-    this.dataSource.sort = this.sort; 
+    this.dataSource.sort = this.sort;
   }
 
- /* addRow () {
-   
-    if (this.memberDetForm.invalid) {
-      console.log('Member Detail form is invalid')
-      return ;
+  submitPayment() {
+    if (this.paymentForm.invalid) {
+      console.log('paymentForm is invalid')
+      return;
+    } else {
+      console.log('this.data.members' + JSON.stringify(this.data.members));
+      console.log('membershipTypeForm details' + JSON.stringify(this.membershipTypeForm.value));
+      console.log('paymentForm details' + JSON.stringify(this.paymentForm.value));
+
+      this.service.addMember(this.data.members, this.membershipTypeForm.value, this.paymentForm.value);
     }
-
-    this.membersdet = this.memberDetForm.get('membersdet') as FormArray;
-    this.membersdet.push(this.createMember());
-    console.log('memberdet form value = ' + JSON.stringify(this.memberDetForm.value));
- }*/
-
-  addFamily() {
-    if (this.memberDetForm.invalid) {
-      console.log('Member Detail form is invalid')
-      return ;
-    }
-
-    this.data.members.push(this.memberDetForm.value);
-    //this.membersdet = this.memberDetForm.get('membersdet') as FormArray;
-    //this.membersdet.push(this.createMember());
-    
-  this.dataSource = new MatTableDataSource(this.data.members);
-  this.dataSource.sort = this.sort; 
-    console.log("After adding Member Details:" + JSON.stringify(this.data.members));
-    console.log("Member Details array size:" +  this.data.members.length);
   }
-
-  
 }
