@@ -182,24 +182,24 @@
               <div fxLayout="row" fxLayoutGap="5px">
                 <mat-form-field class="form-full-width">
                   <mat-label>Payment method</mat-label>
-                  <mat-select formControlName="paymode" required>
+                  <mat-select formControlName="paymentMethod" required>
                     <mat-option *ngFor="let paymode of paymentList" [value]="paymode">{{paymode}}
                     </mat-option>
                   </mat-select>
                 </mat-form-field>
 
                 <mat-form-field class="form-full-width">
-                  <input matInput placeholder="Amount" formControlName="amount" readonly="true">
+                  <input matInput placeholder="Amount" formControlName="paymentAmount" readonly="true">
                 </mat-form-field>
               </div>
               <div fxLayout="row">
                 <mat-form-field class="form-full-width">
-                  <input matInput placeholder="Transaction Reference No" formControlName="referenceNo">
+                  <input matInput placeholder="Transaction Reference No" formControlName="paymentExternalSystemRef">
                 </mat-form-field>
               </div>
               <div fxLayout="row">
                 <mat-form-field class="form-full-width">
-                  <textarea matInput placeholder="Memo" formControlName="memo" rows="3"></textarea>
+                  <textarea matInput placeholder="Memo" formControlName="paymentNotes" rows="3"></textarea>
                 </mat-form-field>
               </div>
               <div fxLayout="row" fxLayoutAlign="end end" fxLayoutGap="5px">

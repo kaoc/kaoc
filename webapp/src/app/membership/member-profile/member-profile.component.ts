@@ -73,10 +73,10 @@ export class MemberProfileComponent implements OnInit {
     });
 
     this.paymentForm = this.formBuilder.group({
-      paymode: ['', Validators.required],
-      amount: '0',
-      referenceNo: '',
-      memo: '',
+      paymentMethod: ['', Validators.required],
+      paymentAmount: '0',
+      paymentExternalSystemRef: '',
+      paymentNotes: '',
     });
 
   }
@@ -101,7 +101,7 @@ export class MemberProfileComponent implements OnInit {
     } else if (membershipType === 'FAMILY') {
       this.membershipAmt = 95;
     }
-    this.paymentForm.controls.amount.patchValue(this.membershipAmt);
+    this.paymentForm.controls.paymentAmount.patchValue(this.membershipAmt);
 
   }
 
