@@ -22,8 +22,7 @@ export class PaymentService {
     const applicationId = 'sq0idp-SwIIqsQfPszLsEDFFyupkg';
 
     // The total and currency code should come from your transaction flow.
-    // For now, we are hardcoding them.
-    const transactionTotal = paymentForm.amount;
+    const transactionTotalInCents = paymentForm.paymentAmount * 100;
     const currencyCode = 'USD';
 
     if (os === 'iOS') {
@@ -35,7 +34,7 @@ export class PaymentService {
         "version": sdkVersion,
         "amount_money":
         {
-          "amount": transactionTotal,
+          "amount": transactionTotalInCents,
           "currency_code": currencyCode
         },
         "options":
@@ -64,7 +63,7 @@ export class PaymentService {
         'S.com.squareup.pos.WEB_CALLBACK_URI=' + callbackUrl + ';' +
         'S.com.squareup.pos.CLIENT_ID=' + applicationId + ';' +
         'S.com.squareup.pos.API_VERSION=' + sdkVersion + ';' +
-        'i.com.squareup.pos.TOTAL_AMOUNT=' + transactionTotal + ';' +
+        'i.com.squareup.pos.TOTAL_AMOUNT=' + transactionTotalInCents + ';' +
         'S.com.squareup.pos.CURRENCY_CODE=' + currencyCode + ';' +
         'S.com.squareup.pos.TENDER_TYPES=' + tenderTypes + ';' +
         'l.com.squareup.pos.AUTO_RETURN_TIMEOUT_MS=3200;' +
