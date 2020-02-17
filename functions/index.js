@@ -681,7 +681,6 @@ exports.squareServerPaymentCallback = functions.https.onRequest(async (req, res)
 
  /**
   * ONLY for Testing. 
-  */
 exports.sendPaymentEmail = functions.https.onCall((data, context) => {
     return admin.firestore().doc(`/kaocPayments/${data.paymentId}`)
             .get()
@@ -695,6 +694,7 @@ exports.sendPaymentEmail = functions.https.onCall((data, context) => {
                 }
             });
 });
+  */
 
  /**
   * Sends out a payment email if the status is complete
