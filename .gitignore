@@ -57,3 +57,6 @@ Kaoc.postman_collection.json
 .angulardoc.json
 functions/firebase-debug.log
 firebase-debug.log
+functions/.runtimeconfig.json
+functions/package-lock.json
+functions/package-lock.json
