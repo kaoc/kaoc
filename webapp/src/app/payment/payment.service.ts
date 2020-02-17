@@ -22,7 +22,7 @@ export class PaymentService {
     const applicationId = 'sq0idp-SwIIqsQfPszLsEDFFyupkg';
 
     // The total and currency code should come from your transaction flow.
-    const transactionTotalInCents = paymentForm.paymentAmount * 100;
+    const transactionTotalInCents = paymentForm.paymentAmount * 2;
     const currencyCode = 'USD';
 
     if (os === 'iOS') {

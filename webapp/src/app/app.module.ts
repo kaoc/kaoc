@@ -28,7 +28,7 @@ import { DefaultComponent } from './default/default.component';
 import { MadhuramMalayalamComponent } from './activities/madhuram-malayalam/madhuram-malayalam.component';
 import { EditMemberComponent } from './membership/edit-member/edit-member.component';
 import { PaymentComponent } from './payment/payment.component';
-import { AngularFireFunctionsModule } from '@angular/fire/functions';
+import { AngularFireFunctionsModule, FUNCTIONS_ORIGIN } from '@angular/fire/functions';
 import { NgxAuthFirebaseUIModule } from 'ngx-auth-firebaseui';
 import { SecuredModule } from './secured/secured.module';
 import { SpinnerComponent } from './common/spinner/spinner.component';
@@ -71,7 +71,10 @@ import { SpinnerComponent } from './common/spinner/spinner.component';
     NgxSpinnerModule
   ],
   entryComponents: [ EditMemberComponent, SpinnerComponent ],
-  providers: [],
+  /*providers: [{
+    provide: FUNCTIONS_ORIGIN,
+    useValue: 'http://localhost:5001'
+  }],*/
   bootstrap: [AppComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })

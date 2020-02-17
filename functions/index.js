@@ -1,5 +1,17 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+const nodemailer = require('nodemailer');
+
+const emailUser = functions.config().smtp.username;
+const emailPassword = functions.config().smtp.password;
+const mailTransportOptions = {
+    "service" : "gmail",
+    "auth":{
+        "user": emailUser,
+        "pass": emailPassword
+    }
+};
+
 admin.initializeApp();
 
 /**
@@ -559,6 +571,7 @@ function _addPayment(paymentObject, auth) {
         return Promise.reject(new Error('Invalid payment parameters.'));
     } else {
         paymentStatus = paymentStatus || 'Paid';
+        let paymentId;
         const kaocUserRef = admin.firestore().doc(`/kaocUsers/${kaocUserId}`); 
         const paymentDoc = {
             kaocUserRef,
@@ -573,7 +586,10 @@ function _addPayment(paymentObject, auth) {
         return admin.firestore().collection('kaocPayments')
         .add(_addAuditFields(paymentDoc, true, auth))
         .then(paymentDocRef => {
-            return paymentDocRef.id;
+            paymentId = paymentDocRef.id;
+            return _sendPaymentEmail(paymentDoc);
+        }).then(()=>{
+            return paymentId;
         });
     }            
 }
@@ -582,9 +598,11 @@ function _addPayment(paymentObject, auth) {
 function _updatePayment(paymentId, paymentObject, auth) {
     const paymentRef = admin.firestore().doc(`/kaocPayments/${paymentId}`);
     let paymentTypeRef = null;
+    let paymentDoc = null;
     return paymentRef.get().then(paymentDocSnapshot=>{
         if(paymentDocSnapshot.exists) {
-            paymentTypeRef = paymentDocSnapshot.data().paymentTypeRef;
+            paymentDoc = paymentDocSnapshot.data();
+            paymentTypeRef = paymentDoc.paymentTypeRef;
             return paymentRef.update(_addAuditFields(paymentObject, false, auth));
         } else {
             return Promise.reject(new Error(`No payment found with reference id ${paymentId}`));
@@ -601,6 +619,8 @@ function _updatePayment(paymentId, paymentObject, auth) {
             });
         }
         return null;
+    }).then(result => {
+        return _sendPaymentEmail(paymentDoc);
     }).then(result => {
         return paymentId;
     });
@@ -633,10 +653,142 @@ function _addAuditFields(record, newRecord, auth) {
 
 /**
  * Callback from SquareServer after a Point of Sale is handled (from kaoc app) 
- */
 exports.squareServerPaymentCallback = functions.https.onRequest(async (req, res) => {
     console.log(JSON.stringify(req.query));
     console.log(JSON.stringify(req.body));
     res.status(200).send("OK");
     return Promise.resolve("OK");
+});
+ */
+
+ /**
+  * ONLY for Testing. 
+  */
+exports.sendPaymentEmail = functions.https.onCall((data, context) => {
+    return admin.firestore().doc(`/kaocPayments/${data.paymentId}`)
+            .get()
+            .then(paymentSnapShot=>{
+                if(paymentSnapShot.exists) {
+                    console.debug('Payment Record Found. Sending Email');
+                    return _sendPaymentEmail(paymentSnapShot.data());
+                } else {
+                    console.debug('Could not find payment record');
+                    return Promise.reject(new Error("Could not find payment record"));
+                }
+            });
+});
+
+ /**
+  * Sends out a payment email if the status is complete
+  * 
+  * @param {object} paymentDoc 
+  */
+ function _sendPaymentEmail(paymentDoc) {
+    if(paymentDoc 
+            && paymentDoc.paymentStatus === 'Paid' 
+            && paymentDoc.paymentTypeRef
+            && paymentDoc.kaocUserRef) {
+
+        if(paymentDoc.paymentType === 'Membership') {
+            let userEmail;
+            let userName;
+            let membershipType;
+            let membershipYear;
+
+            if(paymentDoc.kaocUserRef.path) {
+                paymentDoc.kaocUserRef = paymentDoc.kaocUserRef.path;
+            }
+
+            if(paymentDoc.paymentTypeRef.path) {
+                paymentDoc.paymentTypeRef = paymentDoc.paymentTypeRef.path;
+            }
+
+            console.debug('Membership Payment record found. Fetching User & Membership details for sending email');
+            return admin.firestore().doc(paymentDoc.kaocUserRef)
+                    .get()
+                    .then(userSnapshot=>{
+                        if(userSnapshot.exists) {
+                            userEmail = userSnapshot.get('emailId');
+                            userName = userSnapshot.get('firstName')+" "+userSnapshot.get('lastName');
+                            console.debug(`User Information found - Email ${userEmail}, Username: ${userName}`);
+                            return admin.firestore().doc(paymentDoc.paymentTypeRef).get();
+                        } else {
+                            console.error(`Invalid payment reference. Cannot find user record corresponding to the payment ${userSnapshot.ref.id}`);
+                            return null;
+                        }
+                    })
+                    .then(membershipSnapshot => {
+                        if (membershipSnapshot) {
+                            if(membershipSnapshot.exists) {
+                                membershipType = membershipSnapshot.get('membershipType');
+                                membershipYear = membershipSnapshot.get('startTime').toDate().getFullYear();
+                                console.debug(`Membership record found -  Type ${membershipType}, Year: ${membershipYear}`);
+                                return queueEmail({
+                                    to: userEmail,
+                                    subject: `Kerala Association Membership Payment Successful for ${membershipYear}`,
+                                    html: `Hello ${userName}, <br>
+                                                You have succesfully completed a payment of ${paymentDoc.paymentAmount}$ towards KAOC membership.<br>
+                                                Membership Type: <b>${membershipType}</b><br>
+                                                Year: <b>${membershipYear}</b> <br>
+                                            Thanks,
+                                            KAOC Committe    
+                                            `,
+                                    text: `Hello ${userName}, 
+                                                You have succesfully completed a payment of ${paymentDoc.paymentAmount} towards KAOC membership.
+                                                Membership Type: ${membershipType}
+                                                Year: ${membershipYear}.
+                                            Thanks,
+                                            KAOC Committe    
+                                            `
+                                });
+                            } else {
+                                console.error(`Invalid Payment reference. Cannot find membership record for ${membershipSnapshot.ref.id}`);
+                                return false;
+                            }
+                        } else {
+                            return false;
+                        }
+                    });
+        } else {
+            // TODO - Add emails for other events. 
+            console.error('Payment Emails only supported for membership payments. This functionality is not implemented');
+            return Promise.resolve(false);
+        }
+    } else {
+        console.error('Payment Status could not be found or payment not in Paid Status');
+        // cannot send email.
+        return Promise.resolve(false);
+    }
+ }
+
+/**
+ * Queues email. 
+ * 
+ * @param {Object} email
+ *      Expected Fields
+ *          to: 
+ *          from
+ *          subject
+ *          html or text 
+ */
+function queueEmail(email) {
+    console.log(`Add Email Request for ${JSON.stringify(email)}`);
+    return admin.firestore().collection('kaocEmails').add(email).then(emailDoc=>{
+        return emailDoc.id;
+    });
+}
+
+/**
+ * Deliver Email 
+ */
+exports.deliverEmail = functions.firestore.document('kaocEmails/{emailId}').onCreate((emailSnapShot, context) => {
+    const mailTransport = nodemailer.createTransport(mailTransportOptions);
+    var email = emailSnapShot.data();
+    email.from = email.from || emailUser;
+    console.log(`Sending Email ${JSON.stringify(email)}`);
+    return mailTransport.sendMail(email)
+    .then(result =>{
+        console.log(`Email sent. Removing email record`, result);
+        return emailSnapShot.ref.delete();
+    });
 });
