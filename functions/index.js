@@ -99,12 +99,20 @@ exports.handleUserAdded = functions.auth.user().onCreate((user) => {
  *      
  */
 exports.addOrUpdateMemberAndMembership = functions.https.onCall((data, context) => {
-    validateAuth(context, 'admin');
-    return _addOrUpdateMemberMembershipAndPayment(
+    return _assertAdminRole(context)
+    .catch(e => {
+        throw new functions.https.HttpsError(
+            'permission-denied', 
+            'User does not have the authorization to perform this operation');
+    })
+    .then(resut => {
+        return _addOrUpdateMemberMembershipAndPayment(
             data.members, 
             data.membership,
             data.payment,
-            context.auth);
+            context.auth
+        )
+    });
 
 });
 
@@ -117,99 +125,159 @@ exports.addOrUpdateMemberAndMembership = functions.https.onCall((data, context) 
  * 
  */
 exports.getCurrentMembershipDataByMemberId = functions.https.onCall((data, context) => {
-    validateAuth(context, 'admin');
-    const kaocUserId = data.memberId || data.kaocUserId;
-    // look up the current year memebership
-    let kaocUserRef = admin.firestore().doc(`/kaocUsers/${kaocUserId}`);
-    const currentTime = admin.firestore.Timestamp.fromMillis(new Date());
-    let result = {};
-    let kaocMemberRefs = [kaocUserRef];
-
-    const membershipColRef = admin.firestore().collection('/kaocMemberships');
-
-    return membershipColRef.where('kaocUserRefs', 'array-contains', kaocUserRef)
-        //.where('startTime', '<=', currentTime)
-        //.where('endTime', '>=', currentTime)
-        .orderBy('endTime', 'desc')
-        .limit(1) // Get the last membership record
-        .get()
-        .then(querySnapShot => {
-            if(!querySnapShot.empty) {
-                console.log(`Membership data exists for userid ${kaocUserId}`);
-                //some membership record exists. 
-                let membershipRef = querySnapShot.docs[0].ref;
-                let membershipRecord = querySnapShot.docs[0].data();
-                let {membershipType, endTime, startTime, paymentStatus, kaocUserRefs} = membershipRecord;
-                let membership = {membershipType, paymentStatus, kaocMembershipId: membershipRef.id};
-                membership.startTime = startTime.toMillis();
-                membership.endTime = endTime.toMillis();
-
-                // keep a reference to all the member records to pull.
-                // The user id with which the query is made is already in the array
-                // Add only members other than the queried user. This is to ensure that
-                // the first member in the list is the queried user itself
-                kaocUserRefs.forEach(ref => {
-                    if(ref.id !== kaocUserRef.id) {
-                        kaocMemberRefs.push(ref);
+    return _assertAdminRole(context) 
+    .catch(e=> {
+        throw new functions.https.HttpsError(
+            'permission-denied', 
+            'User does not have the authorization to perform this operation');
+    })
+    .then(authResult => {
+        const kaocUserId = data.memberId || data.kaocUserId;
+        // look up the current year memebership
+        let kaocUserRef = admin.firestore().doc(`/kaocUsers/${kaocUserId}`);
+        const currentTime = admin.firestore.Timestamp.fromMillis(new Date());
+        let result = {};
+        let kaocMemberRefs = [kaocUserRef];
+    
+        const membershipColRef = admin.firestore().collection('/kaocMemberships');
+        //TODO - Resolve the recursive thens
+        return membershipColRef.where('kaocUserRefs', 'array-contains', kaocUserRef)
+            //.where('startTime', '<=', currentTime)
+            //.where('endTime', '>=', currentTime)
+            .orderBy('endTime', 'desc')
+            .limit(1) // Get the last membership record
+            .get()
+            .then(querySnapShot => {
+                if(!querySnapShot.empty) {
+                    console.log(`Membership data exists for userid ${kaocUserId}`);
+                    //some membership record exists. 
+                    let membershipRef = querySnapShot.docs[0].ref;
+                    let membershipRecord = querySnapShot.docs[0].data();
+                    let {membershipType, endTime, startTime, paymentStatus, kaocUserRefs} = membershipRecord;
+                    let membership = {membershipType, paymentStatus, kaocMembershipId: membershipRef.id};
+                    membership.startTime = startTime.toMillis();
+                    membership.endTime = endTime.toMillis();
+    
+                    // keep a reference to all the member records to pull.
+                    // The user id with which the query is made is already in the array
+                    // Add only members other than the queried user. This is to ensure that
+                    // the first member in the list is the queried user itself
+                    kaocUserRefs.forEach(ref => {
+                        if(ref.id !== kaocUserRef.id) {
+                            kaocMemberRefs.push(ref);
+                        }
+                    });
+    
+                    if(endTime.toMillis() > currentTime.toMillis()) {
+                        // membership is active. 
+                        result.membership = membership;
+                        // that means payment details should be returned
+                        console.log('Querying payments for membership record');
+                        return admin.firestore().collection('/kaocPayments')
+                                    .where('paymentTypeRef', '==', membershipRef)
+                                    .where('paymentType', '==', 'Membership')
+                                    .limit(1)
+                                    .get();
+                    } else {
+                        // this is a past membership
+                        result.pastMembership = membership;
+                    }
+                } else {
+                    console.log(`No Membership record for userid ${kaocUserId}`);
+                }
+                return null;
+            }).then(paymentQuerySnapshot => {
+                if(paymentQuerySnapshot && !paymentQuerySnapshot.empty) {
+                    let {paymentMethod, paymentAmount, paymentNotes, paymentStatus, paymentExternalSystemRef} = paymentQuerySnapshot.docs[0].data();
+                    result.payment = {paymentMethod, paymentAmount, paymentNotes, paymentStatus, paymentExternalSystemRef, kaocPaymentId: paymentQuerySnapshot.docs[0].id};
+                }
+                return Promise.all(
+                                kaocMemberRefs.map(kaocRef => {
+                                                        return kaocRef.get();
+                                                    }
+                                                )
+                        );
+            }).then(memberDocumentSnapshots => {
+                result.members = memberDocumentSnapshots.map(memberDocumentSnapshot => {
+                    if(memberDocumentSnapshot.exists) {
+                        let {firstName, lastName, emailId, phoneNumber} = memberDocumentSnapshot.data();
+                        return {firstName, lastName, emailId, phoneNumber, kaocUserId: memberDocumentSnapshot.id};
+                    } else {
+                        return {};
                     }
                 });
-
-                if(endTime.toMillis() > currentTime.toMillis()) {
-                    // membership is active. 
-                    result.membership = membership;
-                    // that means payment details should be returned
-                    console.log('Querying payments for membership record');
-                    return admin.firestore().collection('/kaocPayments')
-                                .where('paymentTypeRef', '==', membershipRef)
-                                .where('paymentType', '==', 'Membership')
-                                .limit(1)
-                                .get();
-                } else {
-                    // this is a past membership
-                    result.pastMembership = membership;
-                }
-            } else {
-                console.log(`No Membership record for userid ${kaocUserId}`);
-            }
-            return null;
-        }).then(paymentQuerySnapshot => {
-            if(paymentQuerySnapshot && !paymentQuerySnapshot.empty) {
-                let {paymentMethod, paymentAmount, paymentNotes, paymentStatus, paymentExternalSystemRef} = paymentQuerySnapshot.docs[0].data();
-                result.payment = {paymentMethod, paymentAmount, paymentNotes, paymentStatus, paymentExternalSystemRef, kaocPaymentId: paymentQuerySnapshot.docs[0].id};
-            }
-            return Promise.all(
-                            kaocMemberRefs.map(kaocRef => {
-                                                    return kaocRef.get();
-                                                }
-                                            )
-                    );
-        }).then(memberDocumentSnapshots => {
-            result.members = memberDocumentSnapshots.map(memberDocumentSnapshot => {
-                if(memberDocumentSnapshot.exists) {
-                    let {firstName, lastName, emailId, phoneNumber} = memberDocumentSnapshot.data();
-                    return {firstName, lastName, emailId, phoneNumber, kaocUserId: memberDocumentSnapshot.id};
-                } else {
-                    return {};
-                }
+                return result;
             });
-            return result;
-        });
+    })
 });
 
-
-function validateAuth(context, expectedRole) {
+/**
+ * Ensures that the user in the context is an admin user. 
+ * 
+ * @param {Conext} context 
+ */
+function _assertAdminRole(context) {
     // Checking that the user is authenticated.
     if (!context.auth) {
-        // TODO
-        // Throwing an HttpsError so that the client gets the error details.
-        //throw new functions.https.HttpsError('failed-precondition', 'The function must be called ' +
-        //    'while authenticated.');
+        return Promise.reject(new Error('User not authenticated'));
     }
+
+    return admin.firestore().doc(`/kaocRoles/${context.auth.uid}`)
+    .get()
+    .then(docSnapShot => {
+        if(docSnapShot.exists) {
+            let currTimeMillis = admin.firestore.Timestamp.now().toMillis();
+            let adminRecord = docSnapShot.get('admin'); 
+            if(adminRecord) {
+                let startTime = adminRecord.startTime;
+                let endTime = adminRecord.endTime;
+                console.log(`Checking admin account. Admin data found. Checking Validity. Start Time ${startTime}, End Time: ${endTime} `);
+
+                console.log(`Start Time Millis ${startTime.toMillis()}, End Time Millis ${endTime.toMillis()}, Curr Time Millis ${currTimeMillis}`);
+
+
+                if(startTime !== null 
+                        && endTime !== null 
+                        && startTime.toMillis() <= currTimeMillis 
+                        && endTime.toMillis() >= currTimeMillis) {
+                    return Promise.resolve(true);            
+                } else {
+                    return Promise.reject(new Error('Users admin role validity has expired'));
+                }
+            } else {
+                return Promise.reject(new Error('User is not an admin'));
+            }
+        } else {
+            return Promise.reject(new Error('User is not an admin'));
+        }
+    });
 }
 
+/**
+ * Updates an existing payment record. 
+ * 
+ * @param data - The Payment record
+ *           Expected field
+ *           paymentId - The id of the existing payment
+ *           paymentStatus - The new payment status.       
+ */
 exports.updatePayment = functions.https.onCall((data, context) => { 
-    console.log('updatePayment called for ' + data.paymentId);
-    return _updatePayment(data.paymentId, data.payment, context.auth);
+    return _assertAdminRole(context)
+    .catch(e=> {
+        throw new functions.https.HttpsError(
+                    'permission-denied', 
+                    'User does not have the authorization to perform this operation');
+    })
+    .then(result => {
+        console.log('updatePayment called for ' + data.paymentId);
+        let paymentId = data.paymentId;
+        let paymentDetailsObj = data.payment;
+        if(!data.payment) {
+            paymentDetailsObj = data;
+            delete paymentDetailsObj.paymentId;
+        }
+        return _updatePayment(paymentId, paymentDetailsObj, context.auth);
+    });
 });   
 
   
