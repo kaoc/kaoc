@@ -20,60 +20,78 @@ admin.initializeApp();
  * as record containing the member & spouse details. 
  */
 exports.importMembership = functions.https.onRequest(async (req, res) => {
-    // Grab the text parameter.
-    const importedMembershipData = req.body;
-    const stringifiedVersion = JSON.stringify(importedMembershipData);
-    console.log(`Membership data ${stringifiedVersion}`)
 
-    // collect membership info
-    const membershipYear = importedMembershipData.membershipYear;
-    const membershipType = importedMembershipData.membershipType;
-    const legacyMembershipId = importedMembershipData.memberNumber; // This is to keep backward compatability with old member id
-    const membership = {membershipYear, membershipType, legacyMembershipId};
+    var apiKey = req.get('apiKey');
+    console.debug('Import Membership called with apiKey', apiKey);
+    return validateKey(apiKey, 'importMembership')
+    .catch(e=>{
+        console.error(`Import membership called with invalid authentication. Reason : ${e.message}`)
+        res.status(401).send('Api Key not specified or is invalid');
+        //throw new functions.https.HttpsError('permission-denied', 'Api Key not specified or is invalid');
+        return null;
+    }).then(keyData=>{
+        if(keyData) {
+            console.error(`Key Data ${JSON.stringify(keyData)}`);
+            // Grab the text parameter.
+            const importedMembershipData = req.body;
+            const stringifiedVersion = JSON.stringify(importedMembershipData);
+            console.log(`Membership data ${stringifiedVersion}`)
 
-    // collect payment info
-    const {paymentMethod, paymentAmount, paymentNotes, checkNumber}  = importedMembershipData;
-    let payment = {paymentMethod, paymentAmount, paymentNotes};
-    payment.paymentExternalSystemRef = checkNumber;
+            // collect membership info
+            const membershipYear = importedMembershipData.membershipYear;
+            const membershipType = importedMembershipData.membershipType;
+            const legacyMembershipId = importedMembershipData.memberNumber; // This is to keep backward compatability with old member id
+            const membership = {membershipYear, membershipType, legacyMembershipId};
 
-    // This will effectively become the legacyMembershipId.
-    let members = [];
-    members.push({
-        firstName: importedMembershipData.firstName,
-        lastName: importedMembershipData.lastName,
-        phoneNumber: importedMembershipData.phoneNumber,
-        emailId: importedMembershipData.emailId,
+            // collect payment info
+            const {paymentMethod, paymentAmount, paymentNotes, checkNumber}  = importedMembershipData;
+            let payment = {paymentMethod, paymentAmount, paymentNotes};
+            payment.paymentExternalSystemRef = checkNumber;
+
+            // This will effectively become the legacyMembershipId.
+            let members = [];
+            members.push({
+                firstName: importedMembershipData.firstName,
+                lastName: importedMembershipData.lastName,
+                phoneNumber: importedMembershipData.phoneNumber,
+                emailId: importedMembershipData.emailId,
+            });
+
+            if(importedMembershipData.spouseEmailId === importedMembershipData.emailId) {
+                //special case, some records have the same emails listed for both spouse and primary member
+                importedMembershipData.spouseEmailId = null;
+            }
+
+            if(importedMembershipData.spouseFirstName || importedMembershipData.spouseLastName || importedMembershipData.spouseEmailId) {
+                members.push({
+                    firstName: importedMembershipData.spouseFirstName,
+                    lastName: importedMembershipData.spouseLastName,
+                    phoneNumber: importedMembershipData.spousePhoneNumber,
+                    emailId: importedMembershipData.spouseEmailId,
+                });
+            }
+
+            return _addOrUpdateMemberMembershipAndPayment(members, membership, payment);
+        } else {
+            return null;
+        }
+    }).then(resultsX => {
+        if(resultsX) {
+            var result = {};
+
+            result.userId           = resultsX.userIds[0];
+            if(resultsX.userIds.length > 1) {
+                result.spouseUserId = resultsX.userIds[1];
+            }
+            result.membershipId     = resultsX.membershipId;
+            if(resultsX.paymentId) {
+                result.paymentId         = resultsX.paymentId;
+            }
+            res.status(200).send(result);
+            return result; 
+        }
+        return null;
     });
-
-    if(importedMembershipData.spouseEmailId === importedMembershipData.emailId) {
-        //special case, some records have the same emails listed for both spouse and primary member
-        importedMembershipData.spouseEmailId = null;
-    }
-
-    if(importedMembershipData.spouseFirstName || importedMembershipData.spouseLastName || importedMembershipData.spouseEmailId) {
-        members.push({
-            firstName: importedMembershipData.spouseFirstName,
-            lastName: importedMembershipData.spouseLastName,
-            phoneNumber: importedMembershipData.spousePhoneNumber,
-            emailId: importedMembershipData.spouseEmailId,
-        });
-    }
-
-    var result = {};
-    return _addOrUpdateMemberMembershipAndPayment(members, membership, payment)
-            .then(resultsX=> {
-                    result.userId           = resultsX.userIds[0];
-                    if(resultsX.userIds.length > 1) {
-                        result.spouseUserId = resultsX.userIds[1];
-                    }
-                    result.membershipId     = resultsX.membershipId;
-                    if(resultsX.paymentId) {
-                        result.paymentId         = resultsX.paymentId;
-                    }
-                    res.status(200).send(result);
-                    return result; 
-                }
-            );
 });
 
 exports.handleUserAdded = functions.auth.user().onCreate((user) => {
@@ -722,25 +740,31 @@ exports.sendPaymentEmail = functions.https.onCall((data, context) => {
                             if(membershipSnapshot.exists) {
                                 membershipType = membershipSnapshot.get('membershipType');
                                 membershipYear = membershipSnapshot.get('startTime').toDate().getFullYear();
+                                let currentYear = (new Date()).getFullYear(); 
                                 console.debug(`Membership record found -  Type ${membershipType}, Year: ${membershipYear}`);
-                                return queueEmail({
-                                    to: userEmail,
-                                    subject: `Kerala Association Membership Payment Successful for ${membershipYear}`,
-                                    html: `Hello ${userName}, <br>
-                                                You have succesfully completed a payment of ${paymentDoc.paymentAmount}$ towards KAOC membership.<br>
-                                                Membership Type: <b>${membershipType}</b><br>
-                                                Year: <b>${membershipYear}</b> <br>
-                                            Thanks,
-                                            KAOC Committe    
-                                            `,
-                                    text: `Hello ${userName}, 
-                                                You have succesfully completed a payment of ${paymentDoc.paymentAmount} towards KAOC membership.
-                                                Membership Type: ${membershipType}
-                                                Year: ${membershipYear}.
-                                            Thanks,
-                                            KAOC Committe    
-                                            `
-                                });
+                                if(membershipYear !== currentYear) {
+                                    console.info(`Membership is not for current year but ${membershipYear}. Not queueing email`);
+                                    return null;
+                                } else {
+                                    return queueEmail({
+                                        to: userEmail,
+                                        subject: `Kerala Association Membership Payment Successful for ${membershipYear}`,
+                                        html: `Hello ${userName}, <br>
+                                                    You have succesfully completed a payment of ${paymentDoc.paymentAmount}$ towards KAOC membership.<br>
+                                                    Membership Type: <b>${membershipType}</b><br>
+                                                    Year: <b>${membershipYear}</b> <br>
+                                                Thanks,
+                                                KAOC Committe    
+                                                `,
+                                        text: `Hello ${userName}, 
+                                                    You have succesfully completed a payment of ${paymentDoc.paymentAmount} towards KAOC membership.
+                                                    Membership Type: ${membershipType}
+                                                    Year: ${membershipYear}.
+                                                Thanks,
+                                                KAOC Committe    
+                                                `
+                                    });
+                                }
                             } else {
                                 console.error(`Invalid Payment reference. Cannot find membership record for ${membershipSnapshot.ref.id}`);
                                 return false;
@@ -792,3 +816,68 @@ exports.deliverEmail = functions.firestore.document('kaocEmails/{emailId}').onCr
         return emailSnapShot.ref.delete();
     });
 });
+
+/**
+ * 
+ * Validates if the given key exists and is valid with the current date. 
+ * 
+ * @param {string} key API Key
+ * @param {string} keyType Opional key type
+ */
+function validateKey(key, keyType) {
+    if(!key) {
+        return Promise.reject(new Error('Invalid key'));
+    }
+    return admin.firestore().doc(`/kaocKeys/${key}`)
+    .get()
+    .then(keySnapShot => {
+        let isValid = false;
+        let reason = null; 
+        let keyRecord = null;
+
+        if(keySnapShot.exists) {
+
+            keyRecord = keySnapShot.data();
+            let currTimeMillis = admin.firestore.Timestamp.now().toMillis();
+
+            if(!keyType || keyRecord.keyType === keyType) {
+                if(keyRecord.startTime) {
+                    if(keyRecord.startTime.toMillis() <= currTimeMillis) {
+                        if(keyRecord.endTime) {
+                            if(keyRecord.endTime.toMillis() >= currTimeMillis) {
+    
+                                isValid = true;
+                            } else {
+                                isValid = false;
+                                reason = 'Key is expired';
+                            }
+                        } else {
+                            // End time not specified. So key is valid 
+                            isValid = true;
+                        }
+                    } else {
+                        isValid = false;
+                        reason ='Key is not valid yet';
+                    }
+                } else {
+                    isValid = false;
+                    reason = 'Invalid Key';
+                }
+            } else {
+                isValid = false;
+                reason = 'Incorrect key type';
+            }
+        } else {
+            isValid = false;
+            reason = 'Invalid Key';
+        }
+
+        if(isValid) {
+            return {
+                'keyData': keyRecord.keyData
+            }                        
+        } else {
+            throw new Error(reason);
+        }
+    });
+}
