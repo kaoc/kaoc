@@ -131,7 +131,7 @@ export class MemberProfileComponent implements OnInit {
 
   addFamily(stepperIndex) {
     this.errorMsg = "";
-    this.memberDetFormError = false;
+    
 
     console.log("this.memberDetForm.controls.adultFlag.value=" + this.memberDetForm.controls.adultFlag.value);
     if (this.memberDetForm.controls.adultFlag.value == 'Adult') {
@@ -139,27 +139,33 @@ export class MemberProfileComponent implements OnInit {
 
       console.log("this.memberDetForm.controls.emailId.value=" + JSON.stringify(this.memberDetForm.value));
 
-      if (this.memberDetForm.controls.emailId.value === '' ||
-        this.memberDetForm.controls.firstName.value === '' ||
-        this.memberDetForm.controls.lastName.value === '' ||
-        this.memberDetForm.controls.phoneNumber.value === ''
+      if (this.memberDetForm.controls.emailId.value === '' || this.memberDetForm.controls.emailId.value === null ||
+        this.memberDetForm.controls.firstName.value === '' || this.memberDetForm.controls.firstName.value === null ||
+        this.memberDetForm.controls.lastName.value === '' || this.memberDetForm.controls.lastName.value ===null ||
+        this.memberDetForm.controls.phoneNumber.value === '' || this.memberDetForm.controls.phoneNumber.value===null
       ) {
         this.errorMsg = 'All fields are mandatory for Adult group';
         this.memberDetFormError = true;
         return;
       } else {
+        this.data.members.push(this.memberDetForm.value);
+        this.memberDetForm.reset();
+        this.memberDetFormError = false;
         console.log('memberDetForm validated for adult group');
       }
 
     } else if (this.memberDetForm.controls.adultFlag.value === 'Child') {
       console.log("else this.memberDetForm.controls.adultFlag.value=" + this.memberDetForm.controls.adultFlag.value);
 
-      if (
-        this.memberDetForm.controls.firstName.value === '' || this.memberDetForm.controls.lastName.value === '' ) {
+      if (this.memberDetForm.controls.firstName.value === ''  || this.memberDetForm.controls.lastName.value === '' ||
+      this.memberDetForm.controls.firstName.value === null  || this.memberDetForm.controls.lastName.value === null ) {
         this.errorMsg = 'Name is mandatory for Child group';
         this.memberDetFormError = true;
         return;
       } else {
+        this.data.members.push(this.memberDetForm.value);
+        this.memberDetForm.reset();
+        this.memberDetFormError = false;
         console.log('all good');
       }
     }
@@ -176,17 +182,10 @@ export class MemberProfileComponent implements OnInit {
     //   this.validationPhone(this.memberDetForm);
     // }
 
-    if (this.memberDetForm.valid) {
-      console.log('Invalid memberDet form');
-      this.data.members.push(this.memberDetForm.value);
-      this.memberDetForm.reset();
-      console.log("Creating membership for " + JSON.stringify(this.data));
-    } else {
+    if (!this.memberDetForm.valid) { 
       console.log('Invalid memberDet form');
       return;
     }
-
-
 
     this.setMatTable();
     this.setStepper(stepperIndex);
