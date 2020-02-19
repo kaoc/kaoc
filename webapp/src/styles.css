@@ -11,7 +11,7 @@ html, body {
 .kaoc-primary-color {
     color: #fff!important;
     background-color: rgb(142, 142, 142)!important;
-
+   /*background-color: rgb(128, 8, 8)!important;*/
 }
 .kaoc-btn-primary {
     color: #fff!important;

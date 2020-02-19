@@ -23,7 +23,7 @@ export class ListMemberProfilesComponent implements OnInit {
  // columnsToDisplay: string[] = ['id','memberId','firstName', 'lastName', 'emailId', 'mobileNo' ,'membershipType' ,'action' ];
   
  expandedElement: Member | null;
- columnsToDisplay: string[] = ['docId','firstName', 'lastName', 'emailId', 'phoneNumber' ,'action' ];
+ columnsToDisplay: string[] = [ 'firstName', 'lastName', 'emailId', 'phoneNumber' ,'action' ];
   
   @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
   @ViewChild(MatSort, {static: true}) sort: MatSort;
@@ -37,7 +37,7 @@ export class ListMemberProfilesComponent implements OnInit {
   
   ngOnInit() {
     this.memberService.getAllMembers().subscribe( members => {
-      console.log (members);
+     // console.log (members);
       this.dataSource = new MatTableDataSource(members);
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort; 
@@ -48,15 +48,16 @@ export class ListMemberProfilesComponent implements OnInit {
  
     var response : any;
     console.log("Inside getMembershipDetails.member.docId=" + member.docId);
-  
-    var addMessage = this.ngFireFunctions.httpsCallable('getCurrentMembershipDataByMemberId')({ kaocUserId: member.docId })
+
+
+  var addMessage = this.ngFireFunctions.httpsCallable('getCurrentMembershipDataByMemberId')({ kaocUserId: member.docId })
     .pipe(first())
     .subscribe(resp => {
       console.log("got result" + JSON.stringify( resp));
     }, err => {
       console.error({ err });
-    });   
-    console.log( JSON.stringify( addMessage ));
+    }); 
+   
   }
 
   openEditDialog ( member : Member) {
