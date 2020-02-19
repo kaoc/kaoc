@@ -203,6 +203,10 @@ export class MemberProfileComponent implements OnInit {
     this.stepper.selectedIndex = index;
   }
 
+  goTo(index: number) {
+    this.setStepper(index);
+  }
+
   setMatTable() {
     this.dataSource = new MatTableDataSource(this.data.members);
     this.dataSource.sort = this.sort;
