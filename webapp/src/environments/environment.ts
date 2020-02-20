@@ -6,7 +6,7 @@ export const environment = {
   production: false,
   firebase: {
     apiKey: "AIzaSyBsKGX4U0t9KnauslGJKFSQkZnHqIfhhQE",
-    authDomain: "kaocproject.firebaseapp.com",
+    authDomain: "test.kaoc.app",
     databaseURL: "https://kaocproject.firebaseio.com",
     projectId: "kaocproject",
     storageBucket: "kaocproject.appspot.com",

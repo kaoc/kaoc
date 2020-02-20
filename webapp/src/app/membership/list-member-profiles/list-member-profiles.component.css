@@ -1,9 +1,32 @@
  table {
     width: 100%;
   }
-  
+
   .mat-form-field {
     font-size: 14px;
     width: 100%;
   }
-  
+
+.email-col,
+.name-col,
+.phone-col
+{
+  padding-left: 10px;
+  padding-right: 10px;
+}
+.name-col {
+  font-weight: bold;
+}
+
+.email-col {
+  color: burlywood;
+  min-width: 200px;
+  max-width: 220px;
+}
+
+.phone-col {
+  color: #999;
+  min-width: 110px;
+  max-width: 110px;
+  width: 110px;
+}

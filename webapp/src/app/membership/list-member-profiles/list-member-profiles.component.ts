@@ -19,12 +19,12 @@ import { analytics } from 'firebase';
 })
 
 export class ListMemberProfilesComponent implements OnInit {
-  dataSource: MatTableDataSource<Member>; 
+  dataSource: MatTableDataSource<Member>;
  // columnsToDisplay: string[] = ['id','memberId','firstName', 'lastName', 'emailId', 'mobileNo' ,'membershipType' ,'action' ];
-  
+
  expandedElement: Member | null;
- columnsToDisplay: string[] = [ 'firstName', 'lastName', 'emailId', 'phoneNumber' ,'action' ];
-  
+ columnsToDisplay: string[] = [ 'firstName'];
+
   @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
   @ViewChild(MatSort, {static: true}) sort: MatSort;
   members : Member[];
@@ -34,18 +34,34 @@ export class ListMemberProfilesComponent implements OnInit {
   constructor(private memberService: MemberService,
     public dialog: MatDialog,
     private ngFireFunctions: AngularFireFunctions) { }
-  
+
   ngOnInit() {
     this.memberService.getAllMembers().subscribe( members => {
      // console.log (members);
       this.dataSource = new MatTableDataSource(members);
       this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort; 
+      this.dataSource.sort = this.sort;
+      this.dataSource.filterPredicate = (member: Member, filter: string) => {
+        if (member) {
+            const fullName = member.firstName + ' ' + member.lastName;
+            if (fullName.toLowerCase().indexOf(filter.toLowerCase()) >= 0) {
+                return true;
+            }
+            if (member.emailId && member.emailId.toLowerCase().indexOf(filter) >= 0) {
+                return true;
+            }
+
+            if (member.phoneNumber && String(member.phoneNumber).indexOf(filter) >=0) {
+                return true;
+            }
+        }
+        return false;
+      };
     });
   }
- 
+
   getMembershipDetails (member : Member) {
- 
+
     var response : any;
     console.log("Inside getMembershipDetails.member.docId=" + member.docId);
 
@@ -56,8 +72,8 @@ export class ListMemberProfilesComponent implements OnInit {
       console.log("got result" + JSON.stringify( resp));
     }, err => {
       console.error({ err });
-    }); 
-   
+    });
+
   }
 
   openEditDialog ( member : Member) {
