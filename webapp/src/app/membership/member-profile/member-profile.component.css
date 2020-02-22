@@ -28,3 +28,10 @@
 table {
   width: 100%;
 }
+
+.invisible{
+  
+  visibility: hidden;
+  height: 0;
+  width: 0;
+}

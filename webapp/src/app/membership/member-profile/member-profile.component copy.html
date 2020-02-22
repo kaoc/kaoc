@@ -1,54 +1,282 @@
-Membership
-<button mat-raised-button (click)="isLinear = !isLinear" id="toggle-linear">
-  {{!isLinear ? 'Enable linear mode' : 'Disable linear mode'}}
-</button>
- 
-    <mat-vertical-stepper [linear]="isLinear" #stepper>
-     
-      <mat-step [stepControl]="firstFormGroup">
-         
-        <form [formGroup]="firstFormGroup">
-          <ng-template matStepLabel>Fill out your name</ng-template>
-          <mat-form-field>
-            <input matInput placeholder="Email Id" formControlName="emailId" required>
-          </mat-form-field>
-          <mat-form-field>
-            <input matInput placeholder="First name" formControlName="firstName" required>
-          </mat-form-field>
-          <mat-form-field>
-            <input matInput placeholder="Last name" formControlName="lastName" required>
-          </mat-form-field>
-          <mat-form-field>
-            <input matInput placeholder="Phone number" formControlName="phoneNo" required>
-          </mat-form-field>
-          <mat-form-field>
-            <input matInput placeholder="Phone number" formControlName="phoneNo" required>
-          </mat-form-field>
-          <div>
-            <button mat-button matStepperNext>Next</button>
-          </div>
+<div fxLayout="column" fxLayoutAlign="space-evenly start">
+
+  <ngx-spinner bdColor="rgba(51,51,51,0.8)" size="medium" color="#fff" type="ball-scale-multiple">
+    <p style="font-size: 20px; color: white">Transaction in progress...</p>
+  </ngx-spinner>
+
+  <div fxLayout="column" fxLayoutAlign="start start">
+    <h3>Add member</h3>
+    <!-- <mat-horizontal-stepper [linear]="isLinear" #stepper> -->
+    <mat-horizontal-stepper [linear]="isLinear" #stepper>
+      <mat-step [stepControl]="memberForm"  (click)="addMember(0,1)">
+        <ng-template matStepLabel>Member Details</ng-template><br />
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>
+              Member Details
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <form [formGroup]="membershipTypeForm">
+
+              <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="5px">
+                <mat-form-field class="form-full-width">
+                  <mat-label>Membership Type</mat-label>
+                  <mat-select (selectionChange)="setPaymentAmount()" formControlName="membershipType" required>
+                    <mat-option value="INDIVIDUAL">Individual</mat-option>
+                    <mat-option value="FAMILY">Family</mat-option>
+                    <mat-option value="SRCITIZEN">Sr.Citizen</mat-option>
+                  </mat-select>
+
+                </mat-form-field>
+              </div>
+              <div fxLayout="row" fxLayoutAlign="start start">
+                <mat-label>Membership amount : <span style="color:red; font-weight: 800;"> $ {{membershipAmt}}</span>
+                </mat-label>
+              </div>
+
+            </form>
+            <form [formGroup]="memberForm">
+              <mat-form-field class="form-full-width">
+                <input matInput placeholder="Email Id" formControlName="emailId" required>
+              </mat-form-field>
+
+              <mat-form-field class="form-full-width">
+                <input matInput placeholder="First name" formControlName="firstName" required>
+              </mat-form-field>
+
+              <mat-form-field class="form-full-width">
+                <input matInput placeholder="Last name" formControlName="lastName" required>
+              </mat-form-field>
+              <mat-form-field class="invisible form-full-width">
+                <input matInput formControlName="kaocUserId">
+              </mat-form-field>
+              <mat-form-field class="form-full-width">
+                <input matInput placeholder="Mobile number" formControlName="phoneNumber" pattern="^\d{3}-\d{3}-\d{4}$"
+                  required>
+                <mat-hint>Mobile number format XXX-XXX-XXXX</mat-hint>
+              </mat-form-field>
+
+              <div fxLayout="row" fxLayoutAlign="end end" fxLayoutGap="5px">
+                <button mat-raised-button class="kaoc-btn-primary" (click)="addMember(0,1)">Next</button>
+                <button mat-raised-button class="kaoc-btn-primary" (click)="addMember(0,2)">Skip Family &
+                  Pay</button>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      </mat-step>
+      <mat-step [stepControl]="memberDetForm"  optional>
+        <form [formGroup]="memberDetForm">
+          <ng-template matStepLabel>Family Details </ng-template> <br />
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>
+                Add Family Member(s)
+              </mat-card-title>
+
+            </mat-card-header>
+            <mat-card-content>
+
+              <mat-form-field class="form-full-width"  >
+                <input matInput placeholder="Email Id" formControlName="emailId" type="email">
+              </mat-form-field>
+
+              <table class="form-full-width">
+                <tr>
+                  <td>
+                    <mat-form-field class="form-full-width" >
+                      <mat-label>First name</mat-label>
+                      <input matInput formControlName="firstName">
+                    </mat-form-field>
+                  </td>
+                  <td>
+                    <mat-form-field class="form-full-width">
+                      <input matInput placeholder="Last name" formControlName="lastName">
+                    </mat-form-field>
+                    <mat-form-field class="invisible form-full-width">
+                      <input matInput formControlName="kaocUserId">
+                    </mat-form-field>
+                  </td>
+                </tr>
+              </table>
+
+              <table class="form-full-width">
+                <tr>
+                  <td>
+                    <mat-form-field class="form-full-width">
+                      <input matInput placeholder="Mobile number" formControlName="phoneNumber"
+                        pattern="^\d{3}-\d{3}-\d{4}$">
+                      <mat-hint>Mobile number format XXX-XXX-XXXX</mat-hint>
+                    </mat-form-field>
+                  </td>
+                  <td>
+                    <mat-form-field>
+                      <mat-select formControlName="adultFlag" placeholder="Age group">
+                        <mat-option value="Adult" selected>Adult</mat-option>
+                        <mat-option value="Child">Child</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </td>
+                </tr>
+
+              </table>
+              <div fxLayout="row" fxLayoutAlign="end end" fxLayoutGap="5px">
+                <mat-error *ngIf="memberDetFormError"><b>{{this.errorMsg}}</b></mat-error>
+                <button mat-raised-button color="primary" (click)="setStepper(0)">
+                  Back
+                </button>
+                <button mat-raised-button color="primary" (click)="addFamily(1)">
+                  <mat-icon matTooltip="Add Member">group_add</mat-icon> Add
+                </button>
+                <button mat-raised-button class="kaoc-btn-primary" (click)="goTo(2)">
+                  <mat-icon matTooltip="Pay KAOC">payment</mat-icon>{{familyStepperPaymentBtnLabel}}
+                </button>
+              </div>
+            </mat-card-content>
+          </mat-card>
         </form>
-       
+        <br />
+
+        <mat-list style="text-align:left;">
+          <h3 mat-subheader>List of members</h3>
+          <mat-list-item *ngFor="let element of data.members;let i = index;">
+            <mat-icon mat-list-icon>account_circle</mat-icon>
+            <h4 mat-line>Email id:{{element.emailId}}</h4>
+            <p mat-line>First name: {{element.firstName}} </p>
+            <p mat-line>Last name: {{element.lastName}} </p>
+            <p mat-line>Phone No: {{element.phoneNumber}} </p>
+            <p mat-line>Age Group: {{element.adultFlag}} </p>
+          </mat-list-item>
+           
+        </mat-list>
+
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>List of members</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+
+            
+
+            <table style="text-align:left;">
+              <tr>
+                <th>No.</th>
+                <th>Email Id</th>
+                <th>First name</th>
+                <th>Last name</th>
+                <th>Phone No</th>
+                <th>Age Group</th>
+                <th>Action</th>
+              </tr>
+              <tr *ngFor="let element of data.members;let i = index;">
+                <td>{{i+1}}</td>
+                <td>{{element.emailId}}</td>
+                <td>{{element.firstName}}</td>
+                <td>{{element.lastName}}</td>
+                <td>{{element.phoneNumber}}</td>
+                <td>{{element.adultFlag}} </td>
+                <td>
+                  <mat-icon (click)="openEditDialog(element)" matTooltip="Edit Member">edit</mat-icon>
+                  <mat-icon (click)="deleteMember(index)" matTooltip="Delete member">delete</mat-icon>
+                </td>
+              </tr>
+            </table>
+
+            <!--<table style="text-align: left;" mat-table [dataSource]="dataSource"   matSort>
+              <ng-container matColumnDef="index">
+                <th mat-header-cell *matHeaderCellDef>No.</th>
+                <td mat-cell *matCellDef="let index = index"> {{index +1}} </td>
+              </ng-container>
+              <ng-container matColumnDef="emailId">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Email Id</th>
+                <td mat-cell *matCellDef="let element">{{element.emailId}}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="firstName">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>First Name</th>
+                <td mat-cell *matCellDef="let element">{{element.firstName}}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="lastName">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Last Name</th>
+                <td mat-cell *matCellDef="let element">{{element.lastName}}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="phoneNumber">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Phone Number</th>
+                <td mat-cell *matCellDef="let element">{{element.phoneNumber}}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="adultFlag">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Age Group</th>
+                <td mat-cell *matCellDef="let element">{{element.adultFlag}}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="action">
+                <th mat-header-cell *matHeaderCellDef>Action</th>
+                <td mat-cell *matCellDef="let element ; let index = index">
+                  <div>
+                    <mat-icon (click)="openEditDialog(element)" matTooltip="Edit Member">edit</mat-icon>
+                    <mat-icon (click)="deleteMember(index)" matTooltip="Delete member">delete</mat-icon>
+                  </div>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let element; columns: displayedColumns;"></tr>
+
+            </table> -->
+          </mat-card-content>
+        </mat-card>
       </mat-step>
-      <mat-step [stepControl]="secondFormGroup">
-        <form [formGroup]="secondFormGroup">
-          <ng-template matStepLabel>Fill out your address</ng-template>
-          <mat-form-field>
-            <input matInput placeholder="Address" formControlName="secondCtrl" required>
-          </mat-form-field>
-          <div>
-            <button mat-button matStepperPrevious>Back</button>
-            <button mat-button matStepperNext>Next</button>
-          </div>
+      <mat-step [stepControl]="paymentForm" >
+        <form [formGroup]="paymentForm">
+          <ng-template matStepLabel>Payment</ng-template> <br />
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>
+                Payment Details
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div fxLayout="row" fxLayoutGap="5px">
+                <mat-form-field class="form-full-width">
+                  <mat-label>Payment method</mat-label>
+                  <mat-select formControlName="paymentMethod" required>
+                    <mat-option *ngFor="let paymode of paymentList" [value]="paymode">{{paymode}}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field class="form-full-width">
+                  <input matInput placeholder="Amount" formControlName="paymentAmount" readonly="true">
+                </mat-form-field>
+              </div>
+              <div fxLayout="row">
+                <mat-form-field class="form-full-width">
+                  <input matInput placeholder="Transaction Reference No" formControlName="paymentExternalSystemRef">
+                </mat-form-field>
+              </div>
+              <div fxLayout="row">
+                <mat-form-field class="form-full-width">
+                  <textarea matInput placeholder="Memo" formControlName="paymentNotes" rows="3"></textarea>
+                </mat-form-field>
+              </div>
+              <div fxLayout="row" fxLayoutAlign="end end" fxLayoutGap="5px">
+                <mat-error><b>{{this.paymentErrorMsg}}</b></mat-error>
+                <button mat-raised-button color="primary" (click)="setStepper(1)">
+                  Back
+                </button>
+                <button mat-raised-button class="kaoc-btn-primary" (click)="submitPayment()"
+                  [disabled]="disablePayButton">
+                  <mat-icon matTooltip="Pay KAOC">payment</mat-icon>{{paymentStepperBtnLabel}}
+                </button>
+              </div>
+            </mat-card-content>
+          </mat-card>
         </form>
+
       </mat-step>
-      <mat-step>
-        <ng-template matStepLabel>Done</ng-template>
-        You are now done.
-        <div>
-          <button mat-button matStepperPrevious>Back</button>
-          <button mat-button (click)="stepper.reset()">Reset</button>
-        </div>
-      </mat-step>
-    </mat-vertical-stepper>
-   
+    </mat-horizontal-stepper>
+  </div>

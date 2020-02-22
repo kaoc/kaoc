@@ -15,10 +15,11 @@ export class MemberProfileComponent implements OnInit {
   dataSource: MatTableDataSource<any>;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild('stepper', { static: true }) stepper: MatStepper;
-
+  disablePayButton:boolean= false;
   errorMsg: string = '';
   paymentErrorMsg: string = '';
-  isLinear = true;
+  //data:any= '';
+ 
   memberDetFormError = false;
   saved = false;
 
@@ -29,33 +30,54 @@ export class MemberProfileComponent implements OnInit {
   memberDetForm: FormGroup;
   paymentForm: FormGroup;
   paymentList: string[] = ['Cash', 'Check', 'Square'];
-  membershipAmt: number = 0;
+  membershipAmt: string = '0';
   memberShip: Membership;
 
   memberdet;
   paymentdet;
 
-
   member: Member[];
   members: FormArray;
+ 
+  //Defaults
+  familyStepperPaymentBtnLabel: string;
+  paymentStepperBtnLabel: string;
+  isLinear: boolean;
+  memberStatus:string;
 
   data = {
     members: [{
       firstName: '',
       lastName: '',
       phoneNumber: '',
-      emailId: ''
+      emailId: '',
+      kaocUserId: ''
     }],
 
     membership: {
-      membershipType: ''
+      membershipType: '',
+      paymentStatus: '',
+      kaocMembershipId: ''
     }
   }
-
   constructor(private formBuilder: FormBuilder,
-    private service: MemberService) { }
+    private memberService: MemberService) {
+    console.log('Inside MemberProfile constructor. memberService.routedFrom= ' + this.memberService.routedFrom);
+
+    this.setDefaults ();
+  }
+
+  setDefaults () {
+    this.isLinear = true;
+    this.familyStepperPaymentBtnLabel="Skip & Pay";
+    this.paymentStepperBtnLabel="Submit Payment";
+    this.memberStatus="";
+   }
+  
 
   ngOnInit() {
+
+
 
     this.membershipTypeForm = this.formBuilder.group({
       membershipType: '',
@@ -66,6 +88,7 @@ export class MemberProfileComponent implements OnInit {
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       phoneNumber: ['', Validators.required],
+      kaocUserId:'',
       adultFlag: 'Adult',
     });
 
@@ -74,7 +97,8 @@ export class MemberProfileComponent implements OnInit {
       firstName: '',
       lastName: '',
       phoneNumber: '',
-      adultFlag: '',
+      kaocUserId:'',
+      adultFlag: 'Adult',
     });
 
     this.paymentForm = this.formBuilder.group({
@@ -82,9 +106,81 @@ export class MemberProfileComponent implements OnInit {
       paymentAmount: '0',
       paymentExternalSystemRef: '',
       paymentNotes: '',
+      paymentStatus:'',
+      kaocPaymentId:''
     });
+ 
+    if (this.memberService.routedFrom === 'listmembers') {
+      console.log("memberService.getMemberDetails response=" + JSON.stringify(this.memberService.membershipDetails));
 
-  }
+      if (this.memberService.membershipDetails.pastMembership ) {
+        this.disablePayButton= false;
+        this.memberStatus='InActive';
+        this.membershipTypeForm.controls.membershipType.setValue(this.memberService.membershipDetails.pastMembership.membershipType.toUpperCase());
+        console.log("this.memberService.membershipDetails.membershipType" + this.memberService.membershipDetails.pastMembership.membershipType);
+
+      }  else if (this.memberService.membershipDetails.membership) {
+        console.log("this.memberService.membershipDetails.membershipType" + this.memberService.membershipDetails.membership.membershipType.toUpperCase());
+
+        this.membershipTypeForm.controls.membershipType.setValue(this.memberService.membershipDetails.membership.membershipType);
+      }
+      
+      if (this.memberService.membershipDetails.payment) {
+        console.log("paymentstatus=" + this.memberService.membershipDetails.payment.paymentStatus.toLowerCase());
+        if ( this.memberService.membershipDetails.payment.paymentStatus.toLowerCase()==='paid' ) {
+          this.disablePayButton= true;
+          this.memberStatus='Active';
+          this.familyStepperPaymentBtnLabel="View payment";
+          this.paymentStepperBtnLabel="Update";
+        } else {
+          this.memberStatus='InActive';
+          this.disablePayButton= false;
+        }
+       
+        this.membershipAmt=this.memberService.membershipDetails.payment.paymentAmount;
+        this.paymentForm.setValue(this.memberService.membershipDetails.payment);
+        
+      } 
+      
+      if (this.memberService.membershipDetails.members.length > 0) {
+
+        let counter = 0;
+        //******************** No adult flag passed from service so setValue fails */
+        //this.memberForm.setValue (this.memberService.membershipDetails.members[0]); 
+
+        this.memberService.membershipDetails.members.forEach(element => {
+          console.log("counter=" + counter);
+
+          if (counter == 0) {
+            this.memberForm.controls.emailId.setValue(this.memberService.membershipDetails.members[counter].emailId);
+            this.memberForm.controls.firstName.setValue(this.memberService.membershipDetails.members[counter].firstName);
+            this.memberForm.controls.lastName.setValue(this.memberService.membershipDetails.members[counter].lastName);
+            this.memberForm.controls.phoneNumber.setValue(this.memberService.membershipDetails.members[counter].phoneNumber);
+            this.memberForm.controls.kaocUserId.setValue(this.memberService.membershipDetails.members[counter].kaocUserId);
+            this.addMember(0, 0);
+          } else {
+            console.log('email id from position ' + counter + '=' + this.memberService.membershipDetails.members[counter].emailId)
+
+            this.memberDetForm.controls.emailId.setValue(this.memberService.membershipDetails.members[counter].emailId);
+            this.memberDetForm.controls.firstName.setValue(this.memberService.membershipDetails.members[counter].firstName);
+            this.memberDetForm.controls.lastName.setValue(this.memberService.membershipDetails.members[counter].lastName);
+            this.memberDetForm.controls.phoneNumber.setValue(this.memberService.membershipDetails.members[counter].phoneNumber);
+            this.memberDetForm.controls.kaocUserId.setValue(this.memberService.membershipDetails.members[counter].kaocUserId);
+            this.addFamilyMember(this.memberDetForm);
+          }
+          counter++;
+
+        });
+      }
+
+      console.log('array length ' + this.memberService.membershipDetails.members.length);
+      //this.data.members[0]= this.memberService.membershipDetails.members[0];
+
+      // console.log('emailId=' + JSON.stringify(this.data.members[0]  ));
+
+    }
+ }
+
 
   createMember(): FormGroup {
     return this.formBuilder.group({
@@ -112,37 +208,36 @@ export class MemberProfileComponent implements OnInit {
 
     console.log('setPaymentAmount.membershipType=' + this.membershipTypeForm.controls.membershipType.value);
     if (this.membershipTypeForm.controls.membershipType.value === 'SRCITIZEN') {
-      this.membershipAmt = 35;
+      this.membershipAmt = '35';
     } else if (this.membershipTypeForm.controls.membershipType.value === 'INDIVIDUAL') {
-      this.membershipAmt = 55;
+      this.membershipAmt = '55';
     } else if (this.membershipTypeForm.controls.membershipType.value === 'FAMILY') {
-      this.membershipAmt = 95;
+      this.membershipAmt = '95';
     }
     this.paymentForm.controls.paymentAmount.patchValue(this.membershipAmt);
 
   }
 
   addMember(index, stepperIndex) {
-    console.log("index=" + index);
+    console.log("addMember.index=" + index +",stepperIndex=" + stepperIndex );
     this.data.members[index] = this.memberForm.value;
     this.setMatTable();
+  //  this.goTo(stepperIndex);
     this.setStepper(stepperIndex);
   }
 
   addFamily(stepperIndex) {
     this.errorMsg = "";
-    
+
 
     console.log("this.memberDetForm.controls.adultFlag.value=" + this.memberDetForm.controls.adultFlag.value);
     if (this.memberDetForm.controls.adultFlag.value == 'Adult') {
-
-
       console.log("this.memberDetForm.controls.emailId.value=" + JSON.stringify(this.memberDetForm.value));
 
       if (this.memberDetForm.controls.emailId.value === '' || this.memberDetForm.controls.emailId.value === null ||
         this.memberDetForm.controls.firstName.value === '' || this.memberDetForm.controls.firstName.value === null ||
-        this.memberDetForm.controls.lastName.value === '' || this.memberDetForm.controls.lastName.value ===null ||
-        this.memberDetForm.controls.phoneNumber.value === '' || this.memberDetForm.controls.phoneNumber.value===null
+        this.memberDetForm.controls.lastName.value === '' || this.memberDetForm.controls.lastName.value === null ||
+        this.memberDetForm.controls.phoneNumber.value === '' || this.memberDetForm.controls.phoneNumber.value === null
       ) {
         this.errorMsg = 'All fields are mandatory for Adult group';
         this.memberDetFormError = true;
@@ -157,15 +252,13 @@ export class MemberProfileComponent implements OnInit {
     } else if (this.memberDetForm.controls.adultFlag.value === 'Child') {
       console.log("else this.memberDetForm.controls.adultFlag.value=" + this.memberDetForm.controls.adultFlag.value);
 
-      if (this.memberDetForm.controls.firstName.value === ''  || this.memberDetForm.controls.lastName.value === '' ||
-      this.memberDetForm.controls.firstName.value === null  || this.memberDetForm.controls.lastName.value === null ) {
+      if (this.memberDetForm.controls.firstName.value === '' || this.memberDetForm.controls.lastName.value === '' ||
+        this.memberDetForm.controls.firstName.value === null || this.memberDetForm.controls.lastName.value === null) {
         this.errorMsg = 'Name is mandatory for Child group';
         this.memberDetFormError = true;
         return;
       } else {
-        this.data.members.push(this.memberDetForm.value);
-        this.memberDetForm.reset();
-        this.memberDetFormError = false;
+        this.addFamilyMember(this.memberDetForm);
         console.log('all good');
       }
     }
@@ -182,15 +275,21 @@ export class MemberProfileComponent implements OnInit {
     //   this.validationPhone(this.memberDetForm);
     // }
 
-    if (!this.memberDetForm.valid) { 
+    if (!this.memberDetForm.valid) {
       console.log('Invalid memberDet form');
       return;
     }
 
     this.setMatTable();
+    //this.goTo(stepperIndex);
     this.setStepper(stepperIndex);
+    
+  }
 
-
+  addFamilyMember(memberDetForm) {
+    this.data.members.push(memberDetForm.value);
+    this.memberDetForm.reset();
+    this.memberDetFormError = false;
   }
 
   deleteMember(index) {
@@ -199,7 +298,14 @@ export class MemberProfileComponent implements OnInit {
     this.setMatTable();
   }
 
+  setStepperIndexFromFormClick(event) {
+    this.goTo(event.selectedIndex);
+    this.setStepper(event.selectedIndex);
+   
+  }
+
   setStepper(index: number) {
+    console.log('Stepper index set at ' + index);
     this.stepper.selectedIndex = index;
   }
 
@@ -228,7 +334,7 @@ export class MemberProfileComponent implements OnInit {
       console.log('membershipTypeForm details' + JSON.stringify(this.membershipTypeForm.value));
       console.log('paymentForm details' + JSON.stringify(this.paymentForm.value));
 
-      this.service.addMember(this.data.members, this.membershipTypeForm.value, this.paymentForm.value);
+      this.memberService.addMember(this.data.members, this.membershipTypeForm.value, this.paymentForm.value);
     }
   }
 

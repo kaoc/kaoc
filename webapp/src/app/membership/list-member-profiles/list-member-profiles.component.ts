@@ -61,8 +61,8 @@ export class ListMemberProfilesComponent implements OnInit {
   }
 
   getMembershipDetails (member : Member) {
-
-    var response : any;
+    this.memberService.getMemberDetails(member);
+    /*var response : any;
     console.log("Inside getMembershipDetails.member.docId=" + member.docId);
 
 
@@ -72,7 +72,7 @@ export class ListMemberProfilesComponent implements OnInit {
       console.log("got result" + JSON.stringify( resp));
     }, err => {
       console.error({ err });
-    });
+    }); */
 
   }
 
