@@ -489,7 +489,7 @@ function _addOrUpdateMembership(membership, auth) {
 
     membershipYear = membershipYear || (new Date()).getFullYear();
     paymentStatus = paymentStatus || 'Paid';
-    membershipType = membershipType || 'Individual';
+    membershipType = (membershipType || 'INDIVIDUAL').toUpperCase();
 
     console.log(`Adding membership for ${kaocUserIds}, ${membershipYear}, ${membershipType}, ${legacyMembershipId}`);
     const membershipStartTime = admin.firestore.Timestamp.fromMillis(Date.parse(`01 Jan ${membershipYear} 00:00:00 MST`));
