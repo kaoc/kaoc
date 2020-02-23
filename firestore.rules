@@ -4,6 +4,7 @@ service cloud.firestore {
     	function isAdmin() {
       	return
         	request.auth != null 
+          && request.auth.token.email_verified == true
           && exists(/databases/$(database)/documents/kaocRoles/$(request.auth.uid))
           && get(/databases/$(database)/documents/kaocRoles/$(request.auth.uid)).data.admin != null
         	&& get(/databases/$(database)/documents/kaocRoles/$(request.auth.uid)).data.admin.startTime <= request.time
@@ -17,7 +18,7 @@ service cloud.firestore {
 
 		// KAOC Users 
 		match /kaocUsers/{kaocUserId} {
-      allow  read, write: if (resource != null && resource.data != null && resource.data.loginId == request.auth.uid) || isAdmin();
+      allow  read, write: if (resource != null && resource.data != null && resource.data.loginId == request.auth.uid && request.auth.token.email_verified == true) || isAdmin();
     }
 
 		// KAOC Memberships
@@ -30,6 +31,8 @@ service cloud.firestore {
       // is that the max number of members in the membership is 6
       allow  read, write: if isAdmin() || 
       											(resource != null 
+                            	&& request.auth
+                              && request.auth.token.email_verified == true
       											  && resource.data != null 
                               && resource.data.kaocUserRefs != null 
                               && (
@@ -45,12 +48,12 @@ service cloud.firestore {
 
 		// KAOC Payments
 		match /kaocPayments/{kaocPaymentId} {
-      allow  read, write: if (resource != null && resource.data != null && exists(resource.data.kaocUserRef) && get(resource.data.kaocUserRef).data.loginId == request.auth.uid) || isAdmin();
+      allow  read, write: if (resource != null && resource.data != null && request.auth && request.auth.token.email_verified == true && exists(resource.data.kaocUserRef) && get(resource.data.kaocUserRef).data.loginId == request.auth.uid) || isAdmin();
     }
 
 		// KAOC Roles
 		match /kaocRoles/{loginId} {
-      allow  read, write: if (request.auth.uid == loginId) || isAdmin();
+      allow  read, write: if (request.auth.uid == loginId && request.auth.token.email_verified == true) || isAdmin();
     }
 
 }
