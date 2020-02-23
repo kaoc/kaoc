@@ -41,16 +41,18 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
             const membershipYear = importedMembershipData.membershipYear;
             const membershipType = importedMembershipData.membershipType;
             const legacyMembershipId = importedMembershipData.memberNumber; // This is to keep backward compatability with old member id
-            const membership = {membershipYear, membershipType, legacyMembershipId};
+            const membershipId = importedMembershipData.membershipId;
+            const membership = {membershipId, membershipYear, membershipType, legacyMembershipId};
 
             // collect payment info
-            const {paymentMethod, paymentAmount, paymentNotes, checkNumber}  = importedMembershipData;
-            let payment = {paymentMethod, paymentAmount, paymentNotes};
+            const {paymentId, paymentMethod, paymentAmount, paymentNotes, checkNumber}  = importedMembershipData;
+            let payment = {paymentId, paymentMethod, paymentAmount, paymentNotes};
             payment.paymentExternalSystemRef = checkNumber;
 
             // This will effectively become the legacyMembershipId.
             let members = [];
             members.push({
+                kaocUserId: importedMembershipData.kaocUserId, 
                 firstName: importedMembershipData.firstName,
                 lastName: importedMembershipData.lastName,
                 phoneNumber: importedMembershipData.phoneNumber,
@@ -64,6 +66,7 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
 
             if(importedMembershipData.spouseFirstName || importedMembershipData.spouseLastName || importedMembershipData.spouseEmailId) {
                 members.push({
+                    kaocUserId:importedMembershipData.spouseKaocUserId, 
                     firstName: importedMembershipData.spouseFirstName,
                     lastName: importedMembershipData.spouseLastName,
                     phoneNumber: importedMembershipData.spousePhoneNumber,
@@ -336,7 +339,7 @@ function _addOrUpdateMemberMembershipAndPayment(members, membership, payment, au
     let result = {};
     
     let {membershipYear, membershipType, legacyMembershipId, kaocMembershipId, startTime, endTime} = membership || {};
-    let {paymentMethod, paymentAmount, paymentStatus, paymentExternalSystemRef, paymentNotes} = payment || {};
+    let {paymentMethod, paymentId, paymentAmount, paymentStatus, paymentExternalSystemRef, paymentNotes} = payment || {};
 
     if(!(members && members.length > 0)) {
         throw new Error(`Invalid members parameter. There should be at least 1 member in the array`);
@@ -368,8 +371,8 @@ function _addOrUpdateMemberMembershipAndPayment(members, membership, payment, au
         if(membershipId) {
             result.membershipId = membershipId;
         }
-        // If there are payment records, add them 
-        if(paymentMethod && paymentAmount) {
+        // If there are payment records, add/update them them 
+        if(paymentId || (paymentMethod && paymentAmount)) {
 
             // add payment reference back to the membership record. 
             const paymentTypeRef = admin.firestore().doc(`/kaocMemberships/${membershipId}`);
@@ -378,7 +381,8 @@ function _addOrUpdateMemberMembershipAndPayment(members, membership, payment, au
             // The payment will be recorded as membership fee
             const paymentType = 'Membership';
 
-            return _addPayment({
+            return _addOrUpdatePayment({
+                paymentId,
                 kaocUserId, paymentMethod, 
                 paymentAmount, paymentType, 
                 paymentTypeRef, paymentStatus,
@@ -578,8 +582,8 @@ function _addOrUpdateMembership(membership, auth) {
  * @param {Object} auth - Authentication object. 
  * @return {string} paymentId
  */
-function _addPayment(paymentObject, auth) {
-    let {kaocUserId, paymentMethod, 
+function _addOrUpdatePayment(paymentObject, auth) {
+    let {paymentId, kaocUserId, paymentMethod, 
         paymentAmount, paymentStatus, 
         paymentType, paymentTypeRef, 
         paymentExternalSystemRef,
@@ -589,7 +593,6 @@ function _addPayment(paymentObject, auth) {
         return Promise.reject(new Error('Invalid payment parameters.'));
     } else {
         paymentStatus = paymentStatus || 'Paid';
-        let paymentId;
         const kaocUserRef = admin.firestore().doc(`/kaocUsers/${kaocUserId}`); 
         const paymentDoc = {
             kaocUserRef,
@@ -601,14 +604,22 @@ function _addPayment(paymentObject, auth) {
             paymentExternalSystemRef,
             paymentNotes
         };
-        return admin.firestore().collection('kaocPayments')
-        .add(_addAuditFields(paymentDoc, true, auth))
-        .then(paymentDocRef => {
-            paymentId = paymentDocRef.id;
-            return _sendPaymentEmail(paymentDoc);
-        }).then(()=>{
-            return paymentId;
-        });
+
+        if(paymentId) {
+            console.debug(`Updating existing payment record with id ${paymentId}`);
+            return _updatePayment(paymentId, paymentDoc, auth);
+        } else {
+            console.debug(`Creating a new payment`)
+            return admin.firestore().collection('kaocPayments')
+                .add(_addAuditFields(paymentDoc, true, auth))
+                .then(paymentDocRef => {
+                    paymentId = paymentDocRef.id;
+                    return _sendPaymentEmail(paymentDoc);
+                }).then((result)=>{
+                    //console.debug(`PAyment record updated ${JSON.stringify(result)}`)
+                    return paymentId;
+                });
+        }
     }            
 }
 
