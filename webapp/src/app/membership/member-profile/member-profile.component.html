@@ -196,7 +196,7 @@
                   Back
                 </button>
                 <button mat-raised-button class="kaoc-btn-primary" (click)="submitPayment()"
-                  >
+                  [disabled]="disablePayButton">
                   <mat-icon matTooltip="Pay KAOC">payment</mat-icon>{{paymentStepperBtnLabel}}
                 </button>
               </div>

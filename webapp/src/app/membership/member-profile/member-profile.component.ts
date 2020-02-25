@@ -4,6 +4,7 @@ import { MemberService } from '../member.service';
 import { Membership } from '../Membership';
 import { Member } from '../Member';
 import { MatStepper } from '@angular/material';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'member-profile',
@@ -43,38 +44,56 @@ export class MemberProfileComponent implements OnInit {
   isLinear: boolean;
   memberStatus: string;
 
-  data = {
-    members: [{
-      firstName: '',
-      lastName: '',
-      phoneNumber: '',
-      emailId: '',
-      kaocUserId: ''
-    }],
+  data: any;
+  queryByMemberId: string;
 
-    membership: {
-      membershipType: '',
-      paymentStatus: '',
-      kaocMembershipId: ''
-    }
-  }
   constructor(private formBuilder: FormBuilder,
     private memberService: MemberService,
+    private route: ActivatedRoute
   ) {
-    console.log('Inside MemberProfile constructor. memberService.routedFrom= ' + this.memberService.routedFrom);
-
     this.setDefaults();
+    //console.log('Inside MemberProfile constructor. memberService.routedFrom= ' + this.memberService.routedFrom);
+
+    // const navigation = this.route.getCurrentNavigation();
+    // const state = navigation.extras.state as {id: string};
+    //this.queryByMemberId = state.id;
+
+    // this.queryByMemberId=this.route.getCurrentNavigation().extras.state.id;
+    //this.memberService.routedFrom=route.snapshot.paramMap.get('routeTo');
+
+    this.queryByMemberId = this.route.snapshot.paramMap.get('id');
+    console.log('queryByMemberId=' + this.queryByMemberId + 'this.memberService.routedFrom=' + this.memberService.routedFrom);
+
+
+
   }
 
 
   setDefaults() {
     console.log("Setting defaults");
     this.isLinear = true;
-    
+
     this.familyStepperPaymentBtnLabel = "Pay";
     this.paymentStepperBtnLabel = "Submit Payment";
     this.memberStatus = "";
     this.familyUpdateIndex = -1;
+
+
+    this.data = {
+      members: [{
+        firstName: '',
+        lastName: '',
+        phoneNumber: '',
+        emailId: '',
+        kaocUserId: ''
+      }],
+
+      membership: {
+        membershipType: '',
+        paymentStatus: '',
+        kaocMembershipId: ''
+      }
+    }
 
     this.membershipTypeForm = this.formBuilder.group({
       membershipType: '',
@@ -113,16 +132,16 @@ export class MemberProfileComponent implements OnInit {
     this.paymentForm.reset();
   }
 
-  optionalValidator(validators?: (ValidatorFn | null | undefined)[]): ValidatorFn {
-    return (control: AbstractControl): { [key: string]: any } => {
-      console.log('inside optionalvalidator=' + control.value);
-      return control.value ? Validators.compose(validators)(control) : null;
-    };
-  }
+  async ngOnInit() {
+    console.log('i am in ngOnInit');
 
-  ngOnInit() {
+    if (this.queryByMemberId !== '' && this.queryByMemberId !== null
+      && this.queryByMemberId !== undefined) {
 
-    if (this.memberService.routedFrom === 'listmembers') {
+      console.log("Calling this.memberService.getMemberById");
+
+      await this.memberService.getMemberById(this.queryByMemberId);
+      console.log("Completed call of this.memberService.getMemberById");
       console.log("memberService.getMemberDetails response=" + JSON.stringify(this.memberService.membershipDetails));
 
       if (this.memberService.membershipDetails.pastMembership) {
@@ -130,7 +149,6 @@ export class MemberProfileComponent implements OnInit {
         this.memberStatus = 'InActive';
         this.membershipTypeForm.controls.membershipType.setValue(this.memberService.membershipDetails.pastMembership.membershipType.toUpperCase());
         console.log("this.memberService.membershipDetails.membershipType" + this.memberService.membershipDetails.pastMembership.membershipType);
-
       } else if (this.memberService.membershipDetails.membership) {
         console.log("this.memberService.membershipDetails.membershipType" + this.memberService.membershipDetails.membership.membershipType.toUpperCase());
 
@@ -238,7 +256,7 @@ export class MemberProfileComponent implements OnInit {
         this.memberDetForm.controls.firstName.value === '' || this.memberDetForm.controls.firstName.value === null ||
         this.memberDetForm.controls.lastName.value === '' || this.memberDetForm.controls.lastName.value === null ||
         this.memberDetForm.controls.phoneNumber.value === '' || this.memberDetForm.controls.phoneNumber.value === null
-        
+
       ) {
         this.errorMsg = 'All fields are mandatory for Adult group';
         this.memberDetFormError = true;
@@ -279,9 +297,9 @@ export class MemberProfileComponent implements OnInit {
       }
 
       if (this.memberDetForm.controls.firstName.value === '' || this.memberDetForm.controls.lastName.value === '' ||
-        this.memberDetForm.controls.firstName.value === null || this.memberDetForm.controls.lastName.value === null||
+        this.memberDetForm.controls.firstName.value === null || this.memberDetForm.controls.lastName.value === null ||
         this.memberDetForm.controls.firstName.value === undefined || this.memberDetForm.controls.lastName.value === undefined
-        ) {
+      ) {
         this.errorMsg = 'Name is mandatory for Child group';
         console.log(this.errorMsg);
         this.memberDetFormError = true;
@@ -397,7 +415,7 @@ export class MemberProfileComponent implements OnInit {
 
     console.log("inside validatePhoneNo validator=" + mobileNo);
     let fieldVal = mobileNo;
-    if (fieldVal == '' || fieldVal==null || fieldVal==undefined) {
+    if (fieldVal == '' || fieldVal == null || fieldVal == undefined) {
       return true;
     } else {
       console.log('fieldVal.indexOf after 1 ' + fieldVal.indexOf('-', 1));
@@ -424,18 +442,4 @@ export class MemberProfileComponent implements OnInit {
     }
   }
 
-  //validationPhone(frm) {
-  // mobileNo.pattern('^\d{3}-\d{3}-\d{4}$')
-
-  // console.log('pattern=' + frm.controls.phoneNumber.value.match('^\d{3}-\d{3}-\d{4}$'));
-  // }
-  /* if ( ) {
-     console.log('Valid mobile pattern');
-     return true;
-  } else {
-    console.log('Invalid mobile pattern');
-    this.errorMsg="Invalid Email id ";
-    this.memberDetFormError=true;
-    return false;
-  } */
 }

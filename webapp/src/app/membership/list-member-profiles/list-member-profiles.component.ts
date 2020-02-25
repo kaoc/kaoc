@@ -11,7 +11,7 @@ import { EditMemberComponent } from '../edit-member/edit-member.component';
 import { AngularFireFunctions } from '@angular/fire/functions';
 import { first } from 'rxjs/operators';
 import { analytics } from 'firebase';
-import { Router } from '@angular/router';
+import { Router, NavigationExtras } from '@angular/router';
 
 @Component({
   selector: 'list-member-profiles',
@@ -62,8 +62,17 @@ export class ListMemberProfilesComponent implements OnInit {
     });
   }
 
+
+  testRoute() {
+    this.memberService.getMemberById('c1r9VWNIpfsq9wcnCfpx');
+   // const navigationExtras: NavigationExtras = {state: {id: 'c1r9VWNIpfsq9wcnCfpx'}};
+  //  this.router.navigate(['memberprofile'], navigationExtras);
+   // this.router.navigate(['memberprofile'], { state: { id: 'c1r9VWNIpfsq9wcnCfpx' } });
+  }
   getMembershipDetails(member: Member) {
-     this.memberService.getMemberDetails(member);
+     //console.log('in getMembershipDetails '  + JSON.stringify (member));
+    this.router.navigate(['memberprofile', member.docId]);
+     //this.memberService.getMemberDetails(member);
    }
 
   openEditDialog(member: Member) {
