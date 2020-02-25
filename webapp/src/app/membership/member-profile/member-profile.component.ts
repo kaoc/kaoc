@@ -70,6 +70,7 @@ export class MemberProfileComponent implements OnInit {
   setDefaults() {
     console.log("Setting defaults");
     this.isLinear = true;
+    
     this.familyStepperPaymentBtnLabel = "Pay";
     this.paymentStepperBtnLabel = "Submit Payment";
     this.memberStatus = "";
@@ -168,6 +169,7 @@ export class MemberProfileComponent implements OnInit {
             this.memberForm.controls.lastName.setValue(this.memberService.membershipDetails.members[counter].lastName);
             this.memberForm.controls.phoneNumber.setValue(this.memberService.membershipDetails.members[counter].phoneNumber);
             this.memberForm.controls.kaocUserId.setValue(this.memberService.membershipDetails.members[counter].kaocUserId);
+            this.memberForm.controls.ageGroup.setValue(this.memberService.membershipDetails.members[counter].ageGroup);
             this.setPaymentAmount();
             this.addMember(0, 0);
           } else {
@@ -178,6 +180,8 @@ export class MemberProfileComponent implements OnInit {
             this.memberDetForm.controls.lastName.setValue(this.memberService.membershipDetails.members[counter].lastName);
             this.memberDetForm.controls.phoneNumber.setValue(this.memberService.membershipDetails.members[counter].phoneNumber);
             this.memberDetForm.controls.kaocUserId.setValue(this.memberService.membershipDetails.members[counter].kaocUserId);
+            this.memberDetForm.controls.ageGroup.setValue(this.memberService.membershipDetails.members[counter].ageGroup);
+
             this.addFamilyMember(this.memberDetForm);
           }
           counter++;
@@ -191,16 +195,6 @@ export class MemberProfileComponent implements OnInit {
       // console.log('emailId=' + JSON.stringify(this.data.members[0]  ));
 
     }
-  }
-
-  createMember(): FormGroup {
-    return this.formBuilder.group({
-      emailId: '',
-      firstName: '',
-      lastName: '',
-      phoneNumber: '',
-      ageGroup: '',
-    });
   }
 
   addMember(index, stepperIndex) {
