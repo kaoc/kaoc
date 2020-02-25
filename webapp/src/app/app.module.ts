@@ -9,10 +9,10 @@ import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AngularFireStorageModule } from '@angular/fire/storage';
 import { AngularFireAuthModule } from '@angular/fire/auth';
 import { environment } from '../environments/environment';
-import { FlexLayoutModule } from "@angular/flex-layout";
-import { NgxSpinnerModule } from "ngx-spinner";
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { NgxSpinnerModule } from 'ngx-spinner';
 import { HeaderComponent } from './common/header/header.component';
-import { MaterialModule }  from './material.module';
+import { MaterialModule } from './material.module';
 import { MemberProfileComponent } from './membership/member-profile/member-profile.component';
 import { ListMemberProfilesComponent } from './membership/list-member-profiles/list-member-profiles.component';
 import { KaocHistoryComponent } from './about/kaoc-history/kaoc-history.component';
@@ -32,6 +32,10 @@ import { AngularFireFunctionsModule, FUNCTIONS_ORIGIN } from '@angular/fire/func
 import { NgxAuthFirebaseUIModule } from 'ngx-auth-firebaseui';
 import { SecuredModule } from './secured/secured.module';
 import { SpinnerComponent } from './common/spinner/spinner.component';
+
+export function getAppName() {
+return 'KAOC';
+}
 
 @NgModule({
   declarations: [
@@ -60,7 +64,6 @@ import { SpinnerComponent } from './common/spinner/spinner.component';
     BrowserAnimationsModule,
     FlexLayoutModule,
     AngularFireModule.initializeApp(environment.firebase),
-    NgxAuthFirebaseUIModule.forRoot(environment.firebase),
     AngularFirestoreModule,
     AngularFireStorageModule,
     AngularFireAuthModule,
@@ -68,7 +71,14 @@ import { SpinnerComponent } from './common/spinner/spinner.component';
     AngularFireFunctionsModule,
     SecuredModule,
     AppRoutingModule,
-    NgxSpinnerModule
+    NgxSpinnerModule,
+    NgxAuthFirebaseUIModule.forRoot(environment.firebase,
+      getAppName,
+      {
+        enableFirestoreSync: true,
+        toastMessageOnAuthSuccess: false,
+        toastMessageOnAuthError: true
+      })
   ],
   entryComponents: [ EditMemberComponent, SpinnerComponent],
   /*providers: [{
