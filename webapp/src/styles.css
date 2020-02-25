@@ -36,9 +36,10 @@ html, body {
     margin: 0 0px !important;
 }
 
-  .mat-card-header-text {
+.mat-card-header-text {
     margin: 0 0px!important;
  }
+
  .mat-step-icon-selected
  {
   color: #fff!important;
@@ -53,5 +54,13 @@ html, body {
 .kaoc-modalbox >  mat-dialog-container {
     padding: 1px;
 }
-html, body { height: 100%; }
+
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.mat-vertical-content {
+    padding: 0px 0px 0px 2px !important;
+}
+  
+.mat-vertical-stepper-header {
+  padding: 2px !important;
+}

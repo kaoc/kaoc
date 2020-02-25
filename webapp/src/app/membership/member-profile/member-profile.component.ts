@@ -5,6 +5,7 @@ import { Membership } from '../Membership';
 import { Member } from '../Member';
 import { MatStepper } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
 @Component({
   selector: 'member-profile',
@@ -13,6 +14,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class MemberProfileComponent implements OnInit {
   @ViewChild('stepper', { static: true }) stepper: MatStepper;
+  smallScreen: boolean;
   disablePayButton: boolean = false;
   errorMsg: string = '';
   paymentErrorMsg: string = '';
@@ -50,8 +52,15 @@ export class MemberProfileComponent implements OnInit {
 
   constructor(private formBuilder: FormBuilder,
     private memberService: MemberService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private breakpointObserver: BreakpointObserver
   ) {
+    breakpointObserver.observe([
+      Breakpoints.XSmall,
+      Breakpoints.Small
+    ]).subscribe(result => {
+      this.smallScreen = result.matches;
+    });
     this.setDefaults();
     //console.log('Inside MemberProfile constructor. memberService.routedFrom= ' + this.memberService.routedFrom);
 
@@ -73,7 +82,7 @@ export class MemberProfileComponent implements OnInit {
   setDefaults() {
     console.log("Setting defaults");
     this.isLinear = true;
-    this.memberPageTitle="Add member";
+    this.memberPageTitle = "Add member";
     this.familyStepperPaymentBtnLabel = "Pay";
     this.paymentStepperBtnLabel = "Submit Payment";
     this.memberStatus = "";
@@ -138,7 +147,7 @@ export class MemberProfileComponent implements OnInit {
 
     if (this.queryByMemberId !== '' && this.queryByMemberId !== null
       && this.queryByMemberId !== undefined) {
-      this.memberPageTitle="Edit member";
+      this.memberPageTitle = "Edit member";
       console.log("Calling this.memberService.getMemberById");
 
       await this.memberService.getMemberById(this.queryByMemberId);
