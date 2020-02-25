@@ -5,7 +5,7 @@
   </ngx-spinner>
 
   <div fxLayout="column" fxLayoutAlign="start start">
-    <h3>Add member</h3>
+    <h3>{{memberPageTitle}}</h3>
     <!-- <mat-horizontal-stepper [linear]="isLinear" #stepper> -->
     <mat-horizontal-stepper [linear]="isLinear" #stepper>
       <mat-step [stepControl]="memberForm"  (click)="addMember(0,1)">

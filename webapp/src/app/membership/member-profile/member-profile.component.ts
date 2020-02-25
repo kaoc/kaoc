@@ -16,6 +16,7 @@ export class MemberProfileComponent implements OnInit {
   disablePayButton: boolean = false;
   errorMsg: string = '';
   paymentErrorMsg: string = '';
+  memberPageTitle: string;
   //data:any= '';
 
   memberDetFormError = false;
@@ -72,7 +73,7 @@ export class MemberProfileComponent implements OnInit {
   setDefaults() {
     console.log("Setting defaults");
     this.isLinear = true;
-
+    this.memberPageTitle="Add member";
     this.familyStepperPaymentBtnLabel = "Pay";
     this.paymentStepperBtnLabel = "Submit Payment";
     this.memberStatus = "";
@@ -137,7 +138,7 @@ export class MemberProfileComponent implements OnInit {
 
     if (this.queryByMemberId !== '' && this.queryByMemberId !== null
       && this.queryByMemberId !== undefined) {
-
+      this.memberPageTitle="Edit member";
       console.log("Calling this.memberService.getMemberById");
 
       await this.memberService.getMemberById(this.queryByMemberId);
