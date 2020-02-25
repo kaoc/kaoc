@@ -46,7 +46,7 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
 
             // collect payment info
             const {paymentId, paymentMethod, paymentAmount, paymentNotes, checkNumber}  = importedMembershipData;
-            let payment = {paymentId, paymentMethod, paymentAmount, paymentNotes};
+            let payment = {kaocPaymentId: paymentId, paymentMethod, paymentAmount, paymentNotes};
             payment.paymentExternalSystemRef = checkNumber;
 
             // This will effectively become the legacyMembershipId.
@@ -304,6 +304,7 @@ exports.updatePayment = functions.https.onCall((data, context) => {
                     'User does not have the authorization to perform this operation');
     })
     .then(result => {
+        // TODO change name to kaocPaymentId
         console.log('updatePayment called for ' + data.paymentId);
         let paymentId = data.paymentId;
         let paymentDetailsObj = data.payment;
@@ -341,7 +342,7 @@ function _addOrUpdateMemberMembershipAndPayment(members, membership, payment, au
     let result = {};
     
     let {membershipYear, membershipType, legacyMembershipId, kaocMembershipId, startTime, endTime} = membership || {};
-    let {paymentMethod, paymentId, paymentAmount, paymentStatus, paymentExternalSystemRef, paymentNotes} = payment || {};
+    let {paymentMethod, kaocPaymentId, paymentAmount, paymentStatus, paymentExternalSystemRef, paymentNotes} = payment || {};
 
     if(!(members && members.length > 0)) {
         throw new Error(`Invalid members parameter. There should be at least 1 member in the array`);
@@ -374,7 +375,7 @@ function _addOrUpdateMemberMembershipAndPayment(members, membership, payment, au
             result.membershipId = membershipId;
         }
         // If there are payment records, add/update them them 
-        if(paymentId || (paymentMethod && paymentAmount)) {
+        if(kaocPaymentId || (paymentMethod && paymentAmount)) {
 
             // add payment reference back to the membership record. 
             const paymentTypeRef = admin.firestore().doc(`/kaocMemberships/${membershipId}`);
@@ -384,7 +385,7 @@ function _addOrUpdateMemberMembershipAndPayment(members, membership, payment, au
             const paymentType = 'Membership';
 
             return _addOrUpdatePayment({
-                paymentId,
+                kaocPaymentId,
                 kaocUserId, paymentMethod, 
                 paymentAmount, paymentType, 
                 paymentTypeRef, paymentStatus,
@@ -583,10 +584,10 @@ function _addOrUpdateMembership(membership, auth) {
  *      {string} paymentNotes                - Optional paymentNotes. 
  * 
  * @param {Object} auth - Authentication object. 
- * @return {string} paymentId
+ * @return {string} kaocPaymentId
  */
 function _addOrUpdatePayment(paymentObject, auth) {
-    let {paymentId, kaocUserId, paymentMethod, 
+    let {kaocPaymentId, kaocUserId, paymentMethod, 
         paymentAmount, paymentStatus, 
         paymentType, paymentTypeRef, 
         paymentExternalSystemRef,
@@ -608,27 +609,27 @@ function _addOrUpdatePayment(paymentObject, auth) {
             paymentNotes
         };
 
-        if(paymentId) {
-            console.debug(`Updating existing payment record with id ${paymentId}`);
-            return _updatePayment(paymentId, paymentDoc, auth);
+        if(kaocPaymentId) {
+            console.debug(`Updating existing payment record with id ${kaocPaymentId}`);
+            return _updatePayment(kaocPaymentId, paymentDoc, auth);
         } else {
             console.debug(`Creating a new payment`)
             return admin.firestore().collection('kaocPayments')
                 .add(_addAuditFields(paymentDoc, true, auth))
                 .then(paymentDocRef => {
-                    paymentId = paymentDocRef.id;
+                    kaocPaymentId = paymentDocRef.id;
                     return _sendPaymentEmail(paymentDoc);
                 }).then((result)=>{
                     //console.debug(`PAyment record updated ${JSON.stringify(result)}`)
-                    return paymentId;
+                    return kaocPaymentId;
                 });
         }
     }            
 }
 
 // _updatePayment(paymentId(CUSTOMER_ID), paymentObject (paymentStatus=Paid))
-function _updatePayment(paymentId, paymentObject, auth) {
-    const paymentRef = admin.firestore().doc(`/kaocPayments/${paymentId}`);
+function _updatePayment(kaocPaymentId, paymentObject, auth) {
+    const paymentRef = admin.firestore().doc(`/kaocPayments/${kaocPaymentId}`);
     let paymentTypeRef = null;
     let paymentDoc = null;
     return paymentRef.get().then(paymentDocSnapshot=>{
@@ -637,7 +638,7 @@ function _updatePayment(paymentId, paymentObject, auth) {
             paymentTypeRef = paymentDoc.paymentTypeRef;
             return paymentRef.update(_addAuditFields(paymentObject, false, auth));
         } else {
-            return Promise.reject(new Error(`No payment found with reference id ${paymentId}`));
+            return Promise.reject(new Error(`No payment found with reference id ${kaocPaymentId}`));
         }
     }).then(result=> {
         if(paymentTypeRef && paymentObject.paymentStatus) {
@@ -654,7 +655,7 @@ function _updatePayment(paymentId, paymentObject, auth) {
     }).then(result => {
         return _sendPaymentEmail(paymentDoc);
     }).then(result => {
-        return paymentId;
+        return kaocPaymentId;
     });
 }
 
