@@ -70,7 +70,7 @@ import { SpinnerComponent } from './common/spinner/spinner.component';
     AppRoutingModule,
     NgxSpinnerModule
   ],
-  entryComponents: [ EditMemberComponent, SpinnerComponent ],
+  entryComponents: [ EditMemberComponent, SpinnerComponent],
   /*providers: [{
     provide: FUNCTIONS_ORIGIN,
     useValue: 'http://localhost:5001'
