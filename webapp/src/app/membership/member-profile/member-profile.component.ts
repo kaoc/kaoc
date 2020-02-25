@@ -169,7 +169,7 @@ export class MemberProfileComponent implements OnInit {
             this.memberForm.controls.lastName.setValue(this.memberService.membershipDetails.members[counter].lastName);
             this.memberForm.controls.phoneNumber.setValue(this.memberService.membershipDetails.members[counter].phoneNumber);
             this.memberForm.controls.kaocUserId.setValue(this.memberService.membershipDetails.members[counter].kaocUserId);
-            this.memberForm.controls.ageGroup.setValue(this.memberService.membershipDetails.members[counter].ageGroup);
+            this.memberForm.controls.ageGroup.setValue('Adult');
             this.setPaymentAmount();
             this.addMember(0, 0);
           } else {
