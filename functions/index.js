@@ -57,6 +57,7 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
                 lastName: importedMembershipData.lastName,
                 phoneNumber: importedMembershipData.phoneNumber,
                 emailId: importedMembershipData.emailId,
+                ageGroup: (importedMembershipData.ageGroup || "Adult")
             });
 
             if(importedMembershipData.spouseEmailId === importedMembershipData.emailId) {
@@ -71,6 +72,7 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
                     lastName: importedMembershipData.spouseLastName,
                     phoneNumber: importedMembershipData.spousePhoneNumber,
                     emailId: importedMembershipData.spouseEmailId,
+                    ageGroup: (importedMembershipData.spouseAgeGroup || "Adult"),
                 });
             }
 
@@ -233,8 +235,8 @@ exports.getCurrentMembershipDataByMemberId = functions.https.onCall((data, conte
             }).then(memberDocumentSnapshots => {
                 result.members = memberDocumentSnapshots.map(memberDocumentSnapshot => {
                     if(memberDocumentSnapshot.exists) {
-                        let {firstName, lastName, emailId, phoneNumber} = memberDocumentSnapshot.data();
-                        return {firstName, lastName, emailId, phoneNumber, kaocUserId: memberDocumentSnapshot.id};
+                        let {firstName, lastName, emailId, phoneNumber, ageGroup} = memberDocumentSnapshot.data();
+                        return {firstName, lastName, emailId, phoneNumber, ageGroup, kaocUserId: memberDocumentSnapshot.id};
                     } else {
                         return {};
                     }
@@ -423,7 +425,7 @@ function _addOrUpdateMember(memberObject) {
             delete memberObject[key];
         }
     });
-    
+
     let query = null;
     let kaocUserRef = null;
     if(memberObject.kaocUserId) {
@@ -445,7 +447,8 @@ function _addOrUpdateMember(memberObject) {
             // User does not exist. 
             // add a new one
             memberObject.createTime = currentTime;
-            console.log(`User record ${JSON.stringify(memberObject)} does not exist. Creating one.`)
+            console.log(`User record ${JSON.stringify(memberObject)} does not exist. Creating one.`);
+            memberObject.ageGroup = memberObject.ageGroup || "ageGroup";
             return userCollectionRef.add(memberObject);
         } else {
             console.log(`User record for email id ${memberObject.emailId} already exist. Updating record.`)
