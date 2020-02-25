@@ -49,8 +49,9 @@ export class MemberService {
     .then(resp => {
       this.routedFrom='listmembers';
       this.membershipDetails=resp;
-      console.log("got result" + JSON.stringify(resp));
       this.spinner.hide();
+      console.log("got result" + JSON.stringify(resp));
+      
       this.router.navigate(['memberprofile']);
       //console.log({ resp });
      })
@@ -59,18 +60,7 @@ export class MemberService {
       console.error({ err });
     });
 
-    /*var addMessage = this.ngFireFunctions.httpsCallable('getCurrentMembershipDataByMemberId')({ kaocUserId: member.docId })
-      .subscribe(resp => {
-        this.routedFrom="listmembers"
-        this.membershipDetails = resp;
-        this.spinner.hide();
-        this.router.navigateByUrl('memberprofile');
-
-      }, err => {
-        this.spinner.hide();
-        console.error({ err });
-      }); */
-  
+ 
   }
 
   getAllMembers() {
@@ -84,7 +74,8 @@ export class MemberService {
     this.ngFireFunctions.httpsCallable('addOrUpdateMemberAndMembership')({
       members, membership, payment
     })
-      .subscribe(result => {
+      .toPromise()
+      .then(result => {
         console.log('got result' + JSON.stringify(result));
         console.log('PaymentService.processPayment.paymentMode = ' + payment.paymentMethod);
 

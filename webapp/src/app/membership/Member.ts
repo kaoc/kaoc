@@ -5,6 +5,6 @@ export class Member {
     firstName: string;
     lastName: string;
     phoneNumber: string;
-    adultFlag: string = 'Adult';
+    ageGroup: string = 'Adult';
     kaocUserId: string;
 }
