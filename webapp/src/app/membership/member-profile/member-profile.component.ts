@@ -6,14 +6,14 @@ import { Member } from '../Member';
 import { MatStepper } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-
+ 
 @Component({
   selector: 'member-profile',
   templateUrl: './member-profile.component.html',
   styleUrls: ['./member-profile.component.css']
 })
 export class MemberProfileComponent implements OnInit {
-  @ViewChild('stepper', { static: true }) stepper: MatStepper;
+  @ViewChild('stepper', { static: false }) stepper: MatStepper;
   smallScreen: boolean;
   disablePayButton: boolean = false;
   errorMsg: string = '';
@@ -74,14 +74,12 @@ export class MemberProfileComponent implements OnInit {
     this.queryByMemberId = this.route.snapshot.paramMap.get('id');
     console.log('queryByMemberId=' + this.queryByMemberId + 'this.memberService.routedFrom=' + this.memberService.routedFrom);
 
-
-
   }
 
 
   setDefaults() {
     console.log("Setting defaults");
-    this.isLinear = true;
+   
     this.memberPageTitle = "Add member";
     this.familyStepperPaymentBtnLabel = "Pay";
     this.paymentStepperBtnLabel = "Submit Payment";
@@ -197,7 +195,7 @@ export class MemberProfileComponent implements OnInit {
             this.memberForm.controls.lastName.setValue(this.memberService.membershipDetails.members[counter].lastName);
             this.memberForm.controls.phoneNumber.setValue(this.memberService.membershipDetails.members[counter].phoneNumber);
             this.memberForm.controls.kaocUserId.setValue(this.memberService.membershipDetails.members[counter].kaocUserId);
-            this.memberForm.controls.ageGroup.setValue('Adult');
+            this.memberForm.controls.ageGroup.setValue(this.memberService.membershipDetails.members[counter].ageGroup);
             this.setPaymentAmount();
             this.addMember(0, 0);
           } else {
@@ -224,10 +222,13 @@ export class MemberProfileComponent implements OnInit {
 
     }
   }
+ 
 
-  addMember(index, stepperIndex) {
+  addMember(index, stepperIndex  ) {
     console.log("addMember.index=" + index + ",stepperIndex=" + stepperIndex);
     this.data.members[index] = this.memberForm.value;
+     
+     
     //  this.goTo(stepperIndex);
     this.setStepper(stepperIndex);
   }
@@ -251,8 +252,8 @@ export class MemberProfileComponent implements OnInit {
       return;
     }
 
-    //this.goTo(stepperIndex);
-    this.setStepper(stepperIndex);
+     this.goTo(stepperIndex);
+     this.setStepper(stepperIndex);
 
   }
 
@@ -334,6 +335,8 @@ export class MemberProfileComponent implements OnInit {
     }
   }
 
+   
+
   addFamilyMember(memberDetForm) {
     this.data.members.push(memberDetForm.value);
     this.memberDetForm.reset();
@@ -360,19 +363,21 @@ export class MemberProfileComponent implements OnInit {
     this.familyUpdateIndex = -1;
   }
 
-  setStepperIndexFromFormClick(event) {
+  /*setStepperIndexFromFormClick(event) {
     this.goTo(event.selectedIndex);
     this.setStepper(event.selectedIndex);
-  }
+  } */ 
+  
+  goTo(index: number ) {
+    this.setStepper(index );
+  }  
 
-  setStepper(index: number) {
+  setStepper(index: number  ) {
     console.log('Stepper index set at ' + index);
-    this.stepper.selectedIndex = index;
+    this.stepper.selectedIndex=index;
   }
 
-  goTo(index: number) {
-    this.setStepper(index);
-  }
+  
 
   setPaymentAmount() {
 

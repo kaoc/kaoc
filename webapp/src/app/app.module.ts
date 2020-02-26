@@ -32,6 +32,7 @@ import { AngularFireFunctionsModule, FUNCTIONS_ORIGIN } from '@angular/fire/func
 import { NgxAuthFirebaseUIModule } from 'ngx-auth-firebaseui';
 import { SecuredModule } from './secured/secured.module';
 import { SpinnerComponent } from './common/spinner/spinner.component';
+import { CdkStepper } from '@angular/cdk/stepper';
 
 @NgModule({
   declarations: [
@@ -71,6 +72,7 @@ import { SpinnerComponent } from './common/spinner/spinner.component';
     NgxSpinnerModule
   ],
   entryComponents: [ EditMemberComponent, SpinnerComponent],
+  providers: [{ provide: CdkStepper }],
   /*providers: [{
     provide: FUNCTIONS_ORIGIN,
     useValue: 'http://localhost:5001'

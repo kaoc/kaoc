@@ -1,3 +1,4 @@
+<div overflow-y:auto>
 <div fxLayout="column" fxLayoutAlign="space-evenly start">
 
   <ngx-spinner bdColor="rgba(51,51,51,0.8)" size="medium" color="#fff" type="ball-scale-multiple">
@@ -63,13 +64,13 @@
       </mat-card-content>
     </mat-card>
   </ng-template>
-
-  <ng-template #addMemberFamilyStep>
+ 
+  <ng-template #addMemberFamilyStep >
     <mat-card>
       <mat-card-header>
         <mat-card-title></mat-card-title>
       </mat-card-header>
-      <mat-card-content>
+      <mat-card-content >
         <form [formGroup]="memberDetForm" class="example-form ">
           <mat-form-field class="form-full-width">
             <input matInput placeholder="Email Id" formControlName="emailId" type="email">
@@ -116,7 +117,7 @@
             </button>
           </div>
         </form>
-       <!-- <mat-list style="text-align:left;">
+         <mat-list style="text-align:left;">
           <h2 mat-subheader>
             <mat-icon>view_list</mat-icon> List of members
           </h2>
@@ -133,11 +134,11 @@
               <button mat-stroked-button color="warn" (click)="deleteMember(index+1)">Delete</button></p>
             <mat-divider></mat-divider>
           </mat-list-item>
-        </mat-list>-->
+        </mat-list> 
       </mat-card-content>
     </mat-card>
   </ng-template>
-
+ 
   <ng-template #paymentStep>
     <mat-card>
       <mat-card-content>
@@ -170,7 +171,7 @@
             <button mat-raised-button color="primary" (click)="setStepper(1)">
               Back
             </button>
-            <button mat-raised-button class="kaoc-btn-primary" (click)="submitPayment()" [disabled]="disablePayButton">
+            <button mat-raised-button class="kaoc-btn-primary" (click)="submitPayment()" >
               <mat-icon matTooltip="Pay KAOC">payment</mat-icon>{{paymentStepperBtnLabel}}
             </button>
           </div>
@@ -180,16 +181,16 @@
   </ng-template>
 
   <ng-template [ngIf]="smallScreen" [ngIfElse]="bigScreen">
-    <mat-vertical-stepper #stepper>
-      <mat-step [stepControl]="memberForm" (click)="addMember(0,1)">
+    <mat-vertical-stepper  [linear]="true" #stepper>
+      <mat-step [stepControl]="memberForm" (click)="addMember(0,1,stepper)">
         <ng-template matStepLabel>Member Details</ng-template> <br />
         <ng-container *ngTemplateOutlet="addMemberStep"></ng-container>
       </mat-step>
-      <mat-step>
+      <mat-step  [stepControl]="memberDetForm">
         <ng-template matStepLabel>Family Details</ng-template> <br />
         <ng-container *ngTemplateOutlet="addMemberFamilyStep"></ng-container>
       </mat-step>
-      <mat-step>
+      <mat-step  [stepControl]="paymentForm">
         <ng-template matStepLabel>Payment</ng-template> <br />
         <ng-container *ngTemplateOutlet="paymentStep"></ng-container>
       </mat-step>
@@ -198,16 +199,16 @@
   </ng-template>
 
   <ng-template #bigScreen>
-    <mat-horizontal-stepper #stepper>
-      <mat-step [stepControl]="memberForm" (click)="addMember(0,1)">
+    <mat-horizontal-stepper   [linear]="true" #stepper>
+      <mat-step [stepControl]="memberForm" (click)="addMember(0,1,stepper)">
         <ng-template matStepLabel>Member Details</ng-template> <br />
         <ng-container *ngTemplateOutlet="addMemberStep"></ng-container>
       </mat-step>
-      <mat-step>
+      <mat-step [stepControl]="memberDetForm">
         <ng-template matStepLabel>Family Details</ng-template> <br />
         <ng-container *ngTemplateOutlet="addMemberFamilyStep"></ng-container>
       </mat-step>
-      <mat-step>
+      <mat-step [stepControl]="paymentForm">
         <ng-template matStepLabel>Payment</ng-template> <br />
         <ng-container *ngTemplateOutlet="paymentStep"></ng-container>
       </mat-step>
@@ -215,6 +216,6 @@
 
     </mat-horizontal-stepper>
   </ng-template>
-
+</div>
 
 </div>
