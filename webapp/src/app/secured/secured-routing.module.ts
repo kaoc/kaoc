@@ -6,6 +6,7 @@ import { SecuredComponent } from './secured.component';
 import { AuthGuardService } from './auth/auth-guard.service';
 import { AdminComponent } from '../admin/admin.component';
 import { VerifyEmailComponent } from './verify-email/verify-email.component';
+import { SearchUsersComponent } from './admin/search-users/search-users.component';
 
 
 const routes: Routes = [{
@@ -36,6 +37,15 @@ const routes: Routes = [{
             expectedRole: 'admin'
         }
     },
+    {
+      path: 'admin/search',
+      component: SearchUsersComponent,
+      canActivate: [AuthGuardService],
+      data: {
+          expectedRole: 'admin'
+      }
+  },
+
     {
         path: '',
         pathMatch: 'full',

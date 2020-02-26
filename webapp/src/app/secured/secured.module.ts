@@ -12,7 +12,8 @@ import { MatFormFieldModule} from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { ReactiveFormsModule} from '@angular/forms';
 import { VerifyEmailComponent } from './verify-email/verify-email.component';
-
+import { SearchUsersComponent } from './admin/search-users/search-users.component';
+import { NgxSpinnerModule } from 'ngx-spinner';
 
 
 @NgModule({
@@ -21,7 +22,8 @@ import { VerifyEmailComponent } from './verify-email/verify-email.component';
     SecuredComponent,
     AdminComponent,
     LoginComponent,
-    VerifyEmailComponent],
+    VerifyEmailComponent,
+    SearchUsersComponent],
   imports: [
     CommonModule,
     SecuredRoutingModule,
@@ -29,7 +31,8 @@ import { VerifyEmailComponent } from './verify-email/verify-email.component';
     MatCardModule,
     ReactiveFormsModule,
     MatFormFieldModule,
-    MatIconModule
+    MatIconModule,
+    NgxSpinnerModule
   ]
 })
 export class SecuredModule { }

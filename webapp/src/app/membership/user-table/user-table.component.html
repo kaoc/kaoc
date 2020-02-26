@@ -1,0 +1,60 @@
+<div>
+
+    <ngx-spinner bdColor="rgba(51,51,51,0.8)" size="medium" color="#fff" type="ball-scale-multiple">
+        <p style="font-size: 20px; color: white">Processing Request</p>
+    </ngx-spinner>
+
+    <mat-card class="example-card">
+      <mat-card-header>
+          <mat-card-title>Member(s)</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="mat-elevation-z8">
+
+          <!--Filter Section. -->
+          <mat-form-field *ngIf="enableFilter">
+              <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Search">
+          </mat-form-field>
+
+          <table style="text-align: left;" mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>
+
+              <ng-container matColumnDef="docId">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Document Id</th>
+                  <td mat-cell *matCellDef="let element">{{element.docId}}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="memberId">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Member Id</th>
+                  <td mat-cell *matCellDef="let element">{{element.memberId}}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="firstName">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Member</th>
+                  <td mat-cell *matCellDef="let element">
+                    <div fxLayout="start center" fxLayoutAlign="space-between">
+                        <div fxLayout="start center" fxLayoutAlign="space-between" style="min-width:90%;width:90%" fxFlex="90% auto auto" >
+                            <div class="name-col" fxFlex="35% 35% auto">
+                              {{element.firstName}} {{element.lastName}}
+                            </div>
+                            <div class="email-col" fxFlex="35% 35% auto">
+                              {{element.emailId}}
+                            </div>
+                            <div class="phone-col" fxFlex="30% 30% auto">
+                              {{element.phoneNumber != null ? element.phoneNumber : "N/A"}}
+                            </div>
+                        </div>
+                        <div fxLayout="row" fxLayoutGap="5px" fxLayoutAlign="end center"  fxFlex="10% auto auto">
+                          <mat-icon (click)="getMembershipDetails(element)" matTooltip="Edit Member">edit</mat-icon>
+                        </div>
+                    </div>
+                  </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="columnsToDisplay; sticky: true"></tr>
+              <tr mat-row *matRowDef="let element; columns: columnsToDisplay;"></tr>
+          </table>
+          <mat-paginator [pageSizeOptions]="[5, 10, 20, 50, 100]" showFirstLastButtons></mat-paginator>
+        </div>
+      </mat-card-content>
+    </mat-card>
+</div>
