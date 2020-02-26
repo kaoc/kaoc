@@ -81,10 +81,10 @@ return 'KAOC';
       })
   ],
   entryComponents: [ EditMemberComponent, SpinnerComponent],
-  /*providers: [{
+  providers: [{
     provide: FUNCTIONS_ORIGIN,
-    useValue: 'http://localhost:5001'
-  }],*/
+    useValue: environment.firebase.functionURL
+  }],
   bootstrap: [AppComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })

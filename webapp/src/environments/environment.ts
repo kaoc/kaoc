@@ -2,18 +2,27 @@
 // `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
+const projectId = `kaocproject`;
+const hostURl = `test.kaoc.app`;
+
 export const environment = {
-  production: false,
-  firebase: {
-    apiKey: "AIzaSyBsKGX4U0t9KnauslGJKFSQkZnHqIfhhQE",
-    authDomain: "test.kaoc.app",
-    databaseURL: "https://kaocproject.firebaseio.com",
-    projectId: "kaocproject",
-    storageBucket: "kaocproject.appspot.com",
-    messagingSenderId: "828257921598",
-    appId: "1:828257921598:web:8a2f1d304210a0603e7f6f"
-  }
+    production: false,
+    firebase: {
+        apiKey            : `AIzaSyBsKGX4U0t9KnauslGJKFSQkZnHqIfhhQE`,
+        authDomain        : `${hostURl}`,
+        databaseURL       : `https://${projectId}.firebaseio.com`,
+        projectId         : `${projectId}`,
+        storageBucket     : `${projectId}.appspot.com`,
+        messagingSenderId : '828257921598',
+        appId             : '1:828257921598:web:8a2f1d304210a0603e7f6f',
+        functionURL       : `https://${hostURl}/api`
+    }
 };
+
+/**
+ *  Use this for testing cloud functions running on local emulator
+ *  functionURL       : 'http://localhost:5001'
+ */
 
 /*
  * For easier debugging in development mode, you can import the following file

@@ -15,8 +15,31 @@
       "**/.*",
       "**/node_modules/**"
     ],
-    "rewrites": [
-      {
+    "rewrites": [{
+        "source": "api/importMembership",
+        "function": "importMembership"
+      }, {
+        "source": "api/getCurrentMembershipDataByMemberId",
+        "function": "getCurrentMembershipDataByMemberId"
+      }, {
+        "source": "api/importMembership",
+        "function": "importMembership"
+      }, {
+        "source": "api/updatePayment",
+        "function": "updatePayment"
+      }, {
+        "source": "api/:projectName/us-central1/addOrUpdateMemberAndMembership",
+        "function": "addOrUpdateMemberAndMembership"
+      }, {
+        "source": "api/:projectName/us-central1/getCurrentMembershipDataByMemberId",
+        "function": "getCurrentMembershipDataByMemberId"
+      }, {
+        "source": "api/:projectName/us-central1/importMembership",
+        "function": "importMembership"
+      }, {
+        "source": "api/:projectName/us-central1/updatePayment",
+        "function": "updatePayment"
+      }, {
         "source": "**",
         "destination": "/index.html"
       }
