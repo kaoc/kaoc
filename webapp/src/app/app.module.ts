@@ -32,6 +32,7 @@ import { AngularFireFunctionsModule, FUNCTIONS_ORIGIN } from '@angular/fire/func
 import { NgxAuthFirebaseUIModule } from 'ngx-auth-firebaseui';
 import { SecuredModule } from './secured/secured.module';
 import { SpinnerComponent } from './common/spinner/spinner.component';
+import { CdkStepper } from '@angular/cdk/stepper';
 
 export function getAppName() {
 return 'KAOC';
@@ -82,6 +83,8 @@ return 'KAOC';
   ],
   entryComponents: [ EditMemberComponent, SpinnerComponent],
   providers: [{
+    provide: CdkStepper
+  }, {
     provide: FUNCTIONS_ORIGIN,
     useValue: environment.firebase.functionURL
   }],
