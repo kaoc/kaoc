@@ -1,36 +1,23 @@
 .example-form {
-  min-width: 320px;
+  min-width: 95%;
   max-width: 100%;
   width: 100%;
 }
 
 .form-full-width {
-  width: 100%;
-}
-
-.mat-radio-button {
-  padding-left: 2px;
-  margin: 5px;
-}
-
-.example-additional-selection {
-  opacity: 0.75;
-  font-size: 0.75em;
-}
+  min-width: 95%;
+  max-width: 100%;
  
+}
  
 .mat-card{
-  min-width: 320px;
-  max-width: 100%;
-  width: 100%;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  padding:0px !important;
 }
-
-table {
-  width: 100%;
-}
-
+ 
 .invisible{
-  
   visibility: hidden;
   height: 0;
   width: 0;

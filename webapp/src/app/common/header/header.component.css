@@ -41,8 +41,10 @@ div {
 */
 
 
+
 .mat-sidenav-content{
-  font-size: 200%;
+  /*font-size: 200%;*/
+  font-size: 100%;
   text-align: center;
 } 
 

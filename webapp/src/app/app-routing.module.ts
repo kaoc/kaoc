@@ -17,6 +17,7 @@ const routes: Routes = [
   //{ path: 'kaochistory', component: KaocHistoryComponent },
 //  { path: 'kaocbyelaw', component: KaocByeLawComponent },
   { path: 'memberprofile', component: MemberProfileComponent },
+  { path: 'memberprofile/:id', component: MemberProfileComponent },
   { path: 'listmembers', component: ListMemberProfilesComponent },
   { path: 'processpayment' , component: PaymentComponent},
   { path: 'squareprocesspaymentresult' , component: SquarePaymentResultComponent}
