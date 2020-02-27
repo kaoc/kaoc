@@ -26,7 +26,7 @@ export class SearchUsersComponent implements OnInit {
                 distinctUntilChanged()
             ).subscribe(search => {
                 console.log(`Search Value - ${search}`);
-                angularFirestore.collection('kaocUsers', ref => ref.where('firstName', 'contains', search))
+                //angularFirestore.collection('kaocUsers', ref => ref.where('firstName', '==', search));
             });
     }
 
