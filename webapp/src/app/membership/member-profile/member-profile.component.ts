@@ -224,7 +224,7 @@ export class MemberProfileComponent implements OnInit {
   }
 
 
-  addMember(index, stepperIndex  ) {
+  addMember(index, stepperIndex) {
     console.log("addMember.index=" + index + ",stepperIndex=" + stepperIndex);
     this.data.members[index] = this.memberForm.value;
 
@@ -252,90 +252,87 @@ export class MemberProfileComponent implements OnInit {
       return;
     }
 
-     this.goTo(stepperIndex);
-     this.setStepper(stepperIndex);
+    this.goTo(stepperIndex);
+    this.setStepper(stepperIndex);
 
   }
 
   validateMemberDetForm() {
-
+    let errCount = 0;
     if (this.memberDetForm.controls.ageGroup.value == 'Adult') {
 
       console.log("validateMemberDetForm>>> memberDetForm.value=" + JSON.stringify(this.memberDetForm.value));
 
-      if (this.memberDetForm.controls.emailId.value === '' || this.memberDetForm.controls.emailId.value === null ||
-        this.memberDetForm.controls.firstName.value === '' || this.memberDetForm.controls.firstName.value === null ||
-        this.memberDetForm.controls.lastName.value === '' || this.memberDetForm.controls.lastName.value === null ||
-        this.memberDetForm.controls.phoneNumber.value === '' || this.memberDetForm.controls.phoneNumber.value === null
-
+      if (this.isNullField(this.memberDetForm.controls.emailId.value) || this.isNullField(this.memberDetForm.controls.firstName.value) ||
+        this.isNullField(this.memberDetForm.controls.lastName.value) || this.isNullField(this.memberDetForm.controls.phoneNumber.value)
       ) {
         this.errorMsg = 'All fields are mandatory for Adult group';
         this.memberDetFormError = true;
         console.log(this.errorMsg);
-        return false;
+        errCount++;
       } else {
         if (this.validatePhoneNo(this.memberDetForm.controls.phoneNumber.value) == false) {
           this.errorMsg = "Invalid Phone number format";
           this.memberDetFormError = true;
-          return false;
+          errCount++;
         } else {
           this.errorMsg = "";
           this.memberDetFormError = false;
         }
 
-        if (this.memberDetForm.controls.emailId.value) {
-          if (this.validateEmail(this.memberDetForm.controls.emailId.value) == false) {
-            this.errorMsg = "Invalid Email id";
-            this.memberDetFormError = true;
-            return false;
-          } else {
-            console.log('memberDetForm validated for adult group');
-            return true;
-          }
+        if (this.validateEmail(this.memberDetForm.controls.emailId.value) == false) {
+          this.errorMsg = "Invalid Email id";
+          this.memberDetFormError = true;
+          errCount++;
         }
+
       }
 
     } else if (this.memberDetForm.controls.ageGroup.value === 'Child') {
-      console.log("else this.memberDetForm.controls.ageGroup.value=" + this.memberDetForm.controls.ageGroup.value);
 
-      if (this.validatePhoneNo(this.memberDetForm.controls.phoneNumber.value) == false) {
-        this.errorMsg = "Invalid Phone number format";
-        this.memberDetFormError = true;
-        return false;
-      } else {
+      if (this.isNullField(this.memberDetForm.controls.phoneNumber.value)) {
         this.errorMsg = "";
         this.memberDetFormError = false;
+
+      } else {
+        if (this.validatePhoneNo(this.memberDetForm.controls.phoneNumber.value) == false) {
+          this.errorMsg = "Invalid Phone number format";
+          this.memberDetFormError = true;
+          errCount++;
+        } else {
+          this.errorMsg = "";
+          this.memberDetFormError = false;
+
+        }
       }
 
-      if (this.memberDetForm.controls.firstName.value === '' || this.memberDetForm.controls.lastName.value === '' ||
-        this.memberDetForm.controls.firstName.value === null || this.memberDetForm.controls.lastName.value === null ||
-        this.memberDetForm.controls.firstName.value === undefined || this.memberDetForm.controls.lastName.value === undefined
-      ) {
-        this.errorMsg = 'Name is mandatory for Child group';
-        console.log(this.errorMsg);
-        this.memberDetFormError = true;
-        return false;
-      } else {
-        if (this.memberDetForm.controls.emailId.value) {
+      if (errCount == 0) {
+        if (this.isNullField(this.memberDetForm.controls.firstName.value) || this.isNullField(this.memberDetForm.controls.lastName.value)) {
+          this.errorMsg = 'Name is mandatory for Child group';
+          console.log(this.errorMsg);
+          this.memberDetFormError = true;
+          errCount++;
+        } else {
           if (this.validateEmail(this.memberDetForm.controls.emailId.value) == false) {
             this.errorMsg = "Invalid Email id";
             this.memberDetFormError = true;
-            return false;
-          }
-          else {
-            console.log('all good');
-            return true;
+            errCount++;
           }
         }
       }
     } else {
       this.errorMsg = 'Select age group';
       this.memberDetFormError = true;
-      return false;
+      errCount++;
     }
+
+    if (errCount > 0) {
+      return false;
+    } else {
+      return true;
+    }
+
   }
-
-
 
   addFamilyMember(memberDetForm) {
     this.data.members.push(memberDetForm.value);
@@ -368,16 +365,14 @@ export class MemberProfileComponent implements OnInit {
     this.setStepper(event.selectedIndex);
   } */
 
-  goTo(index: number ) {
-    this.setStepper(index );
+  goTo(index: number) {
+    this.setStepper(index);
   }
 
-  setStepper(index: number  ) {
+  setStepper(index: number) {
     console.log('Stepper index set at ' + index);
-    this.stepper.selectedIndex=index;
+    this.stepper.selectedIndex = index;
   }
-
-
 
   setPaymentAmount() {
 
@@ -415,10 +410,11 @@ export class MemberProfileComponent implements OnInit {
   }
 
   validateEmail(emailId) {
+
+    console.log('in validateEmail ' + emailId);
     this.errorMsg = "";
     this.memberDetFormError = false;
     this.errorMsg.substr
-    console.log("In validateEmail emailId=" + emailId.indexOf("@"));
     if (emailId && emailId.indexOf("@") == -1) {
       return false;
     }
@@ -426,11 +422,21 @@ export class MemberProfileComponent implements OnInit {
     return true;
   }
 
+  isNullField(fieldValue) {
+
+    if (fieldValue === '' || fieldValue === null || fieldValue === undefined) {
+      return true;
+    } else {
+      return false;
+    }
+
+
+  }
+
   validatePhoneNo(mobileNo) {
 
-    console.log("inside validatePhoneNo validator=" + mobileNo);
     let fieldVal = mobileNo;
-    if (fieldVal == '' || fieldVal == null || fieldVal == undefined) {
+    if (fieldVal === '' || fieldVal === null || fieldVal === undefined) {
       return true;
     } else {
       console.log('fieldVal.indexOf after 1 ' + fieldVal.indexOf('-', 1));
@@ -438,7 +444,6 @@ export class MemberProfileComponent implements OnInit {
       console.log('fieldVal.length' + fieldVal.length);
 
       if (fieldVal.indexOf('-', 1) == 3 && fieldVal.indexOf('-', 4) == 7 && fieldVal.length == 12) {
-
         var newStr = fieldVal.replace(/-/g, "");
         if (Number(+newStr)) {
           console.log("Number format newStr=" + newStr);
@@ -447,10 +452,7 @@ export class MemberProfileComponent implements OnInit {
           console.log("Not a number newStr=" + newStr);
           return false;
         }
-
-
       } else {
-
         console.log('Phone number validation failed');
         return false;
       }
