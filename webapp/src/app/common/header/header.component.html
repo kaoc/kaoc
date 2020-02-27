@@ -60,9 +60,10 @@
       <button mat-button>Contact us</button>-->
 
         <ngx-auth-firebaseui-avatar> </ngx-auth-firebaseui-avatar>
-          <button mat-icon-button *ngIf="!loggedIn" (click)="navigateToLoginPage()">
-            <i class="fa fa-sign-in" aria-hidden="true"></i>
-          </button>
+        <button mat-icon-button *ngIf="!loggedIn" (click)="navigateToLoginPage()">
+          <mat-icon>account_circle</mat-icon>
+          <!--<i class="fa fa-sign-in" aria-hidden="true"></i>-->
+        </button>
 
 
       </div>
@@ -118,6 +119,7 @@
 
 
           <button mat-icon-button *ngIf="!loggedIn" (click)="navigateToLoginPage()">
+            <mat-icon>account_circle</mat-icon>
             <i class="fa fa-sign-in" aria-hidden="true"></i>
           </button>
 

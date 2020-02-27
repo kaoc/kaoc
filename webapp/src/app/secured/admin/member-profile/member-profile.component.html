@@ -127,25 +127,24 @@
               </h2>
               <mat-divider></mat-divider>
               <mat-list-item *ngFor="let element of data.members | slice:1  ; let index=index;">
-                <mat-icon mat-list-icon>account_circle</mat-icon>
-                <!--
+                <mat-icon mat-list-icon *ngIf="element.ageGroup == 'Adult'">supervisor_account</mat-icon>
+                <mat-icon mat-list-icon *ngIf="element.ageGroup != 'Adult'">face</mat-icon>
                 <div mat-line>
                     <div class="name">{{element.firstName}} {{element.lastName}}</div>
-                    <span class="email">{{element.emailId}}</span>
-                    <span class="phone">{{element.phoneNumber}}</span>
-                  </div>
-                <div mat-line>
                 </div>
                 <div mat-line>
-                  <div class="agegroup">{{element.ageGroup}}</div>
+                  <span class="email">{{element.emailId}}</span>
+                  &nbsp;
+                  <span class="phone">{{element.phoneNumber}}</span>
                 </div>
-                -->
+                <!--
+
                 <h4 mat-line>Email id: {{element.emailId}}</h4>
                 <p mat-line>First name: {{element.firstName}} </p>
                 <p mat-line>Last name: {{element.lastName}} </p>
                 <p mat-line>Phone No: {{element.phoneNumber}} </p>
                 <p mat-line>Age Group: {{element.ageGroup}} </p>
-
+                -->
                 <p mat-line>
                   <button mat-stroked-button color="primary" (click)="editMember(element,index+1)">Edit</button> &nbsp;
                   <button mat-stroked-button color="warn" (click)="deleteMember(index+1)">Delete</button></p>
