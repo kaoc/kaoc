@@ -59,11 +59,11 @@
       <button mat-button>Links</button>
       <button mat-button>Contact us</button>-->
 
-        <ngx-auth-firebaseui-avatar>
+        <ngx-auth-firebaseui-avatar> </ngx-auth-firebaseui-avatar>
           <button mat-icon-button *ngIf="!loggedIn" (click)="navigateToLoginPage()">
             <i class="fa fa-sign-in" aria-hidden="true"></i>
           </button> 
-        </ngx-auth-firebaseui-avatar>
+        
 
       </div>
     </mat-toolbar-row>
@@ -116,11 +116,11 @@
           <button mat-menu-item routerLink="listmembers" (click)="sidenav.close()">View/Edit Member</button>
         </mat-menu>
 
-        <ngx-auth-firebaseui-avatar>
+        
           <button mat-icon-button *ngIf="!loggedIn" (click)="navigateToLoginPage()">
             <i class="fa fa-sign-in" aria-hidden="true"></i>
           </button>
-        </ngx-auth-firebaseui-avatar>
+        
 
       </div>
     </mat-sidenav>
