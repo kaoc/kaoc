@@ -7,23 +7,23 @@
 .form-full-width {
   min-width: 95%;
   max-width: 100%;
- 
+
 }
- 
+
 .mat-card{
   min-width: 100% !important;
   max-width: 100% !important;
   width: 100% !important;
   padding:0px !important;
 }
- 
+
 .invisible{
   visibility: hidden;
   height: 0;
   width: 0;
 }
 
- 
+
 
 @media  (max-width: 768px) {
   .mat-card{
@@ -36,4 +36,18 @@
   }
 
 }
- 
+
+
+.name {
+  font-weight: bold;
+}
+
+.email {
+  color: burlywood;
+  min-width: 200px;
+}
+
+.phone {
+  color: #999;
+  min-width: 110px;
+}

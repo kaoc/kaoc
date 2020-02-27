@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { AuthService, UserInfoExt } from '../auth/auth.service';
+import { Member } from '../Member';
 
 @Component({
   selector: 'app-profile',
@@ -6,10 +8,23 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./profile.component.css']
 })
 export class ProfileComponent implements OnInit {
+    firebaseUser: UserInfoExt;
+    kaocUser: Member;
 
-  constructor() { }
+    constructor(private authService: AuthService) {
+      authService.firebaseUser.subscribe(firebaseUser => {
+          if (firebaseUser) {
+              this.firebaseUser = firebaseUser;
+          }
+      });
 
-  ngOnInit() {
-  }
+      authService.kaocUser.subscribe(kaocUser => {
+          if (kaocUser) {
+              this.kaocUser = kaocUser;
+          }
+      });
+    }
 
+    ngOnInit() {
+    }
 }

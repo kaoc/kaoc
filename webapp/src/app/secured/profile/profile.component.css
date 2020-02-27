@@ -1,0 +1,13 @@
+.name {
+  font-weight: bold;
+}
+
+.email {
+  color: burlywood;
+  min-width: 200px;
+}
+
+.phone {
+  color: #999;
+  min-width: 110px;
+}

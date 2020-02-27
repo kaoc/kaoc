@@ -22,16 +22,27 @@ export class AuthGuardService implements CanActivate {
 
         if (firebaseUser != null) {
             if (firebaseUser.emailVerified) {
+              this.recordLastRequestedSecuredUrl(route);
               return true;
             } else {
-              this.authService.lastRequestedSecuredUrl = this.resolveUrl(route, null);
+              this.recordLastRequestedSecuredUrl(route);
               this.router.navigate(['/secured/verify']);
               return false;
             }
         } else {
-            this.authService.lastRequestedSecuredUrl = this.resolveUrl(route, null);
+            this.recordLastRequestedSecuredUrl(route);
             this.router.navigate(['/secured/login']);
             return false;
+        }
+    }
+
+    /**
+     * Records the last requested secured url.
+     */
+    recordLastRequestedSecuredUrl(route: ActivatedRouteSnapshot) {
+        const requestedUrl = this.resolveUrl(route, null);
+        if (requestedUrl && requestedUrl !== '/secured/verify' &&  requestedUrl !== '/secured/login') {
+            this.authService.lastRequestedSecuredUrl = requestedUrl;
         }
     }
 
