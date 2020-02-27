@@ -33,7 +33,6 @@ import { NgxAuthFirebaseUIModule } from 'ngx-auth-firebaseui';
 import { SecuredModule } from './secured/secured.module';
 import { SpinnerComponent } from './common/spinner/spinner.component';
 import { CdkStepper } from '@angular/cdk/stepper';
-import { UserTableComponent } from './membership/user-table/user-table.component';
 
 export function getAppName() {
 return 'KAOC';
@@ -59,8 +58,7 @@ return 'KAOC';
     EditMemberComponent,
     PaymentComponent,
     SquarePaymentResultComponent,
-    SpinnerComponent,
-    UserTableComponent
+    SpinnerComponent
   ],
   imports: [
     BrowserModule,

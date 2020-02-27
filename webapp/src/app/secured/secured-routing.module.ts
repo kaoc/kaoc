@@ -12,46 +12,39 @@ import { SearchUsersComponent } from './admin/search-users/search-users.componen
 const routes: Routes = [{
   path: 'secured',
   component: SecuredComponent,
-  children : [
-    {
-        path: 'login',
-        component: LoginComponent
-    },
-    {
-        path: 'verify',
-        component: VerifyEmailComponent
-    },
-    {
-        path: 'profile',
-        component: ProfileComponent,
-        canActivate: [AuthGuardService],
-        data: {
-            expectedRole: 'member'
-        }
-    },
-    {
-        path: 'admin',
-        component: AdminComponent,
-        canActivate: [AuthGuardService],
-        data: {
-            expectedRole: 'admin'
-        }
-    },
-    {
+  children : [{
+      path: 'login',
+      component: LoginComponent
+  }, {
+      path: 'verify',
+      component: VerifyEmailComponent
+  }, {
+      path: 'profile',
+      component: ProfileComponent,
+      canActivate: [AuthGuardService],
+      data: {
+          expectedRole: 'member'
+      }
+  }, {
       path: 'admin/search',
+      pathMatch: 'prefix',
       component: SearchUsersComponent,
       canActivate: [AuthGuardService],
       data: {
           expectedRole: 'admin'
       }
-  },
-
-    {
-        path: '',
-        pathMatch: 'full',
-        redirectTo: 'profile'
-    }
-  ]
+  }, {
+      path: 'admin',
+      component: AdminComponent,
+      canActivate: [AuthGuardService],
+      data: {
+          expectedRole: 'admin'
+      }
+  }, {
+      path: '',
+      pathMatch: 'full',
+      redirectTo: 'profile'
+  }]
 }];
 
 @NgModule({

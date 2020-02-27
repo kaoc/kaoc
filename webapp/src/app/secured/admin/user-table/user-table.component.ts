@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, Input, OnChanges } from '@angular/core';
 import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material';
-import { Member } from '../Member';
 import { Router } from '@angular/router';
+import { Member } from 'src/app/membership/Member';
 
 @Component({
     selector: 'app-user-table',

@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Member } from 'src/app/membership/Member';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { AngularFirestore } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-search-users',
@@ -8,16 +11,29 @@ import { Member } from 'src/app/membership/Member';
 })
 export class SearchUsersComponent implements OnInit {
 
-  userSearchResults: Member[];
+    userSearch: string;
+    userSearchUpdate = new Subject<string>();
+    userSearchResults: Member[];
 
+    /**
+     *
+     * Constructor.
+     */
+    constructor(angularFirestore: AngularFirestore) {
+        this.userSearchUpdate
+            .pipe(
+                debounceTime(400),
+                distinctUntilChanged()
+            ).subscribe(search => {
+                console.log(`Search Value - ${search}`);
+                angularFirestore.collection('kaocUsers', ref => ref.where('firstName', 'contains', search))
+            });
+    }
 
-  constructor() { }
+    ngOnInit() {
+    }
 
-  ngOnInit() {
-  }
+    applyFilter(filterVal) {
 
-  applyFilter(filterVal) {
-
-  }
-
+    }
 }

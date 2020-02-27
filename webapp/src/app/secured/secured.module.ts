@@ -14,6 +14,9 @@ import { ReactiveFormsModule} from '@angular/forms';
 import { VerifyEmailComponent } from './verify-email/verify-email.component';
 import { SearchUsersComponent } from './admin/search-users/search-users.component';
 import { NgxSpinnerModule } from 'ngx-spinner';
+import { UserTableComponent } from './admin/user-table/user-table.component';
+import { MaterialModule } from '../material.module';
+import { FlexLayoutModule } from '@angular/flex-layout';
 
 
 @NgModule({
@@ -23,7 +26,9 @@ import { NgxSpinnerModule } from 'ngx-spinner';
     AdminComponent,
     LoginComponent,
     VerifyEmailComponent,
-    SearchUsersComponent],
+    SearchUsersComponent,
+    UserTableComponent
+  ],
   imports: [
     CommonModule,
     SecuredRoutingModule,
@@ -32,7 +37,13 @@ import { NgxSpinnerModule } from 'ngx-spinner';
     ReactiveFormsModule,
     MatFormFieldModule,
     MatIconModule,
-    NgxSpinnerModule
+    NgxSpinnerModule,
+    MaterialModule,
+    FlexLayoutModule
+  ],
+  exports: [
+    UserTableComponent
   ]
+
 })
 export class SecuredModule { }
