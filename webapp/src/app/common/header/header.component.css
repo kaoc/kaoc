@@ -40,7 +40,14 @@ div {
 }
 */
 
+.img {
+   height:70px; 
+   width:75px; 
+}
 
+.mat-toolbar{
+  height: 7vh;
+}
 
 .mat-sidenav-content{
   /*font-size: 200%;*/
@@ -57,6 +64,10 @@ div {
 }
 
  @media  (max-width: 768px) {
+ 
+  .mat-sidenav {
+    width: 200px;
+  }
   .mat-sidenav-container{
     background-color: grey;
     min-height: 50vh !important;  

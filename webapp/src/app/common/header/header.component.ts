@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit {
-
+  opened: boolean;
   isKaocCommitteeMember:boolean = true;
   kaocCommitteeMemberAccessType:string = 'RW';
   loggedIn = false;

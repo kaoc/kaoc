@@ -1,22 +1,21 @@
+<div>
+  <mat-toolbar class="kaoc-primary-color" fxLayoutAlign="space-between center" fxLayout="row" fxLayoutGap="20px">
+    <mat-toolbar-row>
+      <div fxShow="true" fxHide.gt-sm>
+        <button mat-icon-button (click)="sidenav.toggle()">
+          <mat-icon>menu</mat-icon>
+        </button>
+      </div>
 
-<div  >
-<mat-toolbar class="kaoc-primary-color" fxLayoutAlign="space-between center"  fxLayout="row" fxLayoutGap="20px">
-  <mat-toolbar-row>
-  <div fxShow="true" fxHide.gt-sm>
-    <button mat-icon-button (click)="sidenav.toggle()">
-      <mat-icon>menu</mat-icon>
-    </button>
-  </div>
 
+      <a mat-button routerLink="/">
+        <img src="../../../assets/images/kaoc-avatar-icon.png" class="img" />
+        <span>&nbsp;Kerala Association of Colorado</span>
+      </a>
+      <span class="example-spacer"></span>
 
-    <a mat-button routerLink="/">
-      <img src="../../../assets/images/kaoc-avatar-icon.png" style="height:70px; width:75px;  " />
-      <span>&nbsp;Kerala Association of Colorado</span>
-    </a>
-    <span class="example-spacer"></span>
-
-    <div fxShow="true" fxHide.lt-md="true">
-      <!--<button mat-button [matMenuTriggerFor]="aboutMenu">About
+      <div fxShow="true" fxHide.lt-md="true">
+        <!--<button mat-button [matMenuTriggerFor]="aboutMenu">About
         <mat-icon aria-hidden="false">arrow_drop_down</mat-icon>
       </button>
       <mat-menu #aboutMenu="matMenu">
@@ -43,60 +42,37 @@
         <button mat-menu-item>Videos</button>
       </mat-menu>-->
 
-      <button mat-button *ngIf="isAdmin===true" [matMenuTriggerFor]="adminMenu" >Admin
-        <mat-icon aria-hidden="false">arrow_drop_down</mat-icon>
-      </button>
+        <button mat-button *ngIf="isAdmin===true" [matMenuTriggerFor]="adminMenu">Admin
+          <mat-icon aria-hidden="false">arrow_drop_down</mat-icon>
+        </button>
 
-      <mat-menu #adminMenu="matMenu">
-        <button mat-menu-item [matMenuTriggerFor]="membershipMenu">Membership</button>
-      </mat-menu>
+        <mat-menu #adminMenu="matMenu">
+          <button mat-menu-item [matMenuTriggerFor]="membershipMenu">Membership</button>
+        </mat-menu>
 
-      <mat-menu #membershipMenu="matMenu">
-        <button mat-menu-item routerLink="memberprofile">Add Member</button>
-        <button mat-menu-item routerLink="listmembers">View/Edit Member</button>
-      </mat-menu>
+        <mat-menu #membershipMenu="matMenu">
+          <button mat-menu-item routerLink="memberprofile">Add Member</button>
+          <button mat-menu-item routerLink="listmembers">View/Edit Member</button>
+        </mat-menu>
 
-
-
-     <!--<button mat-button>Sponsors</button>
+      <!--<button mat-button>Sponsors</button>
       <button mat-button>Links</button>
       <button mat-button>Contact us</button>-->
 
-      <ngx-auth-firebaseui-avatar>
-      </ngx-auth-firebaseui-avatar>
-      <button mat-icon-button *ngIf="!loggedIn" (click)="navigateToLoginPage()">
-        <i class="fa fa-sign-in" aria-hidden="true"></i>
-      </button>
+        <ngx-auth-firebaseui-avatar>
+          <button mat-icon-button *ngIf="!loggedIn" (click)="navigateToLoginPage()">
+            <i class="fa fa-sign-in" aria-hidden="true"></i>
+          </button> 
+        </ngx-auth-firebaseui-avatar>
 
- <!--  <button mat-icon-button [matMenuTriggerFor]="menu">
-        <i class="fa fa-sign-in" aria-hidden="true"></i>
-      </button> check this...
- -->
-      <mat-menu #menu="matMenu">
-        <button mat-menu-item>
-          <i class="fa fa-facebook-official" aria-hidden="true">&nbsp;</i>
-          <span>FaceBook</span>
-        </button>
-        <button mat-menu-item>
-          <i class="fa fa-google-plus-official" aria-hidden="true">&nbsp;</i>
-          <span>Gmail</span>
-        </button>
-        <button mat-menu-item>
-          <i class="fa fa-sign-in" aria-hidden="true">&nbsp;</i>
-          <span>KAOC Committee Login</span>
-        </button>
-      </mat-menu>
+      </div>
+    </mat-toolbar-row>
+  </mat-toolbar>
 
-
-
-    </div>
-  </mat-toolbar-row>
-</mat-toolbar>
-
- <mat-sidenav-container fxFlexFill>
-  <mat-sidenav #sidenav>
-    <div fxLayout="column">
-      <!--<button mat-button [matMenuTriggerFor]="aboutSN">About <i class="fa fa-caret-down" aria-hidden="true"></i>
+  <mat-sidenav-container fxFlexFill>
+    <mat-sidenav #sidenav  >
+      <div fxLayout="column">
+        <!--<button mat-button [matMenuTriggerFor]="aboutSN">About <i class="fa fa-caret-down" aria-hidden="true"></i>
       </button>
       <mat-menu #aboutSN="matMenu">
         <button mat-menu-item routerLink="kaochistory">KAOC History</button>
@@ -121,47 +97,35 @@
         <button mat-menu-item>Photos</button>
         <button mat-menu-item>Videos</button>
       </mat-menu>-->
-
-      <button mat-button *ngIf="isAdmin===true" [matMenuTriggerFor]="adminMenu" routerLink="admin">Admin
-        <mat-icon aria-hidden="false">arrow_drop_down</mat-icon>
-      </button>
-    <!-- <button mat-button>Sponsors</button>
+        <!--
+  <button mat-button *ngIf="isAdmin===true" [matMenuTriggerFor]="adminMenu" routerLink="admin">Admin
+-->
+        <button mat-button *ngIf="isAdmin===true" [matMenuTriggerFor]="adminMenu">Admin
+          <mat-icon aria-hidden="false">arrow_drop_down</mat-icon>
+        </button>
+        <!-- <button mat-button>Sponsors</button>
       <button mat-button>Links</button>
       <button mat-button>Contact us</button>-->
 
-      <mat-menu #adminMenu="matMenu">
-        <button mat-menu-item [matMenuTriggerFor]="membershipMenu">Membership</button>
-      </mat-menu>
+        <mat-menu #adminMenu="matMenu">
+          <button mat-menu-item [matMenuTriggerFor]="membershipMenu">Membership</button>
+        </mat-menu>
 
-      <mat-menu #membershipMenu="matMenu">
-        <button mat-menu-item routerLink="memberprofile">Add Member</button>
-        <button mat-menu-item routerLink="listmembers">View/Edit Member</button>
-      </mat-menu>
+        <mat-menu #membershipMenu="matMenu">
+          <button mat-menu-item routerLink="memberprofile" (click)="sidenav.close()">Add Member</button>
+          <button mat-menu-item routerLink="listmembers" (click)="sidenav.close()">View/Edit Member</button>
+        </mat-menu>
 
-      <button mat-icon-button *ngIf="!loggedIn" (click)="navigateToLoginPage()">
-        <i class="fa fa-sign-in" aria-hidden="true"></i>
-      </button>
-	  <!--<button mat-icon-button [matMenuTriggerFor]="menu">
-        <i class="fa fa-sign-in" aria-hidden="true"></i>
-      </button> Check this ... -->
-      <mat-menu #menu="matMenu">
-        <button mat-menu-item>
-          <i class="fa fa-facebook-official" aria-hidden="true">&nbsp;</i>
-          <span>FaceBook</span>
-        </button>
-        <button mat-menu-item>
-          <i class="fa fa-google-plus-official" aria-hidden="true">&nbsp;</i>
-          <span>Gmail</span>
-        </button>
-        <button mat-menu-item>
-          <i class="fa fa-sign-in" aria-hidden="true">&nbsp;</i>
-          <span>KAOC Committee Login</span>
-        </button>
-      </mat-menu>
-    </div>
-  </mat-sidenav>
-  <mat-sidenav-content fxFlexFill>
-    <router-outlet></router-outlet>
-  </mat-sidenav-content>
-</mat-sidenav-container>
- </div>
+        <ngx-auth-firebaseui-avatar>
+          <button mat-icon-button *ngIf="!loggedIn" (click)="navigateToLoginPage()">
+            <i class="fa fa-sign-in" aria-hidden="true"></i>
+          </button>
+        </ngx-auth-firebaseui-avatar>
+
+      </div>
+    </mat-sidenav>
+    <mat-sidenav-content fxFlexFill>
+      <router-outlet></router-outlet>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

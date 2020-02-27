@@ -19,12 +19,14 @@ export class MemberService {
   public membershipDetails: Membership;
   public routedFrom: string;
   public kaocUserDocId: string;
+  public message: string;
 
   constructor(public db: AngularFirestore,
     private ngFireFunctions: AngularFireFunctions,
     private spinner: NgxSpinnerService,
     private paymentService: PaymentService,
     private router: Router) {
+    this.message='';
     this.routedFrom = "memberprofile";
     this.membersCollection = this.db.collection<Member>('kaocUsers', ref => ref.orderBy('lastName', 'asc'));
     // this.members = this.membersCollection.valueChanges();
@@ -74,6 +76,7 @@ export class MemberService {
 
         const paymentDocumentRefNo = result['paymentId'];
         const membershipId = result['membershipId'];
+        
         console.log("paymentDocumentRefNo=" + paymentDocumentRefNo);
         console.log("membershipId=" + membershipId);
         if (payment.paymentMethod === 'Square' && null != paymentDocumentRefNo) {
