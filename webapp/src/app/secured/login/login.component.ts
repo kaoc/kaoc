@@ -39,7 +39,7 @@ export class LoginComponent implements OnInit {
   }
 
   handleLoginError(e) {
-    console.error('Login Error obtained ', e);
+    this.snackBar.open(e.message, 'Ok', {duration: 5000});
   }
 
   private _initResetPasswordFormGroupBuilder() {
@@ -58,7 +58,7 @@ export class LoginComponent implements OnInit {
     }).then(() => {
       this.passReset = true;
     }).catch(e => {
-      this.snackBar.open(e.message, 'Error', {duration: 5000});
+      this.snackBar.open(e.message, 'Ok', {duration: 5000});
     });
   }
 
@@ -67,11 +67,6 @@ export class LoginComponent implements OnInit {
   }
 
   handleRegistrationError(e) {
-    this.snackBar.open(e.message, 'Error', {duration: 5000});
-  }
-
-  login() {
-  }
-  logout() {
+    this.snackBar.open(e.message, 'Ok', {duration: 5000});
   }
 }

@@ -5,6 +5,7 @@
   [providers]="supportedProviders"
   (onCreateAccountRequested)="activity='registration'"
   (onResetPasswordRequested)="activity='resetPassword'"
+  (onError)="handleLoginError($event)"
   >
 </ngx-auth-firebaseui-login>
 

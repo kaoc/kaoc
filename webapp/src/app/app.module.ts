@@ -80,7 +80,7 @@ return 'KAOC';
       {
         enableFirestoreSync: true,
         toastMessageOnAuthSuccess: false,
-        toastMessageOnAuthError: true
+        toastMessageOnAuthError: false
       })
   ],
   entryComponents: [ EditMemberComponent, SpinnerComponent],
