@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ValidatorFn, AbstractControl, Validators, FormArray } from '@angular/forms';
-import { MemberService } from '../member.service';
-import { Membership } from '../Membership';
-import { Member } from '../Member';
+import { MemberService } from '../../member.service';
+import { Membership } from '../../Membership';
+import { Member } from '../../Member';
 import { MatStepper } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';

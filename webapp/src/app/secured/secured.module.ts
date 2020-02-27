@@ -17,6 +17,8 @@ import { NgxSpinnerModule } from 'ngx-spinner';
 import { UserTableComponent } from './admin/user-table/user-table.component';
 import { MaterialModule } from '../material.module';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { MemberProfileComponent } from './admin/member-profile/member-profile.component';
+import { ListMemberProfilesComponent } from './admin/list-member-profiles/list-member-profiles.component';
 
 
 @NgModule({
@@ -27,7 +29,9 @@ import { FlexLayoutModule } from '@angular/flex-layout';
     LoginComponent,
     VerifyEmailComponent,
     SearchUsersComponent,
-    UserTableComponent
+    UserTableComponent,
+    MemberProfileComponent,
+    ListMemberProfilesComponent
   ],
   imports: [
     CommonModule,

@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MemberService } from '../member.service';
-import { Member } from '../Member';
+import { MemberService } from '../../member.service';
+import { Member } from '../../Member';
 
 @Component({
   selector: 'list-member-profiles',

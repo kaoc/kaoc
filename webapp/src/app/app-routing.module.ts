@@ -1,7 +1,5 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { MemberProfileComponent } from './membership/member-profile/member-profile.component';
-import { ListMemberProfilesComponent } from './membership/list-member-profiles/list-member-profiles.component';
 import { KaocHistoryComponent } from './about/kaoc-history/kaoc-history.component';
 import { KaocByeLawComponent } from './about/kaoc-bye-law/kaoc-bye-law.component';
 import { AdminComponent } from './admin/admin.component';
@@ -16,9 +14,6 @@ const routes: Routes = [
   { path: 'admin', component: AdminComponent },
   //{ path: 'kaochistory', component: KaocHistoryComponent },
 //  { path: 'kaocbyelaw', component: KaocByeLawComponent },
-  { path: 'memberprofile', component: MemberProfileComponent },
-  { path: 'memberprofile/:id', component: MemberProfileComponent },
-  { path: 'listmembers', component: ListMemberProfilesComponent },
   { path: 'processpayment' , component: PaymentComponent},
   { path: 'squareprocesspaymentresult' , component: SquarePaymentResultComponent}
   //{ path : 'madhuram-malayalam' , component: MadhuramMalayalamComponent}

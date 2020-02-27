@@ -51,8 +51,8 @@
         </mat-menu>
 
         <mat-menu #membershipMenu="matMenu">
-          <button mat-menu-item routerLink="memberprofile">Add Member</button>
-          <button mat-menu-item routerLink="listmembers">View/Edit Member</button>
+          <button mat-menu-item routerLink="secured/admin/memberprofile">Add Member</button>
+          <button mat-menu-item routerLink="secured/admin/listmembers">View/Edit Member</button>
         </mat-menu>
 
       <!--<button mat-button>Sponsors</button>
@@ -62,8 +62,8 @@
         <ngx-auth-firebaseui-avatar> </ngx-auth-firebaseui-avatar>
           <button mat-icon-button *ngIf="!loggedIn" (click)="navigateToLoginPage()">
             <i class="fa fa-sign-in" aria-hidden="true"></i>
-          </button> 
-        
+          </button>
+
 
       </div>
     </mat-toolbar-row>
@@ -112,15 +112,15 @@
         </mat-menu>
 
         <mat-menu #membershipMenu="matMenu">
-          <button mat-menu-item routerLink="memberprofile" (click)="sidenav.close()">Add Member</button>
-          <button mat-menu-item routerLink="listmembers" (click)="sidenav.close()">View/Edit Member</button>
+          <button mat-menu-item routerLink="secured/admin/memberprofile" (click)="sidenav.close()">Add Member</button>
+          <button mat-menu-item routerLink="secured/admin/listmembers" (click)="sidenav.close()">View/Edit Member</button>
         </mat-menu>
 
-        
+
           <button mat-icon-button *ngIf="!loggedIn" (click)="navigateToLoginPage()">
             <i class="fa fa-sign-in" aria-hidden="true"></i>
           </button>
-        
+
 
       </div>
     </mat-sidenav>

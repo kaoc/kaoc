@@ -13,8 +13,6 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { HeaderComponent } from './common/header/header.component';
 import { MaterialModule } from './material.module';
-import { MemberProfileComponent } from './membership/member-profile/member-profile.component';
-import { ListMemberProfilesComponent } from './membership/list-member-profiles/list-member-profiles.component';
 import { KaocHistoryComponent } from './about/kaoc-history/kaoc-history.component';
 import { KaocByeLawComponent } from './about/kaoc-bye-law/kaoc-bye-law.component';
 import { AdminComponent } from './admin/admin.component';
@@ -43,8 +41,6 @@ return 'KAOC';
     AppComponent,
     HeaderComponent,
     AdminComponent,
-    MemberProfileComponent,
-    ListMemberProfilesComponent,
     KaocHistoryComponent,
     KaocByeLawComponent,
     MainContentAreaComponent,

@@ -3,8 +3,8 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import { BehaviorSubject } from 'rxjs';
 import { UserInfo } from 'firebase';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { Member } from 'src/app/membership/Member';
-import { MemberRoles } from 'src/app/membership/MemberRoles';
+import { Member } from '../Member';
+import { MemberRoles } from '../MemberRoles';
 
 export interface UserInfoExt extends UserInfo {
   emailVerified: boolean;
@@ -25,6 +25,9 @@ export class AuthService {
   public kaocRoles = this.kaocRolesSource.asObservable();
 
   private attempt = 0;
+
+  // A reference to the last requested URL by user.
+  public lastRequestedSecuredUrl: string = null;
 
   /**
    * Constructor

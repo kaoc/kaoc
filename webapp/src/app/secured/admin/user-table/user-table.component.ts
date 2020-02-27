@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, Input, OnChanges } from '@angular/core';
 import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material';
 import { Router } from '@angular/router';
-import { Member } from 'src/app/membership/Member';
+import { Member } from '../../Member';
 
 @Component({
     selector: 'app-user-table',
@@ -28,7 +28,7 @@ export class UserTableComponent implements OnInit, OnChanges {
     }
 
     getMembershipDetails(member: Member) {
-        this.router.navigate(['memberprofile', member.docId]);
+        this.router.navigate(['secured/admin/memberprofile', member.docId]);
     }
 
     ngOnInit() {
