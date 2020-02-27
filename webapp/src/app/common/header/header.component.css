@@ -69,7 +69,7 @@ div {
     width: 200px;
   }
   .mat-sidenav-container{
-    background-color: grey;
+    background-color: white;
     min-height: 50vh !important;  
     max-height: 88vh !important;  
   }
