@@ -44,6 +44,7 @@ div {
    height:50px;
    width:50px;
    border-radius: 50%;
+   box-shadow: 0 3px 5px 2px rgba(0,0,0,.2), 0 6px 10px 0 rgba(0,0,0,.14), 0 1px 18px 0 rgba(0,0,0,.12);
 }
 
 .avatar-container-side-menu {
@@ -67,6 +68,10 @@ div {
 }
 .example-spacer {
   flex: 1 1 auto;
+}
+
+.branding {
+    font-size: 18px;
 }
 
  @media  (max-width: 768px) {
