@@ -10,7 +10,7 @@ export class PaymentService {
   public processStatus: string = '';
   constructor(public platformUtils: PlatformUtilsService) { }
 
-  startSquarePayment(paymentForm, referenceNo: string) {
+  startSquarePayment(paymentForm, referenceNo: string, notes: string) {
     const os = this.platformUtils.getMobileOperatingSystem();
     // The URL where the Point of Sale app will send the transaction results.
     // This also needs to updated for the Point of Sale api app settings in SquareUp site
@@ -42,7 +42,8 @@ export class PaymentService {
           "auto_return":true,
           "clear_default_fees":false,
           "supported_tender_types":["CREDIT_CARD","CASH"]
-        }
+        },
+        "notes" : notes
       };
 
       console.log("iOS Calling window.location");
@@ -67,6 +68,7 @@ export class PaymentService {
         'S.com.squareup.pos.CURRENCY_CODE=' + currencyCode + ';' +
         'S.com.squareup.pos.TENDER_TYPES=' + tenderTypes + ';' +
         'l.com.squareup.pos.AUTO_RETURN_TIMEOUT_MS=3200;' +
+        'S.com.squareup.pos.NOTE' + notes + ';' +
         'end';
 
       // DEBUG: For cloud/local testing

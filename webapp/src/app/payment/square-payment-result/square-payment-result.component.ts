@@ -27,7 +27,7 @@ export class SquarePaymentResultComponent implements OnInit {
     const responseUrl: string = window.location.href;
     this.parseCallbackUrlAndSetIds(responseUrl);
     const updatePayment = this.ngFireFunctions.httpsCallable('updatePayment');
-    updatePayment({paymentId : this.kaocPaymentsDocId, payment: {paymentStatus : 'Paid'}}).toPromise().then((result) => {
+    updatePayment({paymentId : this.kaocPaymentsDocId, payment: {paymentStatus: 'Paid', paymentExternalSystemRef: this.squareServerPaymentRefId}}).toPromise().then((result) => {
         console.log('updatePayment returned paymentId ' + result);
       }).catch((error) => {
         // Getting the Error details.

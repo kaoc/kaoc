@@ -76,11 +76,14 @@ export class MemberService {
 
         const paymentDocumentRefNo = result['paymentId'];
         const membershipId = result['membershipId'];
-        
+        const memberEmail = members[0]['emailId'];
+        const notes = "FOR KAOC MEMBERSHIP. ID: " + membershipId + ". emailId: " + memberEmail + " kaocPaymentId: " + paymentDocumentRefNo;
+
         console.log("paymentDocumentRefNo=" + paymentDocumentRefNo);
         console.log("membershipId=" + membershipId);
+        console.log("notes: " + notes);
         if (payment.paymentMethod === 'Square' && null != paymentDocumentRefNo) {
-          this.paymentService.startSquarePayment(payment, paymentDocumentRefNo);
+          this.paymentService.startSquarePayment(payment, paymentDocumentRefNo, notes);
         } /*else {
           console.log('ERROR: Unsupported payment method ' + paymentForm.paymentMethod);
         } */
