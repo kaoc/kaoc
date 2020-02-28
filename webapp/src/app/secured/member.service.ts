@@ -62,11 +62,11 @@ export class MemberService {
     return this.members;
   }
 
-  addMember(members, membership, payment) {
+  async addMember(members, membership, payment, memberStatus) {
 
     this.spinner.show();
 
-    this.ngFireFunctions.httpsCallable('addOrUpdateMemberAndMembership')({
+    await this.ngFireFunctions.httpsCallable('addOrUpdateMemberAndMembership')({
       members, membership, payment
     })
       .toPromise()
@@ -75,10 +75,10 @@ export class MemberService {
         console.log('PaymentService.processPayment.paymentMode = ' + payment.paymentMethod);
 
         const paymentDocumentRefNo = result['paymentId'];
-        const membershipId = result['membershipId'];
+        const membershipId = result['membershipId']; 
         const memberEmail = members[0]['emailId'];
         const notes = "FOR KAOC MEMBERSHIP. ID: " + membershipId + ". emailId: " + memberEmail + " kaocPaymentId: " + paymentDocumentRefNo;
-
+         this.kaocUserDocId = result['userIds'][0];
         console.log("paymentDocumentRefNo=" + paymentDocumentRefNo);
         console.log("membershipId=" + membershipId);
         console.log("notes: " + notes);
@@ -87,6 +87,7 @@ export class MemberService {
         } /*else {
           console.log('ERROR: Unsupported payment method ' + paymentForm.paymentMethod);
         } */
+        this.message=this.getProcessMsg(memberStatus,payment.paymentMethod);
         this.spinner.hide();
       }, err => {
         console.error('Error while adding member ' + err);
@@ -94,4 +95,28 @@ export class MemberService {
       });
 
   }
+
+  getProcessMsg (memberStatus , paymentMethod) {
+    if (this.isNullField(memberStatus) || memberStatus==='Active' ) {
+      
+      return "Member details saved successfully"
+    } else {
+      if ( memberStatus==='InActive' && paymentMethod === 'Square' ) {
+        return "Member details saved and payment initiated"
+      } else {
+        return "Member details saved successfully"
+      }
+       
+    }
+  }
+
+  isNullField(fieldValue) {
+
+    if (fieldValue === '' || fieldValue === null || fieldValue === undefined) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
 }

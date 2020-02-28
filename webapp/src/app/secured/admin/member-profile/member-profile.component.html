@@ -5,6 +5,7 @@
       <p style="font-size: 20px; color: white">Processing Request</p>
     </ngx-spinner>
 
+     
     <ng-template #addMemberStep>
       <mat-card>
         <mat-card-header>
@@ -50,9 +51,8 @@
               <input matInput formControlName="kaocUserId">
             </mat-form-field>
             <mat-form-field class="form-full-width">
-              <input matInput placeholder="Mobile number" formControlName="phoneNumber" pattern="^\d{3}-\d{3}-\d{4}$"
-                required>
-              <mat-hint>Mobile number format XXX-XXX-XXXX</mat-hint>
+              <input matInput placeholder="Mobile number" formControlName="phoneNumber" >
+              <mat-hint>Enter a 10 digit phone number</mat-hint>
             </mat-form-field>
 
             <div fxLayout="row" fxLayoutAlign="end end" fxLayoutGap="5px">
@@ -93,8 +93,8 @@
               </mat-form-field>
 
               <mat-form-field class="form-full-width">
-                <input matInput placeholder="Mobile number" formControlName="phoneNumber" pattern="^\d{3}-\d{3}-\d{4}$">
-                <mat-hint>Mobile number format XXX-XXX-XXXX</mat-hint>
+                <input matInput placeholder="Mobile number" formControlName="phoneNumber">
+                <mat-hint>Enter a 10 digit phone number</mat-hint>
               </mat-form-field>
 
               <mat-form-field class="form-full-width">
@@ -146,8 +146,10 @@
                 <p mat-line>Age Group: {{element.ageGroup}} </p>
                 -->
                 <p mat-line>
-                  <button mat-stroked-button color="primary" (click)="editMember(element,index+1)">Edit</button> &nbsp;
-                  <button mat-stroked-button color="warn" (click)="deleteMember(index+1)">Delete</button></p>
+                  <button  (click)="editMember(element,index+1)"  matTooltip="Edit">
+                    <mat-icon color="primary" >edit</mat-icon></button> &nbsp;
+                    <button (click)="deleteMember(index+1)" matTooltip="Delete">
+                      <mat-icon color="warn" >delete</mat-icon></button> </p>
                 <mat-divider></mat-divider>
               </mat-list-item>
             </mat-list>
@@ -160,6 +162,11 @@
       <mat-card>
         <mat-card-content>
           <form [formGroup]="paymentForm" class="example-form ">
+
+            <div *ngIf="memberPaymentStatus" class="form-full-width" style="padding-left: 20px;text-align:left; color:maroon; font-weight: 900;">
+              Payment Status : {{memberPaymentStatus}}
+              </div> <br/>
+
             <mat-form-field class="form-full-width">
               <mat-label>Payment method</mat-label>
               <mat-select formControlName="paymentMethod" required>
@@ -175,12 +182,12 @@
 
             <mat-form-field class="form-full-width">
               <input matInput placeholder="Transaction Reference No" formControlName="paymentExternalSystemRef"
-                [readonly]="disablePayButton">
+                 >
             </mat-form-field>
 
             <mat-form-field class="form-full-width">
               <textarea matInput placeholder="Memo" formControlName="paymentNotes" rows="3"
-                [readonly]="disablePayButton"></textarea>
+                 ></textarea>
             </mat-form-field>
 
             <div fxLayout="row" fxLayoutAlign="end end" fxLayoutGap="5px">
@@ -203,8 +210,8 @@
           <ng-template matStepLabel>Member Details</ng-template> <br />
           <ng-container *ngTemplateOutlet="addMemberStep"></ng-container>
         </mat-step>
-        <mat-step [stepControl]="memberDetForm">
-          <ng-template matStepLabel>Family Details</ng-template> <br />
+        <mat-step [stepControl]="memberDetForm" optional>
+          <ng-template matStepLabel  ><p (click)="addMember(0,2)" >Family Details</p></ng-template> <br />
           <ng-container *ngTemplateOutlet="addMemberFamilyStep"></ng-container>
         </mat-step>
         <mat-step [stepControl]="paymentForm">
@@ -221,9 +228,9 @@
           <ng-template matStepLabel>Member Details</ng-template> <br />
           <ng-container *ngTemplateOutlet="addMemberStep"></ng-container>
         </mat-step>
-        <mat-step [stepControl]="memberDetForm">
-          <ng-template matStepLabel>Family Details</ng-template> <br />
-          <ng-container *ngTemplateOutlet="addMemberFamilyStep"></ng-container>
+        <mat-step [stepControl]="memberDetForm" optional>
+          <ng-template matStepLabel ><p (click)="addMember(0,2)" >Family Details</p></ng-template> <br />
+          <ng-container *ngTemplateOutlet="addMemberFamilyStep"  ></ng-container>
         </mat-step>
         <mat-step [stepControl]="paymentForm">
           <ng-template matStepLabel>Payment</ng-template> <br />

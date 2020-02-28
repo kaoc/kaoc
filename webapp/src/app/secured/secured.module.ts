@@ -19,6 +19,7 @@ import { MaterialModule } from '../material.module';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { MemberProfileComponent } from './admin/member-profile/member-profile.component';
 import { ListMemberProfilesComponent } from './admin/list-member-profiles/list-member-profiles.component';
+import { DialogWinComponent } from './admin/dialog-win/dialog-win.component';
 
 
 @NgModule({
@@ -31,7 +32,8 @@ import { ListMemberProfilesComponent } from './admin/list-member-profiles/list-m
     SearchUsersComponent,
     UserTableComponent,
     MemberProfileComponent,
-    ListMemberProfilesComponent
+    ListMemberProfilesComponent,
+    DialogWinComponent
   ],
   imports: [
     CommonModule,
@@ -46,8 +48,9 @@ import { ListMemberProfilesComponent } from './admin/list-member-profiles/list-m
     FlexLayoutModule
   ],
   exports: [
-    UserTableComponent
-  ]
+    UserTableComponent ,DialogWinComponent
+  ],
+  entryComponents: [  DialogWinComponent],
 
 })
 export class SecuredModule { }

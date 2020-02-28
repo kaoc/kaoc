@@ -1,11 +1,18 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, ValidatorFn, AbstractControl, Validators, FormArray } from '@angular/forms';
 import { MemberService } from '../../member.service';
 import { Membership } from '../../Membership';
 import { Member } from '../../Member';
-import { MatStepper } from '@angular/material';
-import { ActivatedRoute, Router } from '@angular/router';
+import { MatStepper, MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { ActivatedRoute, Router, NavigationEnd, NavigationStart } from '@angular/router';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+
+import { DialogWinComponent } from '../dialog-win/dialog-win.component';
+
+export interface DialogData {
+  message: string;
+  memberDocId: string;
+}
 
 @Component({
   selector: 'member-profile',
@@ -46,6 +53,7 @@ export class MemberProfileComponent implements OnInit {
   paymentStepperBtnLabel: string;
   isLinear: boolean;
   memberStatus: string;
+  memberPaymentStatus: string;
 
   data: any;
   queryByMemberId: string;
@@ -53,15 +61,18 @@ export class MemberProfileComponent implements OnInit {
   constructor(private formBuilder: FormBuilder,
     private memberService: MemberService,
     private route: ActivatedRoute,
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    public dialog: MatDialog
   ) {
-    breakpointObserver.observe([
+
+     breakpointObserver.observe([
       Breakpoints.XSmall,
       Breakpoints.Small
     ]).subscribe(result => {
       this.smallScreen = result.matches;
     });
-    this.setDefaults();
+    
+       this.setDefaults();
     //console.log('Inside MemberProfile constructor. memberService.routedFrom= ' + this.memberService.routedFrom);
 
     // const navigation = this.route.getCurrentNavigation();
@@ -84,7 +95,9 @@ export class MemberProfileComponent implements OnInit {
     this.familyStepperPaymentBtnLabel = "Pay";
     this.paymentStepperBtnLabel = "Submit Payment";
     this.memberStatus = "";
+    this.memberPaymentStatus="";
     this.familyUpdateIndex = -1;
+   
 
 
     this.data = {
@@ -104,14 +117,19 @@ export class MemberProfileComponent implements OnInit {
     }
 
     this.membershipTypeForm = this.formBuilder.group({
-      membershipType: '',
+      membershipType: ['', Validators.required]
     });
 
     this.memberForm = this.formBuilder.group({
       emailId: ['', Validators.email],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      phoneNumber: ['', Validators.required],
+      phoneNumber: ['', [Validators.required ,
+                        Validators.pattern('^[0-9]*$'),
+                        Validators.minLength(10),
+                        Validators.maxLength(10),
+                        Validators.min(1)]
+                   ],
       kaocUserId: '',
       ageGroup: 'Adult',
     });
@@ -134,13 +152,15 @@ export class MemberProfileComponent implements OnInit {
       kaocPaymentId: ''
     });
 
-    this.membershipTypeForm.reset();
-    this.memberForm.reset();
-    this.memberDetForm.reset();
-    this.paymentForm.reset();
+  //  this.membershipTypeForm.reset();
+  //  this.memberForm.reset();
+  //  this.memberDetForm.reset();
+  //  this.paymentForm.reset();
   }
 
   async ngOnInit() {
+
+    
     console.log('i am in ngOnInit');
 
     if (this.queryByMemberId !== '' && this.queryByMemberId !== null
@@ -155,11 +175,12 @@ export class MemberProfileComponent implements OnInit {
       if (this.memberService.membershipDetails.pastMembership) {
         this.disablePayButton = false;
         this.memberStatus = 'InActive';
+        this.memberPaymentStatus= this.memberService.membershipDetails.pastMembership.paymentStatus.toUpperCase();
         this.membershipTypeForm.controls.membershipType.setValue(this.memberService.membershipDetails.pastMembership.membershipType.toUpperCase());
         console.log("this.memberService.membershipDetails.membershipType" + this.memberService.membershipDetails.pastMembership.membershipType);
       } else if (this.memberService.membershipDetails.membership) {
         console.log("this.memberService.membershipDetails.membershipType" + this.memberService.membershipDetails.membership.membershipType.toUpperCase());
-
+        this.memberPaymentStatus= this.memberService.membershipDetails.membership.paymentStatus.toUpperCase();
         this.membershipTypeForm.controls.membershipType.setValue(this.memberService.membershipDetails.membership.membershipType);
       }
 
@@ -226,11 +247,20 @@ export class MemberProfileComponent implements OnInit {
 
   addMember(index, stepperIndex) {
     console.log("addMember.index=" + index + ",stepperIndex=" + stepperIndex);
+
+    if (!this.membershipTypeForm.valid) {
+      console.log('Invalid membershipTypeForm ');
+      return;
+    }
+
+    if (!this.memberForm.valid) {
+      console.log('Invalid memberForm ');
+      return;
+    }
+
     this.data.members[index] = this.memberForm.value;
-
-
-    //  this.goTo(stepperIndex);
     this.setStepper(stepperIndex);
+    this.goTo(stepperIndex);
   }
 
   addFamily(stepperIndex) {
@@ -252,8 +282,8 @@ export class MemberProfileComponent implements OnInit {
       return;
     }
 
-    this.goTo(stepperIndex);
     this.setStepper(stepperIndex);
+   // this.goTo(stepperIndex);
 
   }
 
@@ -269,12 +299,12 @@ export class MemberProfileComponent implements OnInit {
         this.errorMsg = 'All fields are mandatory for Adult group';
         this.memberDetFormError = true;
         console.log(this.errorMsg);
-        errCount++;
+        return false;
       } else {
         if (this.validatePhoneNo(this.memberDetForm.controls.phoneNumber.value) == false) {
-          this.errorMsg = "Invalid Phone number format";
+          this.errorMsg = "Enter a 10 digit phone number";
           this.memberDetFormError = true;
-          errCount++;
+          return false;
         } else {
           this.errorMsg = "";
           this.memberDetFormError = false;
@@ -283,7 +313,7 @@ export class MemberProfileComponent implements OnInit {
         if (this.validateEmail(this.memberDetForm.controls.emailId.value) == false) {
           this.errorMsg = "Invalid Email id";
           this.memberDetFormError = true;
-          errCount++;
+          return false;
         }
 
       }
@@ -296,7 +326,7 @@ export class MemberProfileComponent implements OnInit {
 
       } else {
         if (this.validatePhoneNo(this.memberDetForm.controls.phoneNumber.value) == false) {
-          this.errorMsg = "Invalid Phone number format";
+          this.errorMsg = "Enter a 10 digit phone number";
           this.memberDetFormError = true;
           errCount++;
         } else {
@@ -360,10 +390,10 @@ export class MemberProfileComponent implements OnInit {
     this.familyUpdateIndex = -1;
   }
 
-  /*setStepperIndexFromFormClick(event) {
+   /*setStepperIndexFromFormClick(event) {
     this.goTo(event.selectedIndex);
     this.setStepper(event.selectedIndex);
-  } */
+  }  */
 
   goTo(index: number) {
     this.setStepper(index);
@@ -388,7 +418,7 @@ export class MemberProfileComponent implements OnInit {
 
   }
 
-  submitPayment() {
+  async submitPayment() {
     this.paymentErrorMsg = "";
     if (this.paymentForm.invalid) {
       console.log('paymentForm is invalid')
@@ -404,8 +434,13 @@ export class MemberProfileComponent implements OnInit {
       console.log('membershipTypeForm details' + JSON.stringify(this.membershipTypeForm.value));
       console.log('paymentForm details' + JSON.stringify(this.paymentForm.value));
 
-      this.memberService.addMember(this.data.members, this.membershipTypeForm.value, this.paymentForm.value);
-      this.setDefaults();
+     await this.memberService.addMember(this.data.members, this.membershipTypeForm.value, this.paymentForm.value, this.memberStatus);
+     console.log ('After submit Payment' + this.memberService.message);
+
+     if (this.memberService.message) {
+       this.openDialog(this.memberService.message, this.memberService.kaocUserDocId);
+     }
+      //this.setDefaults();
     }
   }
 
@@ -429,11 +464,9 @@ export class MemberProfileComponent implements OnInit {
     } else {
       return false;
     }
-
-
   }
 
-  validatePhoneNo(mobileNo) {
+ /* validatePhoneNoPattern(mobileNo) {
 
     let fieldVal = mobileNo;
     if (fieldVal === '' || fieldVal === null || fieldVal === undefined) {
@@ -457,6 +490,44 @@ export class MemberProfileComponent implements OnInit {
         return false;
       }
     }
-  }
+  } */
 
+  validatePhoneNo(mobileNo) {
+
+    let fieldVal = mobileNo;
+    if (fieldVal === '' || fieldVal === null || fieldVal === undefined) {
+      return true;
+    } else {
+      console.log('fieldVal.length' + fieldVal.length);
+
+      if (fieldVal.length == 10) {
+         if (Number(+fieldVal)) {
+          console.log("Number format newStr=" + fieldVal);
+          return true;
+        } else {
+          console.log("Not a number newStr=" + fieldVal);
+          return false;
+        }
+      } else {
+        console.log('Enter a 10digit phone number');
+        return false;
+      }
+    }
+  }
+ 
+
+  openDialog (messageTxt,docId) {
+    console.log('In openDialog, message=' + messageTxt);
+    const dialogRef = this.dialog.open(DialogWinComponent, {
+      disableClose: true ,
+      width: '300px',
+      panelClass : 'kaoc-modalbox',
+      data: {message:  messageTxt , memberDocId : docId}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+    });
+  }
 }
+ 
