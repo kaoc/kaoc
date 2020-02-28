@@ -14,13 +14,9 @@
 
           <div fxShow="true" fxHide.lt-md="true">
 
-            <button mat-button *ngIf="isAdmin===true" [matMenuTriggerFor]="adminMenu">Admin
+            <button mat-button *ngIf="isAdmin===true" [matMenuTriggerFor]="membershipMenu">Admin
               <mat-icon aria-hidden="false">arrow_drop_down</mat-icon>
             </button>
-
-            <mat-menu #adminMenu="matMenu">
-                <button mat-menu-item [matMenuTriggerFor]="membershipMenu">Membership</button>
-            </mat-menu>
 
             <mat-menu #membershipMenu="matMenu">
                 <button mat-menu-item routerLink="secured/admin/memberprofile">Add Member</button>
