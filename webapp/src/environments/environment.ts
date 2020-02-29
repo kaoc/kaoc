@@ -16,6 +16,10 @@ export const environment = {
         messagingSenderId : '828257921598',
         appId             : '1:828257921598:web:8a2f1d304210a0603e7f6f',
         functionURL       : `https://${hostURl}/api`
+    },
+    square: {
+      // Application Id in https://developer.squareup.com/apps/
+      appId               : 'sq0idp-SwIIqsQfPszLsEDFFyupkg'
     }
 };
 

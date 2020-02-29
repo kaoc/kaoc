@@ -13,5 +13,9 @@ export const environment = {
         appId             : '1:766727019490:web:98fd3ae1b70e267891f7bb',
         measurementId     : 'G-J1SQY9HB34',
         functionURL       : `https://${hostURl}/api`
+    },
+    square: {
+      // Application Id in https://developer.squareup.com/apps/
+      appId               : 'sq0idp-rxLCkb-nVjOpavuyGGxqzg'
     }
 };

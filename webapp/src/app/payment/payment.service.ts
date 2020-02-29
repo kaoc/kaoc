@@ -1,3 +1,4 @@
+import { environment } from './../../environments/environment';
 import { Injectable } from '@angular/core';
 import { PlatformUtilsService } from '../utils/platform-utils.service';
 
@@ -15,11 +16,11 @@ export class PaymentService {
     // The URL where the Point of Sale app will send the transaction results.
     // This also needs to updated for the Point of Sale api app settings in SquareUp site
     // eg) https://developer.squareup.com/apps/sq0idp-SwIIqsQfPszLsEDFFyupkg/point-of-sale-api
-    const callbackUrl = 'https://kaocproject.firebaseapp.com/squareprocesspaymentresult';
+    const callbackUrl = document.location.origin + '/squareprocesspaymentresult';
 
     // Your application ID
     // Obtained from https://developer.squareup.com/apps/sq0idp-SwIIqsQfPszLsEDFFyupkg
-    const applicationId = 'sq0idp-SwIIqsQfPszLsEDFFyupkg';
+    const applicationId = environment.square.appId;
 
     // The total and currency code should come from your transaction flow.
     const transactionTotalInCents = paymentForm.paymentAmount * 2;
