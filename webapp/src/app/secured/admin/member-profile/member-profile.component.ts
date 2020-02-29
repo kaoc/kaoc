@@ -64,7 +64,7 @@ export class MemberProfileComponent implements OnInit {
     private route: ActivatedRoute,
     private breakpointObserver: BreakpointObserver,
     public dialog: MatDialog,
-    
+
   ) {
 
      breakpointObserver.observe([
@@ -73,7 +73,7 @@ export class MemberProfileComponent implements OnInit {
     ]).subscribe(result => {
       this.smallScreen = result.matches;
     });
-    
+
        this.setDefaults();
     //console.log('Inside MemberProfile constructor. memberService.routedFrom= ' + this.memberService.routedFrom);
 
@@ -99,7 +99,7 @@ export class MemberProfileComponent implements OnInit {
     this.memberStatus = "";
     this.memberPaymentStatus="";
     this.familyUpdateIndex = -1;
-   
+
 
 
     this.data = {
@@ -162,7 +162,7 @@ export class MemberProfileComponent implements OnInit {
 
   async ngOnInit() {
 
-    
+
     console.log('i am in ngOnInit');
 
     if (this.queryByMemberId !== '' && this.queryByMemberId !== null
@@ -177,7 +177,7 @@ export class MemberProfileComponent implements OnInit {
       if (this.memberService.membershipDetails.pastMembership) {
         this.disablePayButton = false;
         this.memberStatus = 'InActive';
-        this.memberPaymentStatus= this.memberService.membershipDetails.pastMembership.paymentStatus.toUpperCase();
+        //this.memberPaymentStatus = this.memberService.membershipDetails.pastMembership.paymentStatus.toUpperCase();
         this.membershipTypeForm.controls.membershipType.setValue(this.memberService.membershipDetails.pastMembership.membershipType.toUpperCase());
         console.log("this.memberService.membershipDetails.membershipType" + this.memberService.membershipDetails.pastMembership.membershipType);
       } else if (this.memberService.membershipDetails.membership) {
@@ -387,13 +387,13 @@ export class MemberProfileComponent implements OnInit {
   }
 
   confirmDelete( element , index): void {
-    console.log("In confirmDelete ,firstname=" + element.firstName + 
+    console.log("In confirmDelete ,firstname=" + element.firstName +
                 "lastname="+ element.lastName + "index="+ index);
     const dialogRef = this.dialog.open(ConfirmDelComponent, {
       disableClose: true ,
       width: '350px',
       panelClass:"kaoc-modalbox",
-      data: { firstName : element.firstName, 
+      data: { firstName : element.firstName,
               lastName : element.lastName  }
     });
 
@@ -407,7 +407,7 @@ export class MemberProfileComponent implements OnInit {
         console.log('Cancelled Delete');
       }
     });
- 
+
   }
 
   deleteMember(index) {
@@ -541,8 +541,8 @@ export class MemberProfileComponent implements OnInit {
       }
     }
   }
- 
-   
+
+
 
   openDialog (messageTxt,docId) {
     console.log('In openDialog, message=' + messageTxt);
@@ -558,20 +558,20 @@ export class MemberProfileComponent implements OnInit {
     });
   }
 }
- 
+
 export class ConfirmDeleteComponent implements OnInit {
 
   constructor(public dialogRef: MatDialogRef<ConfirmDeleteComponent>,
     ) { }
-   
+
   onNoClick(): void {
       this.dialogRef.close();
    }
 
   ngOnInit() {
-    
-   
+
+
   }
- 
+
 
   }
