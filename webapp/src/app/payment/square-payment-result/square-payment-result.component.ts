@@ -10,6 +10,7 @@ import { PlatformUtilsService } from '../../utils/platform-utils.service';
 export class SquarePaymentResultComponent implements OnInit {
   // paymentId received as REQUEST_METADATA in URL params
   public kaocPaymentsDocId: string;
+  public kaocPaymentsMetaInfo: string; // passed to callback from our app
 
   public squareServerPaymentRefId: string;
   public errorCode: string;
@@ -18,6 +19,7 @@ export class SquarePaymentResultComponent implements OnInit {
   constructor(private ngFireFunctions: AngularFireFunctions,
               public platformUtils: PlatformUtilsService) {
     this.kaocPaymentsDocId = 'INVALID_KAOC_PAYMENTS_DOC_ID';
+    this.kaocPaymentsMetaInfo = 'INVALID_KAOC_PAYMENTS_META_INFO';
     this.squareServerPaymentRefId = 'INVALID_SQUARE_SERVER_PAYMENTS_REF_ID';
     this.errorCode = 'SUCCESS';
     this.errorDescription = 'ERROR_DESCRIPTION';
@@ -26,15 +28,31 @@ export class SquarePaymentResultComponent implements OnInit {
   ngOnInit() {
     const responseUrl: string = window.location.href;
     this.parseCallbackUrlAndSetIds(responseUrl);
-    const updatePayment = this.ngFireFunctions.httpsCallable('updatePayment');
-    updatePayment({paymentId : this.kaocPaymentsDocId, payment: {paymentStatus: 'Paid', paymentExternalSystemRef: this.squareServerPaymentRefId}}).toPromise().then((result) => {
-        console.log('updatePayment returned paymentId ' + result);
-      }).catch((error) => {
-        // Getting the Error details.
-        console.log('updatePayment error.code ' +  error.code);
-        console.log('updatePayment error.message ' +  error.message);
-        console.log('updatePayment error.details ' +  error.details);
-      });
+
+    if (this.errorCode === 'SUCCESS') {
+      const updatePayment = this.ngFireFunctions.httpsCallable('updatePayment');
+
+      updatePayment({paymentId : this.kaocPaymentsDocId, payment: {paymentStatus: 'Paid', paymentExternalSystemRef: this.squareServerPaymentRefId}}).toPromise().then((result) => {
+          console.log('updatePayment returned paymentId ' + result);
+        }).catch((error) => {
+          // Getting the Error details.
+          console.log('updatePayment error.code ' +  error.code);
+          console.log('updatePayment error.message ' +  error.message);
+          console.log('updatePayment error.details ' +  error.details);
+        });
+    } else {
+      // Handle error here.
+      console.log('Square Payment returned failure');
+      const updatePayment = this.ngFireFunctions.httpsCallable('updatePayment');
+      updatePayment({paymentId : this.kaocPaymentsDocId, payment: {paymentStatus: 'Failed', paymentExternalSystemRef: this.squareServerPaymentRefId}}).toPromise().then((result) => {
+          console.log('updatePayment returned paymentId ' + result);
+        }).catch((error) => {
+          // Getting the Error details.
+          console.log('updatePayment error.code ' +  error.code);
+          console.log('updatePayment error.message ' +  error.message);
+          console.log('updatePayment error.details ' +  error.details);
+        });
+    }
   }
 
   // Get the URL parameters and puts them in an array
@@ -64,12 +82,15 @@ export class SquarePaymentResultComponent implements OnInit {
       const ERROR_CODE_STR = 'error_code';
 
       const transactionInfo = JSON.parse(data);
+      this.kaocPaymentsMetaInfo = transactionInfo[REQUEST_METADATA_STR];
 
       if (transactionInfo[STATUS_STR] === 'ok') {
-        this.kaocPaymentsDocId = transactionInfo[REQUEST_METADATA_STR];
+        this.kaocPaymentsDocId = this.kaocPaymentsMetaInfo.substring(this.kaocPaymentsMetaInfo.indexOf('#') + 1);
         this.squareServerPaymentRefId = transactionInfo[TRANSACTION_ID_STR];
       } else {
         console.log('ERROR: iOS Square error code: ' + transactionInfo[ERROR_CODE_STR]);
+        this.errorCode =  transactionInfo[STATUS_STR];
+        this.errorDescription = transactionInfo[ERROR_CODE_STR];
       }
     } else if (this.platformUtils.getMobileOperatingSystem() === 'Android') {
       // If successful, Square Point of Sale returns the following parameters.
@@ -82,6 +103,7 @@ export class SquarePaymentResultComponent implements OnInit {
 
       const transactionInfo = this.getUrlParams(responseUrl);
       // console.log('DEBUG: Android transactionInfo: ' + JSON.stringify(transactionInfo));
+      this.kaocPaymentsMetaInfo = transactionInfo[REQUEST_METADATA_STR];
 
       if (ERROR_CODE_STR in transactionInfo) {
         this.errorCode =  transactionInfo[ERROR_CODE_STR];
