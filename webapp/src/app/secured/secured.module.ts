@@ -20,6 +20,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { MemberProfileComponent } from './admin/member-profile/member-profile.component';
 import { ListMemberProfilesComponent } from './admin/list-member-profiles/list-member-profiles.component';
 import { DialogWinComponent } from './admin/dialog-win/dialog-win.component';
+import { ConfirmDelComponent } from './admin/member-profile/confirm-del.component';
 
 
 @NgModule({
@@ -33,7 +34,8 @@ import { DialogWinComponent } from './admin/dialog-win/dialog-win.component';
     UserTableComponent,
     MemberProfileComponent,
     ListMemberProfilesComponent,
-    DialogWinComponent
+    DialogWinComponent,
+    ConfirmDelComponent
   ],
   imports: [
     CommonModule,
@@ -48,9 +50,9 @@ import { DialogWinComponent } from './admin/dialog-win/dialog-win.component';
     FlexLayoutModule
   ],
   exports: [
-    UserTableComponent ,DialogWinComponent
+    UserTableComponent ,DialogWinComponent ,ConfirmDelComponent
   ],
-  entryComponents: [  DialogWinComponent],
+  entryComponents: [  DialogWinComponent , ConfirmDelComponent],
 
 })
 export class SecuredModule { }

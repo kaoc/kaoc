@@ -8,6 +8,7 @@ import { ActivatedRoute, Router, NavigationEnd, NavigationStart } from '@angular
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
 import { DialogWinComponent } from '../dialog-win/dialog-win.component';
+import { ConfirmDelComponent } from './confirm-del.component';
 
 export interface DialogData {
   message: string;
@@ -62,7 +63,8 @@ export class MemberProfileComponent implements OnInit {
     private memberService: MemberService,
     private route: ActivatedRoute,
     private breakpointObserver: BreakpointObserver,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    
   ) {
 
      breakpointObserver.observe([
@@ -384,7 +386,32 @@ export class MemberProfileComponent implements OnInit {
     }
   }
 
+  confirmDelete( element , index): void {
+    console.log("In confirmDelete ,firstname=" + element.firstName + 
+                "lastname="+ element.lastName + "index="+ index);
+    const dialogRef = this.dialog.open(ConfirmDelComponent, {
+      disableClose: true ,
+      width: '350px',
+      panelClass:"kaoc-modalbox",
+      data: { firstName : element.firstName, 
+              lastName : element.lastName  }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The confirmDelete dialog was closed' + result );
+
+      if (result==='OK') {
+        console.log('Delete Member');
+        this.deleteMember(index);
+      } else {
+        console.log('Cancelled Delete');
+      }
+    });
+ 
+  }
+
   deleteMember(index) {
+
     console.log('deleteMember member at index=' + index);
     this.data.members.splice(index, 1);
     this.familyUpdateIndex = -1;
@@ -515,6 +542,7 @@ export class MemberProfileComponent implements OnInit {
     }
   }
  
+   
 
   openDialog (messageTxt,docId) {
     console.log('In openDialog, message=' + messageTxt);
@@ -531,3 +559,19 @@ export class MemberProfileComponent implements OnInit {
   }
 }
  
+export class ConfirmDeleteComponent implements OnInit {
+
+  constructor(public dialogRef: MatDialogRef<ConfirmDeleteComponent>,
+    ) { }
+   
+  onNoClick(): void {
+      this.dialogRef.close();
+   }
+
+  ngOnInit() {
+    
+   
+  }
+ 
+
+  }
