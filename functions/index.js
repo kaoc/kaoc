@@ -573,7 +573,7 @@ function _addOrUpdateMembership(membership, auth) {
  *      {string} kaocUserId           - Required the KAOC user who is making the payment.
  *      {string} paymentMethod        - Payment Source {Supported Types - Check, Cash, Square, Paypal}
  *      {number} paymentAmount        - The payment amount. 
- *      {string} paymentStatus         - The state of the payment (Unpain/Pending/PaidDeclined). Default will be Paid.
+ *      {string} paymentStatus         - The state of the payment (Unpain/Pending/Paid/Declined). Default will be Paid.
  *      {string} paymentType          - Type of Payment (Membership, Event, Participant Fee etc)  
  *      {string} paymentTypeRef       - A reference related to record for which the payment is intented for. (e.g. reference to the membership group id.)
  *                                    - This field is kept loose at this time. This may or may not refer to the primary key of the record.   
@@ -596,7 +596,14 @@ function _addOrUpdatePayment(paymentObject, auth) {
     if (!(kaocUserId && paymentMethod && paymentAmount && paymentType)) {
         return Promise.reject(new Error('Invalid payment parameters.'));
     } else {
-        paymentStatus = paymentStatus || 'Paid';
+        // If payment status is not defined, use default based on the payment method.
+        if(!paymentStatus) {
+            if(paymentMethod === 'Square') {
+                paymentStatus = 'Pending';
+            } else {
+                paymentStatus = 'Paid';
+            }
+        }
         const kaocUserRef = admin.firestore().doc(`/kaocUsers/${kaocUserId}`); 
         const paymentDoc = {
             kaocUserRef,

@@ -23,7 +23,7 @@ export class PaymentService {
     const applicationId = environment.square.appId;
 
     // The total and currency code should come from your transaction flow.
-    const transactionTotalInCents = paymentForm.paymentAmount * 2;
+    const transactionTotalInCents = paymentForm.paymentAmount * 100;
     const currencyCode = 'USD';
 
     if (os === 'iOS') {
