@@ -660,6 +660,10 @@ function _updatePayment(kaocPaymentId, paymentObject, auth) {
         }
         return null;
     }).then(result => {
+        // paymentDoc is the object before applying the updates.
+        // So instead of making another query, simply apply the changes
+        // while calling the email method.
+        paymentDoc = Object.assign(paymentDoc, paymentObject);
         return _sendPaymentEmail(paymentDoc);
     }).then(result => {
         return kaocPaymentId;
