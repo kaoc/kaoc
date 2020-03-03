@@ -74,14 +74,15 @@ export class MemberService {
         console.log('got result' + JSON.stringify(result));
         console.log('PaymentService.processPayment.paymentMode = ' + payment.paymentMethod);
 
-        const paymentDocumentRefNo = result['paymentId'];
-        const membershipId = result['membershipId']; 
+        this.kaocUserDocId = result['userIds'][0];
+
+        const membershipId = result['membershipId'];
         const memberEmail = members[0]['emailId'];
-        const notes = "FOR KAOC MEMBERSHIP. ID: " + membershipId + ". emailId: " + memberEmail + " kaocPaymentId: " + paymentDocumentRefNo;
-         this.kaocUserDocId = result['userIds'][0];
-        console.log("paymentDocumentRefNo=" + paymentDocumentRefNo);
-        console.log("membershipId=" + membershipId);
+        const notes = "FOR KAOC MEMBERSHIP. ID: " + membershipId + ". emailId: " + memberEmail;
         console.log("notes: " + notes);
+        const paymentDocumentRefNo = result['paymentId'] + '#' + notes;
+        console.log("paymentDocumentRefNo=" + paymentDocumentRefNo);
+
         if (payment.paymentMethod === 'Square' && null != paymentDocumentRefNo) {
           this.paymentService.startSquarePayment(payment, paymentDocumentRefNo, notes);
         } /*else {
@@ -93,12 +94,11 @@ export class MemberService {
         console.error('Error while adding member ' + err);
         this.spinner.hide();
       });
-
   }
 
   getProcessMsg (memberStatus , paymentMethod) {
     if (this.isNullField(memberStatus) || memberStatus==='Active' ) {
-      
+
       return "Member details saved successfully"
     } else {
       if ( memberStatus==='InActive' && paymentMethod === 'Square' ) {
@@ -106,7 +106,7 @@ export class MemberService {
       } else {
         return "Member details saved successfully"
       }
-       
+
     }
   }
 
