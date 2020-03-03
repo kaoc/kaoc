@@ -246,12 +246,17 @@ exports.getCurrentMembershipDataByMemberId = functions.https.onCall((data, conte
     })
 });
 
+var testing = false;
+
 /**
  * Ensures that the user in the context is an admin user. 
  * 
  * @param {Conext} context 
  */
 function _assertAdminRole(context) {
+    if(testing) {
+        return Promise.resolve(true);
+    }
     // Checking that the user is authenticated.
     if (!context.auth) {
         return Promise.reject(new Error('User not authenticated'));
