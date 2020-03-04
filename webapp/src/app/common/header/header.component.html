@@ -1,65 +1,61 @@
-<div>
-    <mat-toolbar class="kaoc-primary-color" fxLayoutAlign="space-between center" fxLayout="row" fxLayoutGap="20px">
-        <mat-toolbar-row>
-          <div fxShow="true" fxHide.gt-sm>
-              <button mat-icon-button (click)="sidenav.toggle()">
-                <mat-icon>menu</mat-icon>
+<div style="width: 100%; height: 100%;">
+    <mat-sidenav-container fxFlexFill>
+
+        <!--Main Contents -->
+        <mat-sidenav-content fxFlexFill>
+          <mat-toolbar
+              class="kaoc-primary-color"
+              fxLayoutAlign="space-between center"
+              fxLayout="row"
+              fxLayoutGap="20px">
+              <mat-toolbar-row>
+                  <button mat-icon-button (click)="sidenav.toggle()">
+                      <mat-icon>menu</mat-icon>
+                  </button>
+                  <img src="../../../assets/images/Kaoc_Logo.gif" class="img" routerLink="/" />
+
+                  <a mat-button routerLink="/">
+                      <span fxHide="true" fxShow.gt-sm class="branding">Kerala Association of Colorado</span>
+                      <span fxShow="true" fxHide.gt-sm class="branding">K.A.O.C</span>
+                  </a>
+                  <span class="example-spacer"></span>
+              </mat-toolbar-row>
+          </mat-toolbar>
+          <router-outlet fxFlexFill></router-outlet>
+          <footer></footer>
+      </mat-sidenav-content>
+
+      <!--Side NavBar-->
+      <mat-sidenav #sidenav>
+          <div fxLayout="column">
+
+              <div class="avatar-container-side-menu" fxLayout="column">
+                  <ngx-auth-firebaseui-avatar
+                      *ngIf="loggedIn"
+                      (onMenuOpen)="sidenav.toggle()">
+                  </ngx-auth-firebaseui-avatar>
+                  <div
+                      *ngIf="loggedIn"
+                      class="display-name">
+                      {{fullName}}
+                  </div>
+                  <button
+                      mat-icon-button
+                      *ngIf="!loggedIn"
+                      (click)="sidenav.toggle() && navigateToLoginPage()">
+                    <mat-icon>account_circle</mat-icon>
+                  </button>
+              </div>
+
+              <h3 *ngIf="isAdmin===true" class="section-label">Admin</h3>
+              <button *ngIf="isAdmin===true" mat-menu-item routerLink="secured/admin/memberprofile" (click)="sidenav.close()">
+                  <mat-icon>add_circle_outline</mat-icon> Add Member
+              </button>
+              <button *ngIf="isAdmin===true" mat-menu-item routerLink="secured/admin/listmembers" (click)="sidenav.close()">
+                <mat-icon>search</mat-icon> View/Edit Member
               </button>
           </div>
-          <a mat-button routerLink="/">
-              <img src="../../../assets/images/kaoc-avatar-icon.png" class="img" />
-              &nbsp;
-              <span fxHide="true" fxShow.gt-sm class="branding">Kerala Association of Colorado</span>
-              <span fxShow="true" fxHide.gt-sm class="branding">K.A.O.C</span>
-            </a>
-          <span class="example-spacer"></span>
-
-          <div fxShow="true" fxHide.lt-md="true">
-
-            <button mat-button *ngIf="isAdmin===true" [matMenuTriggerFor]="membershipMenu">Admin
-              <mat-icon aria-hidden="false">arrow_drop_down</mat-icon>
-            </button>
-
-            <mat-menu #membershipMenu="matMenu">
-                <button mat-menu-item routerLink="secured/admin/memberprofile">Add Member</button>
-                <button mat-menu-item routerLink="secured/admin/listmembers">View/Edit Member</button>
-            </mat-menu>
-
-            <ngx-auth-firebaseui-avatar> </ngx-auth-firebaseui-avatar>
-            <button mat-icon-button *ngIf="!loggedIn" (click)="navigateToLoginPage()">
-              <mat-icon>account_circle</mat-icon>
-              <!--<i class="fa fa-sign-in" aria-hidden="true"></i>-->
-            </button>
-
-
-          </div>
-        </mat-toolbar-row>
-    </mat-toolbar>
-
-    <mat-sidenav-container fxFlexFill>
-      <mat-sidenav #sidenav>
-        <div fxLayout="column">
-
-          <div class="avatar-container-side-menu">
-              <ngx-auth-firebaseui-avatar> </ngx-auth-firebaseui-avatar>
-          </div>
-
-          <button mat-icon-button *ngIf="!loggedIn" (click)="navigateToLoginPage()">
-              <mat-icon>account_circle</mat-icon>
-          </button>
-
-          <button mat-button *ngIf="isAdmin===true" [matMenuTriggerFor]="membershipMenu">Admin
-              <mat-icon aria-hidden="false">arrow_drop_down</mat-icon>
-          </button>
-
-          <mat-menu #membershipMenu="matMenu">
-              <button mat-menu-item routerLink="secured/admin/memberprofile" (click)="sidenav.close()">Add Member</button>
-              <button mat-menu-item routerLink="secured/admin/listmembers" (click)="sidenav.close()">View/Edit Member</button>
-          </mat-menu>
-        </div>
       </mat-sidenav>
-      <mat-sidenav-content fxFlexFill>
-          <router-outlet></router-outlet>
-      </mat-sidenav-content>
+
     </mat-sidenav-container>
 </div>
