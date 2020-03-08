@@ -54,6 +54,12 @@
               <button *ngIf="isAdmin===true" mat-menu-item routerLink="secured/admin/listmembers" (click)="sidenav.close()">
                 <mat-icon>search</mat-icon> View/Edit Member
               </button>
+              <button  mat-menu-item routerLink="kaochistory" (click)="sidenav.close()">
+                <mat-icon>search</mat-icon>KAOC History
+              </button>
+              <button  mat-menu-item routerLink="kaocbylaw" (click)="sidenav.close()">
+                <mat-icon>search</mat-icon>Bylaws
+              </button>
           </div>
       </mat-sidenav>
 

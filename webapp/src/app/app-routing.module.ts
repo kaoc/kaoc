@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { KaocHistoryComponent } from './about/kaoc-history/kaoc-history.component';
-import { KaocByeLawComponent } from './about/kaoc-bye-law/kaoc-bye-law.component';
+import { KaocHistoryComponent } from './static/about/kaoc-history/kaoc-history.component';
+import { KaocByeLawComponent } from './static/about/kaoc-bye-law/kaoc-bye-law.component';
 import { AdminComponent } from './admin/admin.component';
 import { HomeComponent } from './common/home/home.component';
 import { DefaultComponent } from './default/default.component';
@@ -12,8 +12,8 @@ import { SquarePaymentResultComponent } from './payment/square-payment-result/sq
 const routes: Routes = [
   { path: '', component: HomeComponent  },
   { path: 'admin', component: AdminComponent },
-  //{ path: 'kaochistory', component: KaocHistoryComponent },
-//  { path: 'kaocbyelaw', component: KaocByeLawComponent },
+  { path: 'kaochistory', component: KaocHistoryComponent },
+  { path: 'kaocbylaw', component: KaocByeLawComponent },
   { path: 'processpayment' , component: PaymentComponent},
   { path: 'squareprocesspaymentresult' , component: SquarePaymentResultComponent}
   //{ path : 'madhuram-malayalam' , component: MadhuramMalayalamComponent}

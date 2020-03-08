@@ -1,0 +1,25 @@
+.example-card {
+    max-width: 1200px;
+    text-align: left!important;
+  }
+
+  h2, h3, h4 {
+    text-align: center!important; 
+  }
+
+  .bylawdiv {
+    text-align: left!important;
+    margin-left: 100px;
+    margin-right: 100px;
+  }
+
+
+  @media  (max-width: 768px) {
+
+    .bylawdiv {
+      text-align: left!important;
+      margin-left: 5px;
+      margin-right: 5px;
+    } 
+  
+  }
