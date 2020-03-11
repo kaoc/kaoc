@@ -1,9 +1,19 @@
-<div>
-    <mat-card>
-        <mat-card-content>
-            <div class="name">{{firebaseUser.displayName}}</div>
-            <div class="email">{{firebaseUser.email}}</div>
-            <div class="phone">{{firebaseUser.phoneNumber}}</div>
-        </mat-card-content>
-    </mat-card>
+<div class="kaoc-page">
+    <div fxLayout="column" fxLayoutAlign="center center" class="kaoc-page-contents">
+
+        <div class="user-welcome">
+            Hi, {{firebaseUser.displayName}}
+        </div>
+
+        <mat-card class="user-profile" fxFlex="1 0 auto">
+          <mat-card-header>
+              Profile
+          </mat-card-header>
+          <mat-card-content>
+              <div class="name">{{firebaseUser.displayName}}</div>
+              <div class="email">{{firebaseUser.email}}</div>
+              <div class="phone">{{firebaseUser.phoneNumber}}</div>
+          </mat-card-content>
+        </mat-card>
+    </div>
 </div>

@@ -53,10 +53,17 @@ div {
 }
 
 .avatar-container-side-menu {
-    background-color:lightgray;
-    text-align: center;
-    height: 64px;
+  background-color:lightgray;
+  text-align: center;
+  height: 64px;
 }
+
+@media (max-width: 599px) {
+  .avatar-container-side-menu {
+    height: 56px;
+  }
+}
+
 
 .mat-toolbar{
   height: 7vh;
@@ -84,11 +91,6 @@ div {
 
   .mat-sidenav {
     width: 200px;
-  }
-  .mat-sidenav-container{
-    background-color: white;
-    min-height: 50vh !important;
-    max-height: 88vh !important;
   }
 
 }

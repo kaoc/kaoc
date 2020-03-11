@@ -11,3 +11,26 @@
   color: #999;
   min-width: 110px;
 }
+
+.user-welcome{
+  text-align: center;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 44px;
+  color: #202124;
+  margin-bottom: 8px;
+}
+
+.user-profile {
+  max-width: 500px;
+  min-width: 350px;
+  width: 500px;
+}
+
+@media (max-width: 599px) {
+  .user-profile {
+      max-width: 280px;
+      width: 250px;
+      min-width: 250px;
+  }
+}

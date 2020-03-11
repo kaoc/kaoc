@@ -31,6 +31,7 @@ import { NgxAuthFirebaseUIModule } from 'ngx-auth-firebaseui';
 import { SecuredModule } from './secured/secured.module';
 import { SpinnerComponent } from './common/spinner/spinner.component';
 import { CdkStepper } from '@angular/cdk/stepper';
+import { MatPasswordStrengthModule } from '@angular-material-extensions/password-strength';
 
 export function getAppName() {
 return 'KAOC';
@@ -75,7 +76,8 @@ return 'KAOC';
         enableFirestoreSync: true,
         toastMessageOnAuthSuccess: false,
         toastMessageOnAuthError: false
-      })
+      }),
+    MatPasswordStrengthModule
   ],
   entryComponents: [ EditMemberComponent, SpinnerComponent],
   providers: [{

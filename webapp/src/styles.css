@@ -57,10 +57,22 @@ html, body {
 
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
+.kaoc-page,
+.kaoc-module {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.kaoc-page-contents {
+    width: 100%;
+    position: relative;
+    padding: 15px;
+}
+
 .mat-vertical-content {
     padding: 0px 0px 0px 2px !important;
 }
-  
+
 .mat-vertical-stepper-header {
   padding: 2px !important;
 }
