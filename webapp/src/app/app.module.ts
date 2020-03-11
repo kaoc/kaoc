@@ -73,9 +73,11 @@ return 'KAOC';
     NgxAuthFirebaseUIModule.forRoot(environment.firebase,
       getAppName,
       {
-        enableFirestoreSync: true,
+        enableFirestoreSync: false,
         toastMessageOnAuthSuccess: false,
-        toastMessageOnAuthError: false
+        toastMessageOnAuthError: false,
+        passwordMinLength: 8,
+        passwordMaxLength: 16
       }),
     MatPasswordStrengthModule
   ],
