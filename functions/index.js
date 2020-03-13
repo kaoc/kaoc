@@ -12,6 +12,12 @@ const mailTransportOptions = {
     }
 };
 
+const hostUrl = functions.config().hostUrl || 'https://kaoc.app';
+
+// 1 month default
+const defaultKeyExpirationPeriod = 1000 * 60 * 60 * 24 * 30;
+
+
 admin.initializeApp();
 
 /**
@@ -167,86 +173,108 @@ exports.getCurrentMembershipDataByMemberId = functions.https.onCall((data, conte
             'User does not have the authorization to perform this operation');
     })
     .then(authResult => {
-        const kaocUserId = data.memberId || data.kaocUserId;
-        // look up the current year memebership
-        let kaocUserRef = admin.firestore().doc(`/kaocUsers/${kaocUserId}`);
-        const currentTime = admin.firestore.Timestamp.fromMillis(new Date());
-        let result = {};
-        let kaocMemberRefs = [kaocUserRef];
-    
-        const membershipColRef = admin.firestore().collection('/kaocMemberships');
-        //TODO - Resolve the recursive thens
-        return membershipColRef.where('kaocUserRefs', 'array-contains', kaocUserRef)
-            //.where('startTime', '<=', currentTime)
-            //.where('endTime', '>=', currentTime)
-            .orderBy('endTime', 'desc')
-            .limit(1) // Get the last membership record
-            .get()
-            .then(querySnapShot => {
-                if(!querySnapShot.empty) {
-                    console.log(`Membership data exists for userid ${kaocUserId}`);
-                    //some membership record exists. 
-                    let membershipRef = querySnapShot.docs[0].ref;
-                    let membershipRecord = querySnapShot.docs[0].data();
-                    let {membershipType, endTime, startTime, paymentStatus, kaocUserRefs} = membershipRecord;
-                    let membership = {membershipType, paymentStatus, kaocMembershipId: membershipRef.id};
-                    membership.startTime = startTime.toMillis();
-                    membership.endTime = endTime.toMillis();
-    
-                    // keep a reference to all the member records to pull.
-                    // The user id with which the query is made is already in the array
-                    // Add only members other than the queried user. This is to ensure that
-                    // the first member in the list is the queried user itself
-                    kaocUserRefs.forEach(ref => {
-                        if(ref.id !== kaocUserRef.id) {
-                            kaocMemberRefs.push(ref);
-                        }
-                    });
-    
-                    if(endTime.toMillis() > currentTime.toMillis()) {
-                        // membership is active. 
-                        result.membership = membership;
-                        // that means payment details should be returned
-                        console.log('Querying payments for membership record');
-                        return admin.firestore().collection('/kaocPayments')
-                                    .where('paymentTypeRef', '==', membershipRef)
-                                    .where('paymentType', '==', 'Membership')
-                                    .limit(1)
-                                    .get();
-                    } else {
-                        // this is a past membership
-                        result.pastMembership = membership;
-                    }
-                } else {
-                    console.log(`No Membership record for userid ${kaocUserId}`);
-                }
-                return null;
-            }).then(paymentQuerySnapshot => {
-                if(paymentQuerySnapshot && !paymentQuerySnapshot.empty) {
-                    let {paymentMethod, paymentAmount, paymentNotes, paymentStatus, paymentExternalSystemRef} = paymentQuerySnapshot.docs[0].data();
-                    result.payment = {paymentMethod, paymentAmount, paymentNotes, paymentStatus, paymentExternalSystemRef, kaocPaymentId: paymentQuerySnapshot.docs[0].id};
-                }
-                return Promise.all(
-                                kaocMemberRefs.map(kaocRef => {
-                                                        return kaocRef.get();
-                                                    }
-                                                )
-                        );
-            }).then(memberDocumentSnapshots => {
-                result.members = memberDocumentSnapshots.map(memberDocumentSnapshot => {
-                    if(memberDocumentSnapshot.exists) {
-                        let {firstName, lastName, emailId, phoneNumber, ageGroup} = memberDocumentSnapshot.data();
-                        return {firstName, lastName, emailId, phoneNumber, ageGroup, kaocUserId: memberDocumentSnapshot.id};
-                    } else {
-                        return {};
-                    }
-                });
-                return result;
-            });
+        return _getCurrentMembershipDataByKaocUserId(data.memberId || data.kaocUserId);
     })
 });
 
+/**
+ * Returns current membership data by the given kaoc user id. 
+ * NOTE - This method is internal does not do any permission checks.
+ * The required permission checks should be performed by the calling functions.
+ * 
+ * @param {string} kaocUserId 
+ */
+function _getCurrentMembershipDataByKaocUserId(kaocUserId) {
+    // look up the current year memebership
+    let kaocUserRef = admin.firestore().doc(`/kaocUsers/${kaocUserId}`);
+    const currentTime = admin.firestore.Timestamp.fromMillis(new Date());
+    let result = {};
+    let kaocMemberRefs = [kaocUserRef];
+
+    const membershipColRef = admin.firestore().collection('/kaocMemberships');
+    return membershipColRef
+        .where('kaocUserRefs', 'array-contains', kaocUserRef)
+        //.where('startTime', '<=', currentTime)
+        //.where('endTime', '>=', currentTime)
+        .orderBy('endTime', 'desc')
+        .limit(1) // Get the last membership record
+        .get()
+        .then(querySnapShot => {
+            if(!querySnapShot.empty) {
+                console.log(`Membership data exists for userid ${kaocUserId}`);
+                //some membership record exists. 
+                let membershipRef = querySnapShot.docs[0].ref;
+                let membershipRecord = querySnapShot.docs[0].data();
+                let {membershipType, endTime, startTime, paymentStatus, kaocUserRefs} = membershipRecord;
+                let membership = {membershipType, paymentStatus, kaocMembershipId: membershipRef.id};
+                membership.startTime = startTime.toMillis();
+                membership.endTime = endTime.toMillis();
+
+                // keep a reference to all the member records to pull.
+                // The user id with which the query is made is already in the array
+                // Add only members other than the queried user. This is to ensure that
+                // the first member in the list is the queried user itself
+                kaocUserRefs.forEach(ref => {
+                    if(ref.id !== kaocUserRef.id) {
+                        kaocMemberRefs.push(ref);
+                    }
+                });
+
+                if(endTime.toMillis() > currentTime.toMillis()) {
+                    // membership is active. 
+                    result.membership = membership;
+                    // that means payment details should be returned
+                    console.log('Querying payments for membership record');
+                    return admin.firestore().collection('/kaocPayments')
+                                .where('paymentTypeRef', '==', membershipRef)
+                                .where('paymentType', '==', 'Membership')
+                                .limit(1)
+                                .get();
+                } else {
+                    // this is a past membership
+                    result.pastMembership = membership;
+                }
+            } else {
+                console.log(`No Membership record for userid ${kaocUserId}`);
+            }
+            return null;
+        }).then(paymentQuerySnapshot => {
+            if(paymentQuerySnapshot && !paymentQuerySnapshot.empty) {
+                let {paymentMethod, paymentAmount, paymentNotes, paymentStatus, paymentExternalSystemRef} = paymentQuerySnapshot.docs[0].data();
+                result.payment = {paymentMethod, paymentAmount, paymentNotes, paymentStatus, paymentExternalSystemRef, kaocPaymentId: paymentQuerySnapshot.docs[0].id};
+            }
+            return Promise.all(
+                            kaocMemberRefs.map(kaocRef => {
+                                                    return kaocRef.get();
+                                                }
+                                            )
+                    );
+        }).then(memberDocumentSnapshots => {
+            result.members = memberDocumentSnapshots.map(memberDocumentSnapshot => {
+                if(memberDocumentSnapshot.exists) {
+                    let {firstName, lastName, emailId, phoneNumber, ageGroup} = memberDocumentSnapshot.data();
+                    return {firstName, lastName, emailId, phoneNumber, ageGroup, kaocUserId: memberDocumentSnapshot.id};
+                } else {
+                    return {};
+                }
+            });
+            return result;
+        });
+}
+
 var testing = false;
+
+
+function _assertAuthenticated(context) {
+    if(testing) {
+        return true;
+    }
+    // Checking that the user is authenticated.
+    if (!context.auth) {
+        return new Error('User not authenticated');
+    }
+    return true;    
+}
 
 /**
  * Ensures that the user in the context is an admin user. 
@@ -871,6 +899,7 @@ function validateKey(key, keyType) {
         let keyRecord = null;
 
         if(keySnapShot.exists) {
+            //console.log(`Key ${key} exists. Validating timestamps`);
 
             keyRecord = keySnapShot.data();
             let currTimeMillis = admin.firestore.Timestamp.now().toMillis();
@@ -916,3 +945,148 @@ function validateKey(key, keyType) {
         }
     });
 }
+
+/**
+ * Creates a new key with the given type and key data. 
+ * 
+ * @param {string} keyType 
+ * @param {Object} keyData 
+ * @param {admin.firestore.Timestamp} startTime 
+ * @param {admin.firestore.Timestamp} endTime 
+ * @return {string} - The id of the key
+ */
+function createKey(keyType, keyData, startTime, endTime) {
+    if(!startTime) {
+        startTime = admin.firestore.Timestamp.now();
+    }
+
+    if(!endTime) {
+        endTime = admin.firestore.Timestamp.fromMillis(startTime.toMillis() + defaultKeyExpirationPeriod);
+    }
+
+    return admin.firestore()
+    .collection(`/kaocKeys`)
+    .add({
+        keyType,
+        startTime, 
+        endTime,
+        keyData 
+    }).then(keyDocRef => {
+        return keyDocRef.id;
+    });
+}
+
+function deleteKey(keyId) {
+    if(keyId) {
+        return admin.firestore()
+        .doc(`/kaocKeys/${keyId}`).delete();
+    } else {
+        return null;
+    }
+}
+
+/**
+ * Request Email Profile linking for the logged in user user with the provided email id. 
+ * 
+ */
+exports.requestEmailProfileLinking = functions.https.onCall((data, context) => {
+    if(testing) {
+        context = {
+            auth: {
+                uid     : 'Krvpwi5Jj3atza3qxsfXA2ydDTZ2',
+                emailId : 'chandrasekhar.hari@gmail.com'
+            }
+        };
+    }
+    if(!_assertAuthenticated(context)) {
+        throw new functions.https.HttpsError(
+            'permission-denied', 
+            'This operation can only be performed by a logged in user');
+    }
+    var loginId = context.auth.uid;
+    var emailId = data.emailId;
+    if(!emailId) {
+        throw new functions.https.HttpsError(
+            'invalid-argument', 
+            'Email id is required to link the profile');
+    }
+    let userDisplayName = null;
+
+    // first look for an existing kaoc profile with the given email id.
+    return admin.firestore().collection('/kaocUsers')
+            .where('emailId', '==', emailId)
+            .limit(1)
+            .get()
+            .then(kaocUserQuerySnapshot => {
+                if(!kaocUserQuerySnapshot.empty) {
+                    console.debug(`User record found with email id ${emailId}`);
+                    userDisplayName = `${kaocUserQuerySnapshot.docs[0].get('firstName')} ${kaocUserQuerySnapshot.docs[0].get('lastName')}`;
+                    return createKey(
+                        'linkProfileEmail', 
+                        {
+                            loginId,
+                            kaocUserId: kaocUserQuerySnapshot.docs[0].ref.id
+                        }
+                    );
+                } else {
+                    console.debug(`No user record found with email id ${emailId}`);
+                    return null;
+                }       
+            })
+            .then(linkEmailProfileKeyId => {
+                if(linkEmailProfileKeyId) {
+                    const linkProfileUrl = `${hostUrl}/linkProfile/${linkEmailProfileKeyId}`;
+                    return queueEmail({
+                        to: emailId,
+                        subject: `Request to link Kerala Association User Profile`,
+                        html: `Hello, ${userDisplayName}<br>
+                                    We have received a request to link your Kerala Association Of Colorado user profile with a new login id.<br>
+                                    Please verify the information and click the link below to complete the process.<br><br>
+                                    New Login Email: <b>${context.auth.emailId}</b><br><br>
+                                    Clicking the link below will let you login with this new email id and modify your existing Kerala Association User Profile.<br>
+                                    Your email communications will still be sent to ${emailId}.<br>
+                                    If you would like to modify your communication preferences to use the new email id, please login to the application
+                                    and update your communication preferences.<br> 
+                                    Click this link to associate with the new email <a href="${linkProfileUrl}">${linkProfileUrl}</a>
+                                    <br><br>
+                                Thanks,<br>
+                                KAOC Committe    
+                                `,
+                    });
+                } else {
+                    // email not found - so nothing to be done here. 
+                    return null;      
+                }
+            })
+            .then(() => {
+                // To not let the user figure out the state of this call, return a standard message
+                // whether or not the email was sent. This is to avoid someone doing a 
+                // trial and error to figure out if an email id is a registered user in 
+                // the database.
+                return true;
+            });
+}); 
+
+
+exports.linkEmailProfile = functions.https.onCall((data, context) => {
+    if(!(data && data.key)) {
+        throw new functions.https.HttpsError('permission-denied', 'Profile link key not specified or is invalid');
+    }
+
+    return validateKey(data.key, 'linkProfileEmail')
+    .then(data => {
+        const keyData = data.keyData;
+        return admin.firestore().doc(`/kaocUsers/${keyData.kaocUserId}`).update({'loginId': keyData.loginId});
+    })
+    .catch(e => {
+        console.log(`Key invalid `, e.message);
+        throw new functions.https.HttpsError('permission-denied', 'Profile link key does not exist or is invalid');
+    })
+    .then(() => {
+        console.log(`Deleting Key - ${data.key}`);
+        return deleteKey(data.key);
+    })
+    .then(() => {
+        return true;
+    });
+});
