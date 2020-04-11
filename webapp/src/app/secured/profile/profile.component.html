@@ -12,33 +12,49 @@
 
         <!--TODO - Placeholder -->
         <div *ngIf="profileState == 'kaocUserNotFound'">
-            We could not locate a user profile with your email.
-            Click Here to create a new profile <button (click)="createNewProfile()"> Create</button>
-            If your profile is associated with a different email, click the botton below to link it
-            <button> Link Existing Account</button>
-            Show Email Form and submit using linkWithOtherEmail(email)
+            We could not locate a user profile with your email.<br><br>
+            <button (click)="createNewProfile()">Click Here</button>to create a new profile<br><br>
+            If your profile is associated with a different email, please enter that email address and click link to associate the current login.<br><br>
+            <input #emailIdInput type="text" (keyup)="setEmailIdToLink(emailIdInput.value)"/>
+            <button
+                mat-button-raised color="primary"
+                (click)="linkWithOtherEmail(emailIdToLink)">Link Profile
+            </button>
+            <br>
+            <br>
         </div>
 
         <!--TODO - Placeholder -->
         <div *ngIf="profileState == 'kaocUserFound'">
-            Show KOAC User Name & Email here.
-        </div>
+            <mat-card class="user-profile" fxFlex="1 0 auto">
+              <mat-card-header>
+                  KAOC Profile
+              </mat-card-header>
+              <mat-card-content>
+                  <div class="name">{{kaocUser.firstName}} {{kaocUser.lastName}}</div>
+                  <div class="email">{{kaocUser.emailId}}</div>
+                  <div class="phone">{{kaocUser.phoneNumber}}</div>
+              </mat-card-content>
+            </mat-card>
+          </div>
 
         <div *ngIf="profileState == 'kaocUserLinkEmailSent'">
             If the email you entered is associated with an existing profile, you will
             recieve an email in that address. Please follow the link in that email to link your details.
         </div>
 
-        <!-- TODO - Hide this once the above logic is complete-->
-        <mat-card class="user-profile" fxFlex="1 0 auto">
-          <mat-card-header>
-              Profile
-          </mat-card-header>
-          <mat-card-content>
-              <div class="name">{{firebaseUser.displayName}}</div>
-              <div class="email">{{firebaseUser.email}}</div>
-              <div class="phone">{{firebaseUser.phoneNumber}}</div>
-          </mat-card-content>
-        </mat-card>
+        <div *ngIf="profileState !== 'kaocUserFound'">
+            <mat-card class="user-profile" fxFlex="1 0 auto">
+                <mat-card-header>
+                    Login Profile
+                </mat-card-header>
+                <mat-card-content>
+                    <div class="name">{{firebaseUser.displayName}}</div>
+                    <div class="email">{{firebaseUser.email}}</div>
+                    <div class="phone">{{firebaseUser.phoneNumber}}</div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+
     </div>
 </div>

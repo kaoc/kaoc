@@ -21,6 +21,7 @@ import { MemberProfileComponent } from './admin/member-profile/member-profile.co
 import { ListMemberProfilesComponent } from './admin/list-member-profiles/list-member-profiles.component';
 import { DialogWinComponent } from './admin/dialog-win/dialog-win.component';
 import { ConfirmDelComponent } from './admin/member-profile/confirm-del.component';
+import { ProfileLinkStatusComponent } from './profile-link-status/profile-link-status.component';
 
 
 @NgModule({
@@ -35,7 +36,8 @@ import { ConfirmDelComponent } from './admin/member-profile/confirm-del.componen
     MemberProfileComponent,
     ListMemberProfilesComponent,
     DialogWinComponent,
-    ConfirmDelComponent
+    ConfirmDelComponent,
+    ProfileLinkStatusComponent
   ],
   imports: [
     CommonModule,

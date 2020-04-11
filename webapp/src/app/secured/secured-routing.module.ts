@@ -9,6 +9,7 @@ import { VerifyEmailComponent } from './verify-email/verify-email.component';
 import { SearchUsersComponent } from './admin/search-users/search-users.component';
 import { MemberProfileComponent } from './admin/member-profile/member-profile.component';
 import { ListMemberProfilesComponent } from './admin/list-member-profiles/list-member-profiles.component';
+import { ProfileLinkStatusComponent } from './profile-link-status/profile-link-status.component';
 
 
 const routes: Routes = [{
@@ -21,6 +22,13 @@ const routes: Routes = [{
         path: 'verify',
         component: VerifyEmailComponent
     }, {
+      path: 'profileLinkStatus/:encodedMessage',
+      component: ProfileLinkStatusComponent,
+      canActivate: [AuthGuardService],
+      data: {
+          expectedRole: 'member'
+      }
+  }, {
         path: 'profile',
         component: ProfileComponent,
         canActivate: [AuthGuardService],

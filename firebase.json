@@ -28,6 +28,9 @@
         "source": "api/updatePayment",
         "function": "updatePayment"
       }, {
+        "source": "api/linkEmailProfile",
+        "function": "linkEmailProfile"
+      }, {
         "source": "api/:projectName/us-central1/addOrUpdateMemberAndMembership",
         "function": "addOrUpdateMemberAndMembership"
       }, {
@@ -39,6 +42,10 @@
       }, {
         "source": "api/:projectName/us-central1/updatePayment",
         "function": "updatePayment"
+      }, {
+        "source": "api/:projectName/us-central1/requestEmailProfileLinking",
+        "function": "requestEmailProfileLinking"
+       
       }, {
         "source": "**",
         "destination": "/index.html"

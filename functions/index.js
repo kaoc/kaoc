@@ -12,7 +12,7 @@ const mailTransportOptions = {
     }
 };
 
-const hostUrl = functions.config().hostUrl || 'https://kaoc.app';
+const hostUrl = functions.config().host.url || 'https://kaoc.app';
 
 // 1 month default
 const defaultKeyExpirationPeriod = 1000 * 60 * 60 * 24 * 30;
@@ -105,23 +105,40 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
     });
 });
 
+/**
+ * When a new User Login is created, check if KAOC profile exists
+ * for the login email id. If so, use that information to update
+ * the KAOC profile. 
+ */
 exports.handleUserAdded = functions.auth.user().onCreate((user) => {
-    var userNameSplit = user.displayName.split(' ');
-    var firstName = userNameSplit[0];
-    var lastName = userNameSplit[userNameSplit.length - 1];
-
-    const kaocMemberData = {
-        'emailId': user.email,
-        'firstName': firstName,
-        'lastName': lastName,
-        'loginId': user.uid
-    };
-
-    if(user.phoneNumber) {
-        kaocMemberData.phoneNumber = user.phoneNumber;
-    }
-
-    return _addOrUpdateMember(kaocMemberData);
+    // Check if a user profile exists with the matching email id
+    return admin.firestore().collection('/kaocUsers')
+            .where('emailId', '==', user.email)
+            .limit(1)
+            .get()
+            .then(kaocUserQuerySnapshot => {
+                if(!kaocUserQuerySnapshot.empty) {    
+                    // profile exists
+                    var userNameSplit = user.displayName.split(' ');
+                    var firstName = userNameSplit[0];
+                    var lastName = userNameSplit[userNameSplit.length - 1];
+                
+                    const kaocMemberData = {
+                        'emailId': user.email,
+                        'firstName': firstName,
+                        'lastName': lastName,
+                        'loginId': user.uid
+                    };
+                
+                    if(user.phoneNumber) {
+                        kaocMemberData.phoneNumber = user.phoneNumber;
+                    }
+                    // add or update is called. But it is always update
+                    return _addOrUpdateMember(kaocMemberData);
+                } else {
+                    return null;
+                }
+            });
 });
 
 /**
@@ -899,7 +916,6 @@ function validateKey(key, keyType) {
         let keyRecord = null;
 
         if(keySnapShot.exists) {
-            //console.log(`Key ${key} exists. Validating timestamps`);
 
             keyRecord = keySnapShot.data();
             let currTimeMillis = admin.firestore.Timestamp.now().toMillis();
@@ -994,7 +1010,9 @@ exports.requestEmailProfileLinking = functions.https.onCall((data, context) => {
         context = {
             auth: {
                 uid     : 'Krvpwi5Jj3atza3qxsfXA2ydDTZ2',
-                emailId : 'chandrasekhar.hari@gmail.com'
+                token: {
+                    emailId : 'chandrasekhar.hari@gmail.com'
+                }
             }
         };
     }
@@ -1004,6 +1022,7 @@ exports.requestEmailProfileLinking = functions.https.onCall((data, context) => {
             'This operation can only be performed by a logged in user');
     }
     var loginId = context.auth.uid;
+    var loginEmailId = context.auth.token.email;
     var emailId = data.emailId;
     if(!emailId) {
         throw new functions.https.HttpsError(
@@ -1025,6 +1044,8 @@ exports.requestEmailProfileLinking = functions.https.onCall((data, context) => {
                         'linkProfileEmail', 
                         {
                             loginId,
+                            emailId,
+                            loginEmailId,
                             kaocUserId: kaocUserQuerySnapshot.docs[0].ref.id
                         }
                     );
@@ -1035,14 +1056,14 @@ exports.requestEmailProfileLinking = functions.https.onCall((data, context) => {
             })
             .then(linkEmailProfileKeyId => {
                 if(linkEmailProfileKeyId) {
-                    const linkProfileUrl = `${hostUrl}/linkProfile/${linkEmailProfileKeyId}`;
+                    const linkProfileUrl = `${hostUrl}/api/linkEmailProfile?key=${linkEmailProfileKeyId}`;
                     return queueEmail({
                         to: emailId,
                         subject: `Request to link Kerala Association User Profile`,
                         html: `Hello, ${userDisplayName}<br>
                                     We have received a request to link your Kerala Association Of Colorado user profile with a new login id.<br>
                                     Please verify the information and click the link below to complete the process.<br><br>
-                                    New Login Email: <b>${context.auth.emailId}</b><br><br>
+                                    New Login Email: <b>${context.auth.token.email}</b><br><br>
                                     Clicking the link below will let you login with this new email id and modify your existing Kerala Association User Profile.<br>
                                     Your email communications will still be sent to ${emailId}.<br>
                                     If you would like to modify your communication preferences to use the new email id, please login to the application
@@ -1067,26 +1088,46 @@ exports.requestEmailProfileLinking = functions.https.onCall((data, context) => {
             });
 }); 
 
+exports.linkEmailProfile = functions.https.onRequest(async (req, res) => {
+    
+    const key = req.query.key;
+    console.debug(`Request key - ${key}`);
 
-exports.linkEmailProfile = functions.https.onCall((data, context) => {
-    if(!(data && data.key)) {
-        throw new functions.https.HttpsError('permission-denied', 'Profile link key not specified or is invalid');
-    }
+    if(!key) {
+        res.status(401).send('Profile link key not specified or is invalid');
+        return null;
+   }
 
-    return validateKey(data.key, 'linkProfileEmail')
+   let keyData = null;
+
+    return validateKey(key, 'linkProfileEmail')
     .then(data => {
-        const keyData = data.keyData;
+        keyData = data.keyData;
         return admin.firestore().doc(`/kaocUsers/${keyData.kaocUserId}`).update({'loginId': keyData.loginId});
     })
-    .catch(e => {
-        console.log(`Key invalid `, e.message);
-        throw new functions.https.HttpsError('permission-denied', 'Profile link key does not exist or is invalid');
+    .then(() => {
+        console.log(`Deleting Key - ${key}`);
+        return deleteKey(key);
     })
     .then(() => {
-        console.log(`Deleting Key - ${data.key}`);
-        return deleteKey(data.key);
-    })
-    .then(() => {
+        let encodedMessage = base64Encode(`Email ${keyData.emailId} has been linked to the login id ${keyData.loginEmailId}`);
+        res.redirect(`${hostUrl}/secured/profileLinkStatus/${encodedMessage}`);
         return true;
+    })
+    .catch(e => {
+        console.error('Failed. ', e);
+        res.status(401).send('Profile link key not specified or is invalid');
+        return null;
     });
 });
+
+/**
+ * Returns the encoded message string.
+ * 
+ * @param {string} message 
+ */
+function base64Encode(message) {
+    let buff = new Buffer(message);
+    let base64data = buff.toString('base64');
+    return base64data;
+}
