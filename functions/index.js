@@ -142,6 +142,43 @@ exports.handleUserAdded = functions.auth.user().onCreate((user) => {
 });
 
 /**
+ * Creates a new profile for the given user
+ */
+exports.createNewProfile = functions.https.onCall((data, context) => {
+    context = _setUpTestingContext(context);
+
+    if(!_assertAuthenticated(context)) {
+        throw new functions.https.HttpsError(
+            'permission-denied', 
+            'This operation can only be performed by a logged in user');
+    }
+
+    return admin.auth().getUser(context.auth.uid)
+        .then(user=>{
+            var userNameSplit = user.displayName.split(' ');
+            var firstName = userNameSplit[0];
+            var lastName = userNameSplit[userNameSplit.length - 1];
+        
+            const kaocMemberData = {
+                'emailId': user.email,
+                'firstName': firstName,
+                'lastName': lastName,
+                'loginId': user.uid
+            };
+        
+            if(user.phoneNumber) {
+                kaocMemberData.phoneNumber = user.phoneNumber;
+            }
+            // add or update is called.
+            return _addOrUpdateMember(kaocMemberData);
+
+        }).catch(e=>{
+            this.error('Error Creating a new profile');
+            throw e;
+        });
+});
+
+/**
  * HTTPS callable function for web application
  * 
  * @param {object} data 
@@ -280,6 +317,19 @@ function _getCurrentMembershipDataByKaocUserId(kaocUserId) {
 }
 
 var testing = false;
+function _setUpTestingContext(context) {
+    if(testing) {
+        context = {
+            auth: {
+                uid     : 'Krvpwi5Jj3atza3qxsfXA2ydDTZ2',
+                token: {
+                    emailId : 'chandrasekhar.hari@gmail.com'
+                }
+            }
+        };
+    }
+    return context;
+}
 
 
 function _assertAuthenticated(context) {
@@ -499,7 +549,7 @@ function _addOrUpdateMember(memberObject) {
             // add a new one
             memberObject.createTime = currentTime;
             console.log(`User record ${JSON.stringify(memberObject)} does not exist. Creating one.`);
-            memberObject.ageGroup = memberObject.ageGroup || "ageGroup";
+            memberObject.ageGroup = memberObject.ageGroup || "Adult";
             return userCollectionRef.add(memberObject);
         } else {
             console.log(`User record for email id ${memberObject.emailId} already exist. Updating record.`)
@@ -1006,16 +1056,7 @@ function deleteKey(keyId) {
  * 
  */
 exports.requestEmailProfileLinking = functions.https.onCall((data, context) => {
-    if(testing) {
-        context = {
-            auth: {
-                uid     : 'Krvpwi5Jj3atza3qxsfXA2ydDTZ2',
-                token: {
-                    emailId : 'chandrasekhar.hari@gmail.com'
-                }
-            }
-        };
-    }
+    context = _setUpTestingContext(context);
     if(!_assertAuthenticated(context)) {
         throw new functions.https.HttpsError(
             'permission-denied', 

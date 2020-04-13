@@ -29,24 +29,34 @@ export class AuthService {
   // A reference to the last requested URL by user.
   public lastRequestedSecuredUrl: string = null;
 
-  /**
-   * Constructor
-   *
-   * @param fireAuth - Angular Fire Auth Service.
-   * @param firestoreDB - Angular Firestore Database Reference.
-   */
-  constructor(private fireAuth: AngularFireAuth, private fireStoreDB: AngularFirestore) {
-    fireAuth.user.subscribe((fireUser: UserInfoExt) => {
-      this.firebaseUserSource.next(fireUser);
-      if (fireUser) {
-        this.loadKaocUser(fireUser.uid);
-        this.loadKaocRoles(fireUser.uid);
-      } else {
-        this.kaocUserSource.next(null);
-        this.kaocRolesSource.next(null);
-      }
-    });
-  }
+    /**
+     * Constructor
+     *
+     * @param fireAuth - Angular Fire Auth Service.
+     * @param firestoreDB - Angular Firestore Database Reference.
+     */
+    constructor(private fireAuth: AngularFireAuth, private fireStoreDB: AngularFirestore) {
+      fireAuth.user.subscribe((fireUser: UserInfoExt) => {
+          this.firebaseUserSource.next(fireUser);
+          if (fireUser) {
+              this.loadKaocUser(fireUser.uid);
+              this.loadKaocRoles(fireUser.uid);
+          } else {
+              this.kaocUserSource.next(null);
+              this.kaocRolesSource.next(null);
+          }
+      });
+    }
+
+    /**
+     * Re-loads KAOC User Profile.
+     */
+    reloadUserProfile() {
+        const firebaseUser = this.getFirebaseUser();
+        if (firebaseUser && firebaseUser.uid) {
+            this.loadKaocUser(firebaseUser.uid);
+        }
+    }
 
   /**
    * Returns the current logged in user.

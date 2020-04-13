@@ -31,6 +31,9 @@
         "source": "api/linkEmailProfile",
         "function": "linkEmailProfile"
       }, {
+        "source": "api/createNewProfile",
+        "function": "createNewProfile"
+      }, {
         "source": "api/:projectName/us-central1/addOrUpdateMemberAndMembership",
         "function": "addOrUpdateMemberAndMembership"
       }, {
@@ -45,7 +48,9 @@
       }, {
         "source": "api/:projectName/us-central1/requestEmailProfileLinking",
         "function": "requestEmailProfileLinking"
-       
+      }, {
+        "source": "api/:projectName/us-central1/createNewProfile",
+        "function": "createNewProfile"
       }, {
         "source": "**",
         "destination": "/index.html"

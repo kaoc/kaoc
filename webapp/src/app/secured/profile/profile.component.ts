@@ -49,7 +49,7 @@ export class ProfileComponent implements OnInit {
     }
 
     linkWithOtherEmail(email: string): void {
-      if(this.EMAIL_REGEXP.test(email)) {
+      if (this.EMAIL_REGEXP.test(email)) {
           this.fns.httpsCallable('requestEmailProfileLinking')({
             emailId: email
           }).toPromise().then(success => {
@@ -62,10 +62,16 @@ export class ProfileComponent implements OnInit {
       }
     }
 
+    /**
+     * Creates a new profile for the current loggied in user using the login profile.
+     */
     createNewProfile(): void {
-        // TODO - Call service
-        // then show success (using snackBar?)
-        // and wait for kaocUserProfile to be available (done above)
+        this.fns.httpsCallable('createNewProfile')({
+        }).toPromise().then(success => {
+          this.authService.reloadUserProfile();
+        }).catch(e => {
+          this.snackBar.open('Failed to create user profile ' + e.message);
+        });
     }
 
 
