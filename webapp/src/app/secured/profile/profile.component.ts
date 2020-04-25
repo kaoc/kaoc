@@ -1,3 +1,4 @@
+import { PaypalPaymentComponent } from './../../payment/paypal-payment/paypal-payment.component';
 import { Component, OnInit } from '@angular/core';
 import { AuthService, UserInfoExt } from '../auth/auth.service';
 import { Member } from '../Member';

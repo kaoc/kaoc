@@ -6,7 +6,6 @@ import { AdminComponent } from './admin/admin.component';
 import { HomeComponent } from './common/home/home.component';
 import { DefaultComponent } from './default/default.component';
 import { MadhuramMalayalamComponent } from './activities/madhuram-malayalam/madhuram-malayalam.component';
-import { PaymentComponent } from './payment/payment.component';
 import { SquarePaymentResultComponent } from './payment/square-payment-result/square-payment-result.component';
 
 const routes: Routes = [
@@ -14,7 +13,6 @@ const routes: Routes = [
   { path: 'admin', component: AdminComponent },
   { path: 'kaochistory', component: KaocHistoryComponent },
   { path: 'kaocbylaw', component: KaocByeLawComponent },
-  { path: 'processpayment' , component: PaymentComponent},
   { path: 'squareprocesspaymentresult' , component: SquarePaymentResultComponent}
   //{ path : 'madhuram-malayalam' , component: MadhuramMalayalamComponent}
 

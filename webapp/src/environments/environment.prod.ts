@@ -17,5 +17,8 @@ export const environment = {
     square: {
       // Application Id in https://developer.squareup.com/apps/
       appId               : 'sq0idp-rxLCkb-nVjOpavuyGGxqzg'
+    },
+    paypal: {
+
     }
 };

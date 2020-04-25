@@ -1,3 +1,4 @@
+import { PaypalPaymentComponent } from './../payment/paypal-payment/paypal-payment.component';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -24,6 +25,8 @@ import { ConfirmDelComponent } from './admin/member-profile/confirm-del.componen
 import { ProfileLinkStatusComponent } from './profile-link-status/profile-link-status.component';
 
 
+
+
 @NgModule({
   declarations: [
     ProfileComponent,
@@ -37,7 +40,8 @@ import { ProfileLinkStatusComponent } from './profile-link-status/profile-link-s
     ListMemberProfilesComponent,
     DialogWinComponent,
     ConfirmDelComponent,
-    ProfileLinkStatusComponent
+    ProfileLinkStatusComponent,
+    PaypalPaymentComponent
   ],
   imports: [
     CommonModule,
