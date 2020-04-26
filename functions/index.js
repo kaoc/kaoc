@@ -194,7 +194,12 @@ exports.createNewProfile = functions.https.onCall((data, context) => {
  *      
  */
 exports.addOrUpdateMemberAndMembership = functions.https.onCall((data, context) => {
-    return _assertAdminRole(context)
+    // get all the kaoc user ids being updated. 
+    // Only the user themselves (which could be any of the user being updated) or an admin
+    // can execute this function.
+    const kaocUserIds = data.members.map(member=>member.kaocUserId);
+    console.debug(`Updating membership details for kaocUser ids ${JSON.stringify(kaocUserIds)}`);
+    return _assertSelfOrAdminRole(context, kaocUserIds)
     .catch(e => {
         throw new functions.https.HttpsError(
             'permission-denied', 
@@ -220,14 +225,15 @@ exports.addOrUpdateMemberAndMembership = functions.https.onCall((data, context) 
  * 
  */
 exports.getCurrentMembershipDataByMemberId = functions.https.onCall((data, context) => {
-    return _assertAdminRole(context) 
+    const kaocUserId = data.memberId || data.kaocUserId;
+    return _assertSelfOrAdminRole(context, [kaocUserId]) 
     .catch(e=> {
         throw new functions.https.HttpsError(
             'permission-denied', 
             'User does not have the authorization to perform this operation');
     })
     .then(authResult => {
-        return _getCurrentMembershipDataByKaocUserId(data.memberId || data.kaocUserId);
+        return _getCurrentMembershipDataByKaocUserId(kaocUserId);
     })
 });
 
@@ -344,6 +350,44 @@ function _assertAuthenticated(context) {
 }
 
 /**
+ * Ensures that the logged in user is either a user in admin role or the either of the given kaocUserIds belongs 
+ * to that of the logged in user. 
+ * 
+ * @param {object} context 
+ * @param {Array<string>} kaocUserIds 
+ * @return Promise
+ */
+function _assertSelfOrAdminRole(context, kaocUserIds) {
+    // Checking that the user is authenticated.
+    if (!context || !context.auth) {
+        return Promise.reject(new Error('User not authenticated'));
+    }
+
+    // first fetch the kaoc user id corresponding to current logged in user. 
+    return admin.firestore().collection('/kaocUsers')
+    .where('loginId', '==', context.auth.uid)
+    .limit(1)
+    .get()
+    .then(kaocUserQuerySnapshot => {
+        if(!kaocUserQuerySnapshot.empty) {    
+            const loggedInKaocUserId = kaocUserQuerySnapshot.docs[0].ref.id;
+            const matchedLoggedInUid = kaocUserIds.find(kaocUserId => {return loggedInKaocUserId === kaocUserId;});
+            if(matchedLoggedInUid) {
+                console.debug('Permission granted as self');
+                // if so return true 
+                return Promise.resolve(true)
+            } else {
+                console.debug('Permission not granted as self. Checking admin  permissions');
+                return _assertAdminRole(context);
+            }
+        } else {
+            return _assertAdminRole(context);
+        }
+    });
+}
+
+
+/**
  * Ensures that the user in the context is an admin user. 
  * 
  * @param {Conext} context 
@@ -397,22 +441,41 @@ function _assertAdminRole(context) {
  *           paymentStatus - The new payment status.       
  */
 exports.updatePayment = functions.https.onCall((data, context) => { 
-    return _assertAdminRole(context)
-    .catch(e=> {
+    // first check if the payment record exists and that the logged in user 
+    // has the authority to update the payment.
+    const kaocPaymentId = data.paymentId;         // TODO change name to kaocPaymentId
+
+    return admin.firestore().doc(`/kaocPayments/${kaocPaymentId}`).get()
+    .then(paymentDocSnapshot => {
+        if(paymentDocSnapshot.exists) {
+            const kaocUserRef = paymentDocSnapshot.data().kaocUserRef;
+            if(kaocUserRef) {
+                // either the user related to the payment or the admin can update the payment.
+                // NOTE - There is a slight risk in allowing the user to update the payment. We are opening up the possibility for 
+                // a user to effectively update the payment status as Paid. We are relying on the UI to control
+                // this process and ensure that the payment is actually verified. 
+                return _assertSelfOrAdminRole(context, [kaocUserRef.id]);
+            } else {
+                // no user reference for payment. Only admins can update. 
+                return _assertAdminRole(context);
+            }
+        } else {
+            return Promise.reject(new Error(`Invalid payment reference ${data.paymentId}`));
+        }
+    })
+    .catch(e => {
         throw new functions.https.HttpsError(
                     'permission-denied', 
                     'User does not have the authorization to perform this operation');
     })
     .then(result => {
-        // TODO change name to kaocPaymentId
-        console.log('updatePayment called for ' + data.paymentId);
-        let paymentId = data.paymentId;
+        console.log('updatePayment called for ' + kaocPaymentId);
         let paymentDetailsObj = data.payment;
         if(!data.payment) {
             paymentDetailsObj = data;
-            delete paymentDetailsObj.paymentId;
+            delete paymentDetailsObj.paymentId; //TODO - Change attribute name to kaocPaymentId
         }
-        return _updatePayment(paymentId, paymentDetailsObj, context.auth);
+        return _updatePayment(kaocPaymentId, paymentDetailsObj, context.auth);
     });
 });   
 

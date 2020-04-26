@@ -15,14 +15,12 @@ import { HeaderComponent } from './common/header/header.component';
 import { MaterialModule } from './material.module';
 import { KaocHistoryComponent } from './static/about/kaoc-history/kaoc-history.component';
 import { KaocByeLawComponent } from './static/about/kaoc-bye-law/kaoc-bye-law.component';
-import { AdminComponent } from './admin/admin.component';
 import { MainContentAreaComponent } from './main-content-area/main-content-area.component';
 import { LeftFrameComponent } from './main-content-area/left-frame/left-frame.component';
 import { RightFrameComponent } from './main-content-area/right-frame/right-frame.component';
 import { ContentFrameComponent } from './main-content-area/content-frame/content-frame.component';
 import { HomeComponent } from './common/home/home.component';
 import { FooterComponent } from './common/footer/footer.component';
-import { DefaultComponent } from './default/default.component';
 import { MadhuramMalayalamComponent } from './activities/madhuram-malayalam/madhuram-malayalam.component';
 import { EditMemberComponent } from './membership/edit-member/edit-member.component';
 import { AngularFireFunctionsModule, FUNCTIONS_ORIGIN } from '@angular/fire/functions';
@@ -40,7 +38,6 @@ return 'KAOC';
   declarations: [
     AppComponent,
     HeaderComponent,
-    AdminComponent,
     KaocHistoryComponent,
     KaocByeLawComponent,
     MainContentAreaComponent,
@@ -49,7 +46,6 @@ return 'KAOC';
     ContentFrameComponent,
     HomeComponent,
     FooterComponent,
-    DefaultComponent,
     MadhuramMalayalamComponent,
     EditMemberComponent,
     SquarePaymentResultComponent,

@@ -4,7 +4,6 @@ import { LoginComponent } from './login/login.component';
 import { ProfileComponent } from './profile/profile.component';
 import { SecuredComponent } from './secured.component';
 import { AuthGuardService } from './auth/auth-guard.service';
-import { AdminComponent } from '../admin/admin.component';
 import { VerifyEmailComponent } from './verify-email/verify-email.component';
 import { SearchUsersComponent } from './admin/search-users/search-users.component';
 import { MemberProfileComponent } from './admin/member-profile/member-profile.component';
@@ -28,13 +27,20 @@ const routes: Routes = [{
       data: {
           expectedRole: 'member'
       }
-  }, {
+    }, {
         path: 'profile',
         component: ProfileComponent,
         canActivate: [AuthGuardService],
         data: {
             expectedRole: 'member'
         }
+    }, {
+      path: 'user/memberprofile/:id',
+      component: MemberProfileComponent,
+      canActivate: [AuthGuardService],
+      data: {
+          expectedRole: 'member'
+      }
     }, {
         path: 'admin/search',
         pathMatch: 'prefix',
@@ -60,13 +66,6 @@ const routes: Routes = [{
     }, {
         path: 'admin/listmembers',
         component: ListMemberProfilesComponent,
-        canActivate: [AuthGuardService],
-        data: {
-            expectedRole: 'admin'
-        }
-    }, {
-        path: 'admin',
-        component: AdminComponent,
         canActivate: [AuthGuardService],
         data: {
             expectedRole: 'admin'

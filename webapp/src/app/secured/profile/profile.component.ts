@@ -82,7 +82,7 @@ export class ProfileComponent implements OnInit {
 
     editUserProfile() {
         if (this.kaocUser) {
-            this.router.navigateByUrl('/secured/admin/memberprofile/'+this.kaocUser.kaocUserId);
+            this.router.navigateByUrl('/secured/user/memberprofile/' + this.kaocUser.kaocUserId);
         }
     }
 
