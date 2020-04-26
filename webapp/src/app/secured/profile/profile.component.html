@@ -26,6 +26,7 @@
 
         <!--TODO - Placeholder -->
         <div *ngIf="profileState == 'kaocUserFound'">
+          <div>
             <mat-card class="user-profile" fxFlex="1 0 auto">
               <mat-card-header>
                   KAOC Profile
@@ -34,9 +35,53 @@
                   <div class="name">{{kaocUser.firstName}} {{kaocUser.lastName}}</div>
                   <div class="email">{{kaocUser.emailId}}</div>
                   <div class="phone">{{kaocUser.phoneNumber}}</div>
+
+                  <div class="active-membership" *ngIf="!membershipDetailsLoaded">
+                      Loading Membership Details...
+                  </div>
+
+                  <div class="active-membership" *ngIf="membership && membership.membership">
+                      <div>
+                          <span>Membership Status: </span>
+                          <span class="membership-state-active">Active</span>
+                      </div>
+                      <div>
+                          <span>Membership Type: </span>
+                          <span class="membership-type">
+                              {{membership?.membership?.membershipType}}
+                          </span>
+                      </div>
+                  </div>
+
+                  <div class="inactive-membership" *ngIf="membership && membership.pastMembership">
+                        <div>
+                            <span>Membership Status: </span>
+                            <span class="membership-state-inactive">In-Active</span>
+                        </div>
+                        <div>
+                            <span>Membership Type: </span>
+                            <span class="membership-type">
+                                {{membership?.pastMembership?.membershipType}}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="inactive-membership" *ngIf="!membership && membershipDetailsLoaded">
+                        <div>
+                            <span>Membership Status: </span>
+                            <span class="membership-state-inactive">No Membership</span>
+                        </div>
+                    </div>
               </mat-card-content>
+              <mat-card-actions>
+                  <button mat-button (click)="editUserProfile()">
+                    <mat-icon>edit</mat-icon>
+                    Edit
+                  </button>
+              </mat-card-actions>
             </mat-card>
           </div>
+        </div>
 
         <div *ngIf="profileState == 'kaocUserLinkEmailSent'">
             If the email you entered is associated with an existing profile, you will

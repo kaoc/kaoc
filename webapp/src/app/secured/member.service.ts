@@ -41,6 +41,11 @@ export class MemberService {
     );
   }
 
+  /**
+   * TODO - Refactor this service to simply return a promise with the value.
+   *
+   * @param docId
+   */
   async getMemberById(docId): Promise<any> {
     this.spinner.show();
     console.log("Inside MemberService..getMemberDetails.member.docId=" + docId);
@@ -57,6 +62,25 @@ export class MemberService {
         console.error({ err });
       });
  }
+
+    /**
+     * Fetches and returns the membership data for the given kaoc user id.
+     * NOTE - This membership data is not saved in any instance variable.
+     * Calling ths method will result in a call to the backend.
+     *
+     * @param kaocUserId - KAOC User ID.
+     */
+    getMembershipData(kaocUserId: string): Promise<Membership> {
+        return this.ngFireFunctions
+                    .httpsCallable('getCurrentMembershipDataByMemberId')({kaocUserId})
+                    .toPromise().then(membershipData => {
+                        console.log('Obtained membership data');
+                        return membershipData;
+                    }).catch(e =>{
+                        console.error(`Error fetching membership data for ${kaocUserId}`);
+                        throw e;
+                    });
+    }
 
   getAllMembers() {
     return this.members;

@@ -27,6 +27,24 @@
   width: 500px;
 }
 
+.membership-state-active {
+    font-weight: bold;
+    color: green;
+}
+
+.membership-state-inactive {
+    font-weight: bold;
+    color: red;
+}
+
+.active-membership {
+  padding-top:20px;
+}
+
+.inactive-membership {
+  padding-top:20px;
+}
+
 @media (max-width: 599px) {
   .user-profile {
       max-width: 280px;
@@ -34,3 +52,5 @@
       min-width: 250px;
   }
 }
+
+

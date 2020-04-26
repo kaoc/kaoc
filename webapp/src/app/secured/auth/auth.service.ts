@@ -105,6 +105,7 @@ export class AuthService {
           if (!querySnapshot.empty) {
             querySnapshot.forEach(userDoc => {
               const kaocUserData = userDoc.data();
+              kaocUserData.kaocUserId = userDoc.id;
               console.log(`Kaoc User Loaded for account ${JSON.stringify(kaocUserData)}`);
               this.kaocUserSource.next(kaocUserData as Member);
             });

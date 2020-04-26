@@ -4,6 +4,9 @@ import { AuthService, UserInfoExt } from '../auth/auth.service';
 import { Member } from '../Member';
 import { AngularFireFunctions } from '@angular/fire/functions';
 import { MatSnackBar } from '@angular/material';
+import { MemberService } from '../member.service';
+import { Membership } from '../Membership';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-profile',
@@ -13,6 +16,7 @@ import { MatSnackBar } from '@angular/material';
 export class ProfileComponent implements OnInit {
     firebaseUser: UserInfoExt;
     kaocUser: Member;
+    membership: Membership;
     EMAIL_REGEXP = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
 
     // possible values something in lines of - maybe an enum?
@@ -23,11 +27,14 @@ export class ProfileComponent implements OnInit {
     profileState = 'loading';
     emailIdToLink: string;
     validEmailIdToLink = false;
+    membershipDetailsLoaded = false;
 
     constructor(
+      private router: Router,
       private authService: AuthService,
       private fns: AngularFireFunctions,
-      private snackBar: MatSnackBar) {
+      private snackBar: MatSnackBar,
+      private memberServie: MemberService) {
       authService.firebaseUser.subscribe(firebaseUser => {
           if (firebaseUser) {
               this.firebaseUser = firebaseUser;
@@ -38,6 +45,16 @@ export class ProfileComponent implements OnInit {
           if (kaocUser) {
               this.profileState = 'kaocUserFound';
               this.kaocUser = kaocUser;
+              this.memberServie
+                    .getMembershipData(kaocUser.kaocUserId)
+                    .then(membership => {
+                        this.membership = membership;
+                        this.membershipDetailsLoaded = true;
+                    })
+                    .catch(e => {
+                        this.membership = null;
+                        this.membershipDetailsLoaded = true;
+                    });
           } else {
               this.profileState = 'kaocUserNotFound';
           }
@@ -61,6 +78,12 @@ export class ProfileComponent implements OnInit {
       } else {
         this.snackBar.open('Invalid Email Id.', null, {duration: 5000});
       }
+    }
+
+    editUserProfile() {
+        if (this.kaocUser) {
+            this.router.navigateByUrl('/secured/admin/memberprofile/'+this.kaocUser.kaocUserId);
+        }
     }
 
     /**
