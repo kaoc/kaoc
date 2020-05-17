@@ -569,7 +569,15 @@ export class MemberProfileComponent implements OnInit {
 
     setStatusPaidAndDisableButton() {
       this.disablePayButton = true;
-      this.paymentStepperBtnLabel = "Update";
+      this.paymentStepperBtnLabel = 'Update';
+      this.memberPaymentStatus = 'PAID';
+    }
+
+    handlePaypalStatusEvent(paypalEvent: any) {
+      this.paypalStatus = paypalEvent;
+      if (this.paypalStatus === 'Paid') {
+        this.setStatusPaidAndDisableButton();
+      }
     }
 }
 

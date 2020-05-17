@@ -205,14 +205,10 @@
             <div fxLayout="row" fxLayoutAlign="center" fxLayoutGap="5px">
               <br>
               <div *ngIf="getPaymentDocumentRefNo() !== null && this.paymentForm.value.paymentMethod === 'Paypal' && this.paypalStatus !== ''">
-                <h3>Proceed with payment...</h3>
-                <app-paypal (paypalStatusEvent)="paypalStatus=$event" kaocPaymentsDocId="{{this.getPaymentDocumentRefNo()}}" paymentAmount="{{this.membershipAmt}}" paymentDescription="KAOC Membership"></app-paypal>
+                <h3 *ngIf="!this.memberPaymentStatus || this.memberPaymentStatus.toUpperCase() !== 'PAID'">Proceed with payment...</h3>
+                <app-paypal (paypalStatusEvent)="handlePaypalStatusEvent($event)" kaocPaymentsDocId="{{this.getPaymentDocumentRefNo()}}" paymentAmount="{{this.membershipAmt}}" paymentDescription="KAOC Membership"></app-paypal>
               </div>
             </div>
-            <div *ngIf="this.paypalStatus === 'Paid' ? this.setStatusPaidAndDisableButton(): false">
-              <!-- Add a home button? -->
-            </div>
-
           </form>
         </mat-card-content>
       </mat-card>
