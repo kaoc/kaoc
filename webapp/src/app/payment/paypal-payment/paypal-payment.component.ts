@@ -1,5 +1,6 @@
-import { Component, OnInit, AfterViewChecked, ViewChild, ElementRef, Input } from '@angular/core';
+import { Component, OnInit, AfterViewChecked, ViewChild, ElementRef, Input, Output, EventEmitter } from '@angular/core';
 import { AngularFireFunctions } from '@angular/fire/functions';
+import { environment } from '../../../environments/environment';
 
 // Unused. We get paypal object from paypal js script. This is added just for compilation
 declare let paypal: any;
@@ -16,6 +17,7 @@ export class PaypalPaymentComponent implements OnInit {
   @Input() paymentDescription: string;
   @ViewChild('paypal', { static: true }) paypalElement: ElementRef;
 
+  @Output() paypalStatusEvent = new EventEmitter();
   paymentStatus = 'Pending';
   didRenderPaypal = false;
 
@@ -61,7 +63,7 @@ export class PaypalPaymentComponent implements OnInit {
     return new Promise((resolve, reject) => {
       const scriptElement = document.createElement('script');
       scriptElement.src =
-        'https://www.paypal.com/sdk/js?client-id=AfstSGvZiweHwoOORmCJxVFqizHvAzoOlqa3ZIh02gprZ_PyFMMBocDKRTE1iyk0T1Xwef67QrYqMldX';
+        'https://www.paypal.com/sdk/js?client-id=' + environment.paypal.clientId;
       scriptElement.onload = resolve;
       document.body.appendChild(scriptElement);
     });
@@ -74,6 +76,7 @@ export class PaypalPaymentComponent implements OnInit {
     const updatePayment = this.ngFireFunctions.httpsCallable('updatePayment');
     updatePayment({paymentId: this.kaocPaymentsDocId, payment: {paymentStatus: paymentResult, paymentExternalSystemRef: paymentId}}).toPromise().then((result) => {
         console.log('updatePayment returned paymentId ' + result);
+        this.paypalStatusEvent.emit(this.paymentStatus);
     }).catch((error) => {
       // Getting the Error details.
       console.log('updatePayment error.code ' +  error.code);

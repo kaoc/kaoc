@@ -19,15 +19,19 @@ export class MemberService {
   public membershipDetails: Membership;
   public routedFrom: string;
   public kaocUserDocId: string;
+  // addMember updates paymentDocumentRefNo
+  public paymentDocumentRefNo: string;
   public message: string;
+  public membershipId: string;
+  public memberEmail: string;
 
   constructor(public db: AngularFirestore,
     private ngFireFunctions: AngularFireFunctions,
     private spinner: NgxSpinnerService,
     private paymentService: PaymentService,
     private router: Router) {
-    this.message='';
-    this.routedFrom = "memberprofile";
+    this.message = '';
+    this.routedFrom = 'memberprofile';
     this.membersCollection = this.db.collection<Member>('kaocUsers', ref => ref.orderBy('lastName', 'asc'));
     // this.members = this.membersCollection.valueChanges();
 
@@ -48,7 +52,7 @@ export class MemberService {
    */
   async getMemberById(docId): Promise<any> {
     this.spinner.show();
-    console.log("Inside MemberService..getMemberDetails.member.docId=" + docId);
+    console.log('Inside MemberService..getMemberDetails.member.docId=' + docId);
     await this.ngFireFunctions.httpsCallable('getCurrentMembershipDataByMemberId')({ kaocUserId: docId })
       .toPromise()
       .then(resp => {
@@ -76,7 +80,7 @@ export class MemberService {
                     .toPromise().then(membershipData => {
                         console.log('Obtained membership data');
                         return membershipData;
-                    }).catch(e =>{
+                    }).catch(e => {
                         console.error(`Error fetching membership data for ${kaocUserId}`);
                         throw e;
                     });
@@ -99,20 +103,29 @@ export class MemberService {
         console.log('PaymentService.processPayment.paymentMode = ' + payment.paymentMethod);
 
         this.kaocUserDocId = result['userIds'][0];
+        this.membershipId = result['membershipId'];
+        this.memberEmail  = members[0]['emailId'];
 
-        const membershipId = result['membershipId'];
-        const memberEmail = members[0]['emailId'];
-        const notes = "FOR KAOC MEMBERSHIP. ID: " + membershipId + ". emailId: " + memberEmail;
-        console.log("notes: " + notes);
-        const paymentDocumentRefNo = result['paymentId'] + '#' + notes;
-        console.log("paymentDocumentRefNo=" + paymentDocumentRefNo);
+        const notes = 'FOR KAOC MEMBERSHIP. ID: ' + this.membershipId + '. emailId: ' + this.memberEmail;
+        console.log('notes: ' + notes);
 
-        if (payment.paymentMethod === 'Square' && null != paymentDocumentRefNo) {
-          this.paymentService.startSquarePayment(payment, paymentDocumentRefNo, notes);
-        } /*else {
-          console.log('ERROR: Unsupported payment method ' + paymentForm.paymentMethod);
-        } */
-        this.message=this.getProcessMsg(memberStatus,payment.paymentMethod);
+        this.paymentDocumentRefNo = result['paymentId'];
+        console.log('paymentDocumentRefNo=' + this.paymentDocumentRefNo);
+
+        // No spinner required for Paypal
+        if (payment.paymentMethod === 'Paypal') {
+          this.spinner.hide();
+          return;
+        }
+
+        if (this.paymentDocumentRefNo === null) {
+          console.log('paymentDocumentRefNo is null. Check addOrUpdateMemberAndMembership call');
+        } else if (payment.paymentMethod === 'Square') {
+          const squarePaymentRef  = this.paymentDocumentRefNo + '#' + notes;
+          this.paymentService.startSquarePayment(payment, squarePaymentRef, notes);
+        }
+
+        this.message = this.getProcessMsg(memberStatus, payment.paymentMethod);
         this.spinner.hide();
       }, err => {
         console.error('Error while adding member ' + err);
@@ -121,17 +134,16 @@ export class MemberService {
   }
 
   getProcessMsg (memberStatus , paymentMethod) {
-    if (this.isNullField(memberStatus) || memberStatus==='Active' ) {
-
-      return "Member details saved successfully"
-    } else {
-      if ( memberStatus==='InActive' && paymentMethod === 'Square' ) {
-        return "Member details saved and payment initiated"
-      } else {
-        return "Member details saved successfully"
-      }
-
+    if (this.isNullField(memberStatus) || memberStatus === 'Active' ) {
+      return 'Member details saved successfully';
     }
+
+    if ( memberStatus === 'InActive' &&
+         ((paymentMethod === 'Square') || (paymentMethod === 'Paypal')) ) {
+      return 'Member details saved and proceeding with ' + paymentMethod + ' payment';
+    }
+
+    return 'Member details saved successfully';
   }
 
   isNullField(fieldValue) {

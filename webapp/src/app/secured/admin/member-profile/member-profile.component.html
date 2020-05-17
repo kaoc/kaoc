@@ -5,7 +5,6 @@
       <p style="font-size: 20px; color: white">Processing Request</p>
     </ngx-spinner>
 
-     
     <ng-template #addMemberStep>
       <mat-card>
         <mat-card-header>
@@ -55,7 +54,7 @@
               <mat-hint>Enter a 10 digit phone number</mat-hint>
             </mat-form-field>
 
-            <div fxLayout="row" fxLayoutAlign="end end" fxLayoutGap="5px">
+            <div fxLayout="row" fxLayoutAlign="center" fxLayoutGap="5px">
               <br />
               <button mat-raised-button class="kaoc-btn-primary" (click)="addMember(0,1)">Next</button>
               <button mat-raised-button class="kaoc-btn-primary" (click)="addMember(0,2)">Skip Family &
@@ -104,7 +103,7 @@
                 </mat-select>
               </mat-form-field>
 
-              <div fxLayout="row" fxLayoutAlign="end end" fxLayoutGap="5px">
+              <div fxLayout="row" fxLayoutAlign="center" fxLayoutGap="5px">
                 <mat-error *ngIf="memberDetFormError"><b>{{this.errorMsg}}</b></mat-error>
                 <button mat-raised-button color="primary" (click)="setStepper(0)">
                   Back
@@ -137,8 +136,8 @@
                   &nbsp;
                   <span class="phone">{{element.phoneNumber}}</span>
                 </div>
-                <!--
 
+                <!--
                 <h4 mat-line>Email id: {{element.emailId}}</h4>
                 <p mat-line>First name: {{element.firstName}} </p>
                 <p mat-line>Last name: {{element.lastName}} </p>
@@ -190,15 +189,30 @@
                  ></textarea>
             </mat-form-field>
 
-            <div fxLayout="row" fxLayoutAlign="end end" fxLayoutGap="5px">
+            <div fxLayout="row" fxLayoutAlign="center" fxLayoutGap="5px">
+
               <mat-error><b>{{this.paymentErrorMsg}}</b></mat-error>
               <button mat-raised-button color="primary" (click)="setStepper(1)">
                 Back
               </button>
-              <button mat-raised-button class="kaoc-btn-primary" (click)="submitPayment()">
-                <mat-icon matTooltip="Pay KAOC">payment</mat-icon>{{paymentStepperBtnLabel}}
-              </button>
+              <!-- TODO: update this condition on when to disable submitPayment. Right now, hardcoded to paypal -->
+              <div *ngIf="this.paypalStatus === ''">
+                <button mat-raised-button class="kaoc-btn-primary" (click)="submitPayment()">
+                  <mat-icon matTooltip="Pay KAOC">payment</mat-icon>{{paymentStepperBtnLabel}}
+                </button>
+              </div>
             </div>
+            <div fxLayout="row" fxLayoutAlign="center" fxLayoutGap="5px">
+              <br>
+              <div *ngIf="getPaymentDocumentRefNo() !== null && this.paymentForm.value.paymentMethod === 'Paypal' && this.paypalStatus !== ''">
+                <h3>Proceed with payment...</h3>
+                <app-paypal (paypalStatusEvent)="paypalStatus=$event" kaocPaymentsDocId="{{this.getPaymentDocumentRefNo()}}" paymentAmount="{{this.membershipAmt}}" paymentDescription="KAOC Membership"></app-paypal>
+              </div>
+            </div>
+            <div *ngIf="this.paypalStatus === 'Paid' ? this.setStatusPaidAndDisableButton(): false">
+              <!-- Add a home button? -->
+            </div>
+
           </form>
         </mat-card-content>
       </mat-card>

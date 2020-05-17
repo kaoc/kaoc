@@ -19,6 +19,6 @@ export const environment = {
       appId               : 'sq0idp-rxLCkb-nVjOpavuyGGxqzg'
     },
     paypal: {
-
+      clientId : ''
     }
 };

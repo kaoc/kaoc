@@ -1,3 +1,4 @@
+import { PaypalPaymentComponent } from './../../../payment/paypal-payment/paypal-payment.component';
 import { Component, OnInit, ViewChild, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, ValidatorFn, AbstractControl, Validators, FormArray } from '@angular/forms';
 import { MemberService } from '../../member.service';
@@ -22,6 +23,8 @@ export interface DialogData {
 })
 export class MemberProfileComponent implements OnInit {
     @ViewChild('stepper', { static: false }) stepper: MatStepper;
+    paypalStatus = '';
+
     smallScreen: boolean;
     disablePayButton: boolean = false;
     errorMsg: string = '';
@@ -38,7 +41,7 @@ export class MemberProfileComponent implements OnInit {
     memberForm: FormGroup;
     memberDetForm: FormGroup;
     paymentForm: FormGroup;
-    paymentList: string[] = ['Cash', 'Check', 'Square'];
+    paymentList: string[] = ['Cash', 'Check', 'Square', 'Paypal'];
     membershipAmt: string = '0';
     familyUpdateIndex: number = -1;
     memberShip: Membership;
@@ -246,6 +249,9 @@ export class MemberProfileComponent implements OnInit {
         }
     }
 
+    ngAfterViewInit() {
+      console.log("MemberComponent - Inside ngAfterViewInit");
+    }
 
     addMember(index, stepperIndex) {
         console.log("addMember.index=" + index + ",stepperIndex=" + stepperIndex);
@@ -457,6 +463,8 @@ export class MemberProfileComponent implements OnInit {
                 && this.paymentForm.controls.paymentExternalSystemRef.value === '') {
                 this.paymentErrorMsg = 'Transaction Reference No mandatory for Check Payment';
                 return;
+            } else if (this.paymentForm.controls.paymentMethod.value === 'Paypal') {
+              this.paypalStatus = 'Pending';
             }
 
             console.log('this.data.members' + JSON.stringify(this.data.members));
@@ -464,7 +472,6 @@ export class MemberProfileComponent implements OnInit {
             console.log('paymentForm details' + JSON.stringify(this.paymentForm.value));
 
             await this.memberService.addMember(this.data.members, this.membershipTypeForm.value, this.paymentForm.value, this.memberStatus);
-            console.log('After submit Payment' + this.memberService.message);
 
             if (this.memberService.message) {
                 this.openDialog(this.memberService.message, this.memberService.kaocUserDocId);
@@ -558,6 +565,15 @@ export class MemberProfileComponent implements OnInit {
         dialogRef.afterClosed().subscribe(result => {
             console.log('The dialog was closed');
         });
+    }
+
+    getPaymentDocumentRefNo() {
+      return this.memberService.paymentDocumentRefNo;
+    }
+
+    setStatusPaidAndDisableButton() {
+      this.disablePayButton = true;
+      this.paymentStepperBtnLabel = "Update";
     }
 }
 
