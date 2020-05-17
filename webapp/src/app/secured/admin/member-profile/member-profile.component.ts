@@ -249,10 +249,6 @@ export class MemberProfileComponent implements OnInit {
         }
     }
 
-    ngAfterViewInit() {
-      console.log("MemberComponent - Inside ngAfterViewInit");
-    }
-
     addMember(index, stepperIndex) {
         console.log("addMember.index=" + index + ",stepperIndex=" + stepperIndex);
 
