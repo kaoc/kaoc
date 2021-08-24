@@ -32,3 +32,6 @@ table {
     width: 110px;
     text-align: left;
 }
+.mat-header-cell{
+  z-index: 1 !important;
+}

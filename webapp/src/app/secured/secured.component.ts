@@ -17,7 +17,7 @@ export class SecuredComponent implements OnInit {
                   if (authService.lastRequestedSecuredUrl) {
                       router.navigate([authService.lastRequestedSecuredUrl]);
                   } else {
-                      router.navigate(['/secured/profile']);
+                      router.navigate(['secured/profile']);
                   }
               } else {
                   router.navigate(['/secured/verify']);

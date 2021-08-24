@@ -15,7 +15,7 @@
               <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Search">
           </mat-form-field>
 
-          <table style="text-align: left;" mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>
+          <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 txtl" matSort>
 
               <ng-container matColumnDef="docId">
                   <th mat-header-cell *matHeaderCellDef mat-sort-header>Document Id</th>

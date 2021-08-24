@@ -24,6 +24,8 @@ import { DialogWinComponent } from './admin/dialog-win/dialog-win.component';
 import { ConfirmDelComponent } from './admin/member-profile/confirm-del.component';
 import { ProfileLinkStatusComponent } from './profile-link-status/profile-link-status.component';
 
+import {AppHeaderComponent} from '../_layout/app-header/app-header.component';
+import {AppFooterComponent} from '../_layout/app-footer/app-footer.component';
 
 
 
@@ -41,7 +43,9 @@ import { ProfileLinkStatusComponent } from './profile-link-status/profile-link-s
     DialogWinComponent,
     ConfirmDelComponent,
     ProfileLinkStatusComponent,
-    PaypalPaymentComponent
+    PaypalPaymentComponent,
+    AppHeaderComponent,
+    AppFooterComponent
   ],
   imports: [
     CommonModule,
@@ -56,7 +60,7 @@ import { ProfileLinkStatusComponent } from './profile-link-status/profile-link-s
     FlexLayoutModule
   ],
   exports: [
-    UserTableComponent ,DialogWinComponent ,ConfirmDelComponent
+    UserTableComponent, DialogWinComponent, ConfirmDelComponent, AppHeaderComponent, AppFooterComponent
   ],
   entryComponents: [  DialogWinComponent , ConfirmDelComponent],
 

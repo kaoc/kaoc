@@ -13,6 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
+            "aot": true,
             "outputPath": "dist/KAOC",
             "index": "src/index.html",
             "main": "src/main.ts",
@@ -35,9 +36,15 @@
             "styles": [
               "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
               "src/styles.css",
-              "./node_modules/font-awesome/css/font-awesome.css"
+              "./node_modules/font-awesome/css/font-awesome.css",
+              "src/app/css/animate.min.css",
+              "src/app/css/bootstrap.css"
             ],
-            "scripts": [],
+            "scripts": [
+              "src/app/js/jquery.min.js",
+              "src/app/js/jquery-3.4.1.min.js",
+              "src/app/js/bootstrap.min.js"
+            ],
             "es5BrowserSupport": true
           },
           "configurations": {
@@ -60,7 +67,7 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
+                  "maximumWarning": "3.12mb",
                   "maximumError": "5mb"
                 }
               ]

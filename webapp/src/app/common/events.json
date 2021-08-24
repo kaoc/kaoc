@@ -1,0 +1,31 @@
+[
+
+  {
+
+    "id": 1,
+
+    "name": "Music Night 2017",
+
+    "path": "/assets/images/banner01.jpg",
+
+    "date": "Jul 5 2017",
+
+    "time": "11 PM"
+
+  },
+
+  {
+
+    "id": 2,
+
+    "name": "Dance Night 2017",
+
+    "path": "/assets/images/banner02.jpg",
+
+    "date": "Jul 6 2017",
+
+    "time": "10 PM"
+
+  }
+
+]
