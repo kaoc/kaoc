@@ -85,7 +85,7 @@ export class SquarePaymentResultComponent implements OnInit {
       this.kaocPaymentsMetaInfo = transactionInfo[REQUEST_METADATA_STR];
 
       if (transactionInfo[STATUS_STR] === 'ok') {
-        this.kaocPaymentsDocId = this.kaocPaymentsMetaInfo.substring(this.kaocPaymentsMetaInfo.indexOf('#') + 1);
+        this.kaocPaymentsDocId = this.kaocPaymentsMetaInfo.substring(0, this.kaocPaymentsMetaInfo.indexOf('#'));
         this.squareServerPaymentRefId = transactionInfo[TRANSACTION_ID_STR];
       } else {
         console.log('ERROR: iOS Square error code: ' + transactionInfo[ERROR_CODE_STR]);
