@@ -1,4 +1,4 @@
-  
+
   .example-header-image {
     background-image: url('../../../../assets/images/Kaoc_Logo.gif');
     background-size: cover;
@@ -8,6 +8,7 @@
     text-align: left!important;
     margin-left: 100px;
     margin-right: 100px;
+    padding:80px;
   }
 
 
@@ -22,5 +23,5 @@
       text-align: left!important;
       margin-left: 5px !important;
       margin-right: 5px!important;
-    } 
+    }
   }

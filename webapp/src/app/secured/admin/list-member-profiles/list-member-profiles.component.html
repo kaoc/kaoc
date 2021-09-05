@@ -24,7 +24,7 @@
     </mat-card-header>
     <mat-card-content>
   <div class=" col-md-3 col-xs-12 members" *ngFor="let m of pageOfItems">
-    <a href="#" (click)="getMembershipDetails(m)">
+    <a [routerLink]="['/secured/admin/memberprofile', m.docId]">>
       <div class="memberlist">
         <div class="profile_txt">M</div>
         <h4>{{m.firstName}} {{m.lastName}} </h4>
