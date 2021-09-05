@@ -1,2 +1,47 @@
-<app-user-table [users]="members" [enableFilter]="true">
-</app-user-table>
+<ngx-spinner bdColor="rgba(51,51,51,0.8)" size="medium" color="#fff" type="ball-scale-multiple">
+  <p style="font-size: 20px; color: white">Processing Request</p>
+</ngx-spinner>
+<div class="">
+  <div class="contentheading">
+    <h4>Member(s)</h4>
+    <form>
+      <div class="input-group membersearch">
+<!--        <input type="text" class="form-control" placeholder="Search">-->
+        <div class="input-group-btn ">
+<!--          <button class="btn btn-default search" type="submit">-->
+<!--            <i class="glyphicon glyphicon-search"></i>-->
+<!--          </button>-->
+          <mat-form-field>
+            <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Search">
+          </mat-form-field>
+        </div>
+      </div>
+    </form>
+  </div>
+  <mat-card class="example-card">
+    <mat-card-header>
+      <mat-card-title>Member(s)</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+  <div class=" col-md-3 col-xs-12 members" *ngFor="let m of pageOfItems">
+    <a href="#" (click)="getMembershipDetails(m)">
+      <div class="memberlist">
+        <div class="profile_txt">M</div>
+        <h4>{{m.firstName}} {{m.lastName}} </h4>
+        <p>{{m.emailId != null ? m.emailId :"."}}</p>
+        <p>{{m.phoneNumber != null ? m.phoneNumber : "N/A"}} </p>
+        <span>Edit</span>
+      </div>
+    </a>
+  </div>
+      <div class="clearfix"></div>
+<!--  <mat-paginator [pageSizeOptions]="[5, 10, 20, 50, 100]" showFirstLastButtons></mat-paginator>-->
+      <jw-pagination [items]="members" (changePage)="onChangePage($event)" style="float: right"></jw-pagination>
+      <div class="clearfix"></div>
+  </mat-card-content>
+  </mat-card>
+
+
+  <div class="clearfix"></div>
+
+</div>

@@ -35,6 +35,7 @@
     "font-awesome": "~4.7.0",
     "hammerjs": "~2.0.8",
     "jquery": "^3.6.0",
+    "jw-angular-pagination": "^1.2.0",
     "ngx-auth-firebaseui": "^3.5.0",
     "ngx-spinner": "^8.1.0",
     "path": "^0.12.7",

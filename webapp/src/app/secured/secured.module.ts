@@ -27,6 +27,7 @@ import { ProfileLinkStatusComponent } from './profile-link-status/profile-link-s
 import {AppHeaderComponent} from '../_layout/app-header/app-header.component';
 import {AppFooterComponent} from '../_layout/app-footer/app-footer.component';
 
+import {JwPaginationModule} from 'jw-angular-pagination';
 
 
 @NgModule({
@@ -57,7 +58,8 @@ import {AppFooterComponent} from '../_layout/app-footer/app-footer.component';
     MatIconModule,
     NgxSpinnerModule,
     MaterialModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    JwPaginationModule
   ],
   exports: [
     UserTableComponent, DialogWinComponent, ConfirmDelComponent, AppHeaderComponent, AppFooterComponent
