@@ -127,7 +127,7 @@
 
                         <!--                        <mat-form-field class="form-full-width">-->
                         <br>
-                        <label>Age group</label>
+                        <label>Age group</label><br>
                         <select formControlName="ageGroup" class="col-md-12 col-lg-12 form-control">
                           <option value="Adult" selected>Adult</option>
                           <option value="Child">Child</option>
@@ -276,7 +276,7 @@
                     <ng-container *ngTemplateOutlet="addMemberStep"></ng-container>
                   </mat-step>
                   <mat-step [stepControl]="memberDetForm" optional>
-                    <ng-template matStepLabel><p (click)="addMember(0,2)">Family Details</p></ng-template>
+                    <ng-template matStepLabel><p class="pd" (click)="addMember(0,2)">Family Details</p></ng-template>
                     <br/>
                     <ng-container *ngTemplateOutlet="addMemberFamilyStep"></ng-container>
                   </mat-step>

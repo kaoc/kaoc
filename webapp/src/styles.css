@@ -534,6 +534,7 @@ div.logo a {
   border-top: solid 2px #d2d3e8;
   padding: 10px 50px;
   overflow: hidden;
+  text-align: center;
 }
 
 .footertxt {
@@ -1209,8 +1210,9 @@ div.logo img {
   background-color: #333;
 }
 .signup-step-container{
-  padding: 40px 0px;
-  padding-bottom: 60px;
+  /*padding: 40px 0px;*/
+  /*padding-bottom: 60px;*/
+  width:100%;
 }
 
 

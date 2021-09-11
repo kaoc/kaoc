@@ -3,14 +3,15 @@
     text-align: left!important;
   }
 
-  h2, h3, h4 {
-    text-align: center!important; 
-  }
+  /*h2, h3, h4 {*/
+  /*  text-align: center!important; */
+  /*}*/
 
   .bylawdiv {
     text-align: left!important;
     margin-left: 100px;
     margin-right: 100px;
+    padding: 80px;
   }
 
 
@@ -20,6 +21,6 @@
       text-align: left!important;
       margin-left: 5px;
       margin-right: 5px;
-    } 
-  
+    }
+
   }
