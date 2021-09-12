@@ -1,6 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import * as $ from 'jquery';
 import eventsData from '../events.json';
+import {AuthService} from '../../secured/auth/auth.service';
+import {Router} from '@angular/router';
 
 interface Event {
 
@@ -24,8 +26,13 @@ interface Event {
 })
 export class HomeComponent implements OnInit {
   events: Event[] = eventsData;
-
-  constructor() {
+  loggedIn = false;
+  constructor(private authService: AuthService, private router: Router) {
+    authService.firebaseUser.subscribe(firebaseUser => {
+      if (typeof firebaseUser !== 'undefined') {
+        this.loggedIn = (firebaseUser != null);
+      }
+    });
   }
 
   ngOnInit() {

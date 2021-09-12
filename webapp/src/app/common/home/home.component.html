@@ -23,8 +23,8 @@
               Fresh ideas with traditional values
             </h2>
 
-
-            <a routerLink="/secured/login" class="ordernow_new visible-lg visible-md">login</a>
+            <div *ngIf="loggedIn===false">
+            <a routerLink="/secured/login" class="ordernow_new visible-lg visible-md">login</a></div>
           </div>
         </div>
       </div>
