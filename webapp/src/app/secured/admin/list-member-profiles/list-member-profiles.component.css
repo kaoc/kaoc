@@ -37,3 +37,13 @@
    background-color: #4299ce;
    color: white;
  }
+.sortBtn{
+  background-color: white;
+  border: 1px solid #ddd;
+}
+ .sortBtn:hover,.sortBtn:focus {
+   z-index: 2;
+   color: #ffffff;
+   background-color: #337ab7;
+   border-color: #ddd;
+ }
