@@ -6,11 +6,7 @@
     <h4>Member(s)</h4>
     <form>
       <div class="input-group membersearch">
-<!--        <input type="text" class="form-control" placeholder="Search">-->
         <div class="input-group-btn ">
-<!--          <button class="btn btn-default search" type="submit">-->
-<!--            <i class="glyphicon glyphicon-search"></i>-->
-<!--          </button>-->
           <mat-form-field>
             <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Search">
           </mat-form-field>
@@ -19,26 +15,27 @@
     </form>
   </div>
   <mat-card class="example-card">
-<!--    <mat-card-header>-->
-<!--      <mat-card-title>Member(s)</mat-card-title>-->
-<!--    </mat-card-header>-->
     <mat-card-content>
-  <div class=" col-md-3 col-xs-12 members" *ngFor="let m of pageOfItems">
-    <a [routerLink]="['/secured/admin/memberprofile', m.docId]">
-      <div class="memberlist">
-        <div class="profile_txt">{{m.firstName.toString().substr(0,1).toUpperCase()}}</div>
-        <h4>{{m.firstName}} {{m.lastName}} </h4>
-        <p>{{m.emailId != null ? m.emailId :"."}}</p>
-        <p>{{m.phoneNumber != null ? m.phoneNumber : "N/A"}} </p>
-        <span>Edit</span>
+      <div class=" col-md-3 col-xs-12 members" *ngFor="let m of pageOfItems">
+        <a [routerLink]="['/secured/admin/memberprofile', m.docId]">
+          <div class="memberlist">
+            <div class="profile_txt">{{m.firstName.toString().substr(0, 1).toUpperCase()}}</div>
+            <h4>{{m.firstName}} {{m.lastName}} </h4>
+            <p>{{m.emailId != null ? m.emailId : "."}}</p>
+            <p>{{m.phoneNumber != null ? m.phoneNumber : "N/A"}} </p>
+            <span>Edit</span>
+          </div>
+        </a>
       </div>
-    </a>
-  </div>
       <div class="clearfix"></div>
-<!--  <mat-paginator [pageSizeOptions]="[5, 10, 20, 50, 100]" showFirstLastButtons></mat-paginator>-->
+      <!--  <mat-paginator [pageSizeOptions]="[5, 10, 20, 50, 100]" showFirstLastButtons></mat-paginator>-->
+      <button class="btnn" (click)="sort()">FirstName
+        <span *ngIf="isAsc" class="material-icons">arrow_upward</span>
+        <span *ngIf="!isAsc" class="material-icons">arrow_downward</span>
+      </button>
       <jw-pagination [items]="members" (changePage)="onChangePage($event)" style="float: right"></jw-pagination>
       <div class="clearfix"></div>
-  </mat-card-content>
+    </mat-card-content>
   </mat-card>
 
 
