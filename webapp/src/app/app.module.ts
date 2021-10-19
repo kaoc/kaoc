@@ -31,6 +31,7 @@ import * as $ from 'jquery';
 import {AppLayoutComponent} from './_layout/app-layout/app-layout.component';
 import {SiteHeaderComponent} from './_layout/site-header/site-header.component';
 import {SiteFooterComponent} from './_layout/site-footer/site-footer.component';
+import { HeaderText } from './utility/HeaderText';
 
 export function getAppName() {
   return 'KAOC';
@@ -85,7 +86,7 @@ export function getAppName() {
   }, {
     provide: FUNCTIONS_ORIGIN,
     useValue: environment.firebase.functionURL
-  }],
+  }, HeaderText],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

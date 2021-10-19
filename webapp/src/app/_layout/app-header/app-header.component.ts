@@ -2,20 +2,22 @@ import { Component, OnInit } from '@angular/core';
 import {LinkMenuItem} from 'ngx-auth-firebaseui';
 import {AuthService} from '../../secured/auth/auth.service';
 import {Router} from '@angular/router';
+import { HeaderText, IHeaderText } from 'src/app/utility/HeaderText';
 
 @Component({
   selector: 'app-header',
   templateUrl: './app-header.component.html',
-  styleUrls: ['./app-header.component.css']
+  styleUrls: ['./app-header.component.scss']
 })
 export class AppHeaderComponent implements OnInit {
 
   loggedIn = false;
   isAdmin = false;
   fullName: string = null;
-  links :LinkMenuItem[];
+  links: LinkMenuItem[];
+  titleInfo: IHeaderText;
 
-  constructor(private authService: AuthService, private router: Router) {
+  constructor(private authService: AuthService, private router: Router, private headerText: HeaderText) {
     this.links = [
       {icon: 'perm_identity', text: 'KAOC Profile', callback: this.navigateToKaocProfile}
     ];
@@ -49,6 +51,9 @@ export class AppHeaderComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.headerText.getHeaderText().then((message: IHeaderText) => {
+      this.titleInfo = message;
+    });
     // $(window).on('scroll', () => {
     //   if ($(window).scrollTop()) {
     //     $('nav').addClass('black');

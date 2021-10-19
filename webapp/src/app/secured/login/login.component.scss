@@ -1,0 +1,12 @@
+.app-login {
+    & > div {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    ngx-auth-firebaseui-providers {
+        & > div > & div {
+            flex-direction: row !important;
+        }
+    }
+}

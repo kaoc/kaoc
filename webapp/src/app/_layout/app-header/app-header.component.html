@@ -1,230 +1,148 @@
-<div class="header head">
-  <div class="menu">
-    <div class="clearfix"></div>
-    <div style="width: 100%; height: 100%;" class="black">
-      <mat-sidenav-container fxFlexFill>
-        <!--Main Contents -->
-        <mat-sidenav-content fxFlexFill style="overflow: hidden">
-          <div fxLayout="column" fxFlexFill>
-            <mat-toolbar
-              class="kaoc-primary-color"
-              fxLayoutAlign="space-between center"
-              fxLayout="row"
-              fxLayoutGap="20px">
-              <mat-toolbar-row>
-                <button mat-icon-button (click)="sidenav.toggle()">
-                  <mat-icon>menu</mat-icon>
-                </button>
-                <!--                <img src="../../../assets/images/Kaoc_Logo.gif" class="img" routerLink="/" />-->
-                <a mat-button routerLink="/">
-                  <div class="logo">
-                    <a href="#"><img src="/assets/images/logo.png"  alt="" routerLink="/"/></a>
-                  </div>
-                </a>
-                <!--                <a mat-button routerLink="/">-->
-                <!--                  <span fxHide="true" fxShow.gt-sm class="branding">Kerala Association of Colorado</span>-->
-                <!--                  <span fxShow="true" fxHide.gt-sm class="branding">K.A.O.C</span>-->
-                <!--                </a>-->
-                <div class="navigation">
-
-                  <nav class="vg-nav vg-nav-lg vg-nav-hover black">
-                    <ul class="vg-nav-main-container">
-                      <li class="active hidden-xs"><a routerLink="/">
-                        <i class=""><img src="/assets/images/ico_home.png" width="21" height="20" alt=""/></i><br>
-
-                        Home </a></li>
-                      <li  class="hidden-xs"><a routerLink="/kaochistory">
-                        <i class=""><img src="/assets/images/ico_about.png" width="21" height="20" alt=""/></i><br>
-                        About Us</a></li>
-                      <li class="hidden-xs"><a href="">
-                        <i class=""><img src="/assets/images/ico_event.png" width="21" height="20" alt=""/></i><br>
-                        Events </a></li>
-
-                      <li class="hidden-xs"><a href="">
-                        <i class=""><img src="/assets/images/ico_sponors.png" width="21" height="20" alt=""/></i><br>
-                        Sponsors  </a></li>
-
-                      <li class="hidden-xs"><a href="">
-                        <i class=""><img src="/assets/images/ico_magazine.png" width="21" height="20" alt=""/></i><br>
-                        Magazine </a></li>
-
-                      <li class="hidden-xs">
-                        <a href="">
-                          <i class=""><img src="/assets/images/ico_contact.png" width="21" height="20" alt=""/></i><br>
-                          Contact Us </a></li>
-                      <!--                  <li>{{loggedIn}}</li>-->
-                      <!--                  <li  *ngIf="!loggedIn" class="login" (click)="navigateToLoginPage()"><span> <i class=""><img src="/assets/images/ico_login.png" width="16" height="17" alt=""/></i>Login </span></li>-->
-                      <!--                  <li>-->
-                      <!--                    <div class="avatar-container-side-menu" fxLayout="column" fxFlexAlign="center center">-->
-                      <!--                      <ngx-auth-firebaseui-avatar-->
-                      <!--                        *ngIf="loggedIn"-->
-                      <!--                        [links]=""-->
-                      <!--                      >-->
-                      <!--                        &lt;!&ndash;                (onMenuOpen)="sidenav.toggle()"&ndash;&gt;-->
-                      <!--                      </ngx-auth-firebaseui-avatar>-->
-                      <!--                      <div-->
-                      <!--                        *ngIf="loggedIn"-->
-                      <!--                        class="display-name">-->
-                      <!--                        {{fullName}}-->
-                      <!--                      </div>-->
-                      <!--                      <div *ngIf="!loggedIn">-->
-                      <!--                        <button-->
-                      <!--                          mat-icon-button-->
-                      <!--                          (click)="sidenav.toggle() && navigateToLoginPage()">-->
-                      <!--                          <mat-icon>account_circle</mat-icon>-->
-                      <!--                        </button>-->
-                      <!--                      </div>-->
-                      <!--                    </div>-->
-                      <!--                  </li>-->
-                    </ul>
-                  </nav>
+<div class="nav-bar">
+  <div class="nav-bar_menu">
+    <mat-sidenav-container fxFlexFill>
+      <!--Main Contents -->
+      <mat-sidenav-content fxFlexFill style="overflow: hidden">
+        <div fxLayout="column" fxFlexFill>
+          <mat-toolbar class="kaoc-primary-color" fxLayoutAlign="space-between center" fxLayout="row"
+            fxLayoutGap="20px">
+            <mat-toolbar-row>
+              <button mat-icon-button (click)="sidenav.toggle()">
+                <mat-icon>menu</mat-icon>
+              </button>
+              <a mat-button routerLink="/">
+                <div class="logo">
+                  <a href="#"><img src="/assets/images/logo.png" alt="" routerLink="/" /></a>
                 </div>
-                <span class="example-spacer"></span>
-              </mat-toolbar-row>
-            </mat-toolbar>
-            <!--            <div fxFlex="1 1 auto">-->
-            <!--              <router-outlet></router-outlet>-->
-            <!--            </div>-->
-            <!--            <footer></footer>-->
+              </a>
+              <nav class="navigation">
+                <ul class="">
+                  <li class="active hidden-xs">
+                    <a routerLink="/" class="link">
+                      <i class=""><img src="/assets/images/ico_home.png" width="21" height="20" alt="" /></i>
+                      Home
+                    </a>
+                  </li>
+                  <li class="hidden-xs">
+                    <a routerLink="/kaochistory" class="link">
+                      <i class=""><img src="/assets/images/ico_about.png" width="21" height="20" alt="" /></i>
+                      About Us
+                    </a>
+                  </li>
+                  <li class="hidden-xs">
+                    <a routerLink="/" class="link">
+                      <i class=""><img src="/assets/images/ico_event.png" width="21" height="20" alt="" /></i>
+                      Events
+                    </a>
+                  </li>
+                  <li class="hidden-xs" >
+                    <a routerLink="/" class="link">
+                      <i class=""><img src="/assets/images/ico_sponors.png" width="21" height="20" alt="" /></i>
+                      Sponsors
+                    </a>
+                  </li>
+                  <li class="hidden-xs">
+                    <a routerLink="/" class="link">
+                      <i class=""><img src="/assets/images/ico_magazine.png" width="21" height="20" alt="" /></i>
+                      Magazine
+                    </a>
+                  </li>
+                  <li class="hidden-xs">
+                    <a routerLink="/" class="link">
+                      <i class=""><img src="/assets/images/ico_contact.png" width="21" height="20" alt="" /></i>
+                      Contact Us
+                    </a>
+                  </li>
+                  <li class="hidden-xs">
+                    <a (click)="navigateToLoginPage()" class="app-button">
+                      <i class=""><img src="/assets/images/ico_login.png" width="15" height="18" alt="" /></i>
+                      Login
+                    </a>
+                  </li>
+                </ul>
+              </nav>
+            </mat-toolbar-row>
+          </mat-toolbar>
+        </div>
+      </mat-sidenav-content>
+    </mat-sidenav-container>
+    <!--Side NavBar-->
+    <mat-sidenav #sidenav>
+      <div fxLayout="column">
+
+        <div class="avatar-container-side-menu" fxLayout="column" fxFlexAlign="center center"
+          style="align-items: center">
+          <div class="txtr" style="width:100%;"><button class="bu_close" (click)="sidenav.close()">
+              <mat-icon>close</mat-icon>
+            </button></div>
+          <ngx-auth-firebaseui-avatar *ngIf="loggedIn" [links]="">
+
+            <!--                (onMenuOpen)="sidenav.toggle()-->
+          </ngx-auth-firebaseui-avatar>
+          <div *ngIf="loggedIn" class="display-name">
+            {{fullName}}
           </div>
-        </mat-sidenav-content>
-
-        <!--Side NavBar-->
-        <mat-sidenav #sidenav>
-          <div fxLayout="column">
-
-            <div class="avatar-container-side-menu" fxLayout="column" fxFlexAlign="center center"  style="align-items: center">
-              <div class="txtr" style="width:100%;"><button class="bu_close" (click)="sidenav.close()">
-                <mat-icon>close</mat-icon>
-              </button></div>
-              <ngx-auth-firebaseui-avatar
-                *ngIf="loggedIn"
-                [links]="">
-
-                <!--                (onMenuOpen)="sidenav.toggle()-->
-              </ngx-auth-firebaseui-avatar>
-              <div
-                *ngIf="loggedIn"
-                class="display-name">
-                {{fullName}}
-              </div>
-              <div *ngIf="!loggedIn">
-                <button
-                  mat-icon-button
-                  (click)="sidenav.toggle() && navigateToLoginPage()">
-                  <mat-icon>account_circle</mat-icon>
-                </button>
-              </div>
-            </div>
-            <button mat-menu-item routerLink="/" (click)="sidenav.close()">
-              <mat-icon>home</mat-icon> Home
-            </button>
-            <mat-divider></mat-divider>
-
-            <button  *ngIf="loggedIn===true" mat-menu-item routerLink="/secured/profile" (click)="sidenav.close()">
-              <mat-icon>account_circle</mat-icon> Profile
-            </button>
-            <mat-divider></mat-divider>
-            <!--<h4 *ngIf="isAdmin===true" class="section-label">Admin</h4>-->
-            <button *ngIf="isAdmin===true" mat-menu-item routerLink="/secured/admin/memberprofile" (click)="sidenav.close()">
-              <mat-icon>add_circle_outline</mat-icon> Add Member
-            </button>
-            <button *ngIf="isAdmin===true" mat-menu-item routerLink="/secured/admin/listmembers" (click)="sidenav.close()">
-              <mat-icon>search</mat-icon> View/Edit Member
-            </button>
-            <mat-divider></mat-divider>
-            <button  mat-menu-item routerLink="/kaochistory" (click)="sidenav.close()">
-              <mat-icon>history</mat-icon>KAOC History
-            </button>
-            <button  mat-menu-item routerLink="/kaocbylaw" (click)="sidenav.close()">
-              <mat-icon>policy</mat-icon>Bylaws
-            </button>
-            <mat-divider></mat-divider>
-            <button  mat-menu-item routerLink="/kaochistory" (click)="sidenav.close()" class="hidden-lg hidden-md">
-              <i class=""><img class="mr-r-13" src="/assets/images/ico_about_black.png" width="21" height="20" alt=""/></i>
-              About Us
-            </button>
-            <button  mat-menu-item routerLink="" (click)="sidenav.close()" class="hidden-lg hidden-md">
-              <i class=""><img class="mr-r-13" src="/assets/images/ico_event_black.png" width="21" height="20" alt=""/></i>
-              Events
-            </button>
-            <button  mat-menu-item routerLink="" (click)="sidenav.close()" class="hidden-lg hidden-md">
-              <i class=""><img class="mr-r-13" src="/assets/images/ico_sponors_black.png" width="21" height="20" alt=""/></i>Sponsors
-            </button>
-            <button  mat-menu-item routerLink="" (click)="sidenav.close()" class="hidden-lg hidden-md">
-              <i class=""><img class="mr-r-13" src="/assets/images/ico_magazine_black.png" width="21" height="20" alt=""/></i>Magazine
-            </button>
-            <button  mat-menu-item routerLink="" (click)="sidenav.close()" class="hidden-lg hidden-md">
-              <i class=""><img class="mr-r-13" src="/assets/images/ico_contact_black.png" width="21" height="20" alt=""/></i>Contact Us
+          <div *ngIf="!loggedIn">
+            <button mat-icon-button (click)="sidenav.toggle() && navigateToLoginPage()">
+              <mat-icon>account_circle</mat-icon>
             </button>
           </div>
-        </mat-sidenav>
+        </div>
+        <button mat-menu-item routerLink="/" (click)="sidenav.close()">
+          <mat-icon>home</mat-icon> Home
+        </button>
+        <mat-divider></mat-divider>
 
-      </mat-sidenav-container>
-    </div>
-
-    <!--    <div class="navigation">-->
-
-    <!--      <nav class="vg-nav vg-nav-lg vg-nav-hover black">-->
-
-    <!--        <div class="logo">-->
-    <!--          <a href="#"><img src="/assets/images/logo.png"  alt="Revivecs"/></a>-->
-    <!--        </div>-->
-
-    <!--        <ul>-->
-    <!--          <li class="active"><a href="index.html">-->
-    <!--            <i class=""><img src="/assets/images/ico_home.png" width="21" height="20" alt=""/></i><br>-->
-
-    <!--            Home </a></li>-->
-    <!--          <li><a href="about_us.html">-->
-    <!--            <i class=""><img src="/assets/images/ico_about.png" width="21" height="20" alt=""/></i><br>-->
-    <!--            About Us</a></li>-->
-    <!--          <li class=""><a href="/assets/events.html">-->
-    <!--            <i class=""><img src="/assets/images/ico_event.png" width="21" height="20" alt=""/></i><br>-->
-    <!--            Events </a></li>-->
-
-    <!--          <li class=""><a href="/assets/sponsors.html">-->
-    <!--            <i class=""><img src="/assets/images/ico_sponors.png" width="21" height="20" alt=""/></i><br>-->
-    <!--            Sponsors  </a></li>-->
-
-    <!--          <li class=""><a href="/assets/magazine.html">-->
-    <!--            <i class=""><img src="/assets/images/ico_magazine.png" width="21" height="20" alt=""/></i><br>-->
-    <!--            Magazine </a></li>-->
-
-    <!--          <li class="">-->
-
-    <!--            <a href="/assets/contact.html">-->
-    <!--              <i class=""><img src="/assets/images/ico_contact.png" width="21" height="20" alt=""/></i><br>-->
-    <!--              Contact Us </a></li>-->
-    <!--          <li>{{loggedIn}}</li>-->
-    <!--          <li  *ngIf="!loggedIn" class="login" (click)="navigateToLoginPage()"><span> <i class=""><img src="/assets/images/ico_login.png" width="16" height="17" alt=""/></i>Login </span></li>-->
-    <!--          <li>-->
-    <!--            <div class="avatar-container-side-menu" fxLayout="column" fxFlexAlign="center center">-->
-    <!--              <ngx-auth-firebaseui-avatar-->
-    <!--                *ngIf="loggedIn"-->
-    <!--                [links]=""-->
-    <!--                >-->
-    <!--&lt;!&ndash;                (onMenuOpen)="sidenav.toggle()"&ndash;&gt;-->
-    <!--              </ngx-auth-firebaseui-avatar>-->
-    <!--              <div-->
-    <!--                *ngIf="loggedIn"-->
-    <!--                class="display-name">-->
-    <!--                {{fullName}}-->
-    <!--              </div>-->
-    <!--              <div *ngIf="!loggedIn">-->
-    <!--                <button-->
-    <!--                  mat-icon-button-->
-    <!--                  (click)="sidenav.toggle() && navigateToLoginPage()">-->
-    <!--                  <mat-icon>account_circle</mat-icon>-->
-    <!--                </button>-->
-    <!--              </div>-->
-    <!--            </div>-->
-    <!--          </li>-->
-    <!--        </ul>-->
-
-    <!--      </nav>-->
-    <!--    </div>-->
-
+        <button *ngIf="loggedIn===true" mat-menu-item routerLink="/secured/profile" (click)="sidenav.close()">
+          <mat-icon>account_circle</mat-icon> Profile
+        </button>
+        <mat-divider></mat-divider>
+        <!--<h4 *ngIf="isAdmin===true" class="section-label">Admin</h4>-->
+        <button *ngIf="isAdmin===true" mat-menu-item routerLink="/secured/admin/memberprofile"
+          (click)="sidenav.close()">
+          <mat-icon>add_circle_outline</mat-icon> Add Member
+        </button>
+        <button *ngIf="isAdmin===true" mat-menu-item routerLink="/secured/admin/listmembers"
+          (click)="sidenav.close()">
+          <mat-icon>search</mat-icon> View/Edit Member
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item routerLink="/kaochistory" (click)="sidenav.close()">
+          <mat-icon>history</mat-icon>KAOC History
+        </button>
+        <button mat-menu-item routerLink="/kaocbylaw" (click)="sidenav.close()">
+          <mat-icon>policy</mat-icon>Bylaws
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item routerLink="/kaochistory" (click)="sidenav.close()" class="hidden-lg hidden-md">
+          <i class=""><img class="mr-r-13" src="/assets/images/ico_about_black.png" width="21" height="20"
+              alt="" /></i>
+          About Us
+        </button>
+        <button mat-menu-item routerLink="" (click)="sidenav.close()" class="hidden-lg hidden-md">
+          <i class=""><img class="mr-r-13" src="/assets/images/ico_event_black.png" width="21" height="20"
+              alt="" /></i>
+          Events
+        </button>
+        <button mat-menu-item routerLink="" (click)="sidenav.close()" class="hidden-lg hidden-md">
+          <i class=""><img class="mr-r-13" src="/assets/images/ico_sponors_black.png" width="21" height="20"
+              alt="" /></i>Sponsors
+        </button>
+        <button mat-menu-item routerLink="" (click)="sidenav.close()" class="hidden-lg hidden-md">
+          <i class=""><img class="mr-r-13" src="/assets/images/ico_magazine_black.png" width="21" height="20"
+              alt="" /></i>Magazine
+        </button>
+        <button mat-menu-item routerLink="" (click)="sidenav.close()" class="hidden-lg hidden-md">
+          <i class=""><img class="mr-r-13" src="/assets/images/ico_contact_black.png" width="21" height="20"
+              alt="" /></i>Contact Us
+        </button>
+      </div>
+    </mat-sidenav>
   </div>
 </div>
-
+<div class="page-title" *ngIf="titleInfo?.title !== undefined">
+  <div>
+    <h2>{{titleInfo?.title}}</h2>
+    <p>{{titleInfo?.subTitle}}</p>
+  </div>
+</div>

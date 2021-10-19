@@ -1,0 +1,29 @@
+@import './variables';
+
+.app-button {
+
+    font-size: 14px;
+    line-height: 1.2;
+    text-decoration: none;
+    font-weight: normal;
+
+    text-align: center;
+    text-transform: uppercase;
+    transition: 0.5s;
+    background-size: 200% auto;
+    color: $white;
+    padding: 7px 17px;
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+    cursor: pointer;
+    border-radius: 25px;
+
+    background-image: linear-gradient(to right, #45ab1c 0%, #3f8714 100%)
+}
+
+.card {
+    background-color: $white;
+    margin: 30% 10% 50px;
+    border-radius: 10px;
+    border: 1px solid $gray;
+    position: relative;
+}

@@ -5,6 +5,7 @@ import {AuthProvider} from 'ngx-auth-firebaseui';
 import { FormGroup, AbstractControl, Validators, FormControl } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
 import { Router } from '@angular/router';
+import { HeaderText, IHeaderText } from 'src/app/utility/HeaderText';
 
 export const EMAIL_REGEX = new RegExp(['^(([^<>()[\\]\\\.,;:\\s@\"]+(\\.[^<>()\\[\\]\\\.,;:\\s@\"]+)*)',
   '|(".+"))@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.',
@@ -14,7 +15,7 @@ export const EMAIL_REGEX = new RegExp(['^(([^<>()[\\]\\\.,;:\\s@\"]+(\\.[^<>()\\
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit {
   providers = AuthProvider;
@@ -31,8 +32,13 @@ export class LoginComponent implements OnInit {
   constructor(
     private fireAuth: AngularFireAuth,
     private snackBar: MatSnackBar,
-    private router: Router) {
+    private router: Router,
+    private headerText: HeaderText) {
     this.supportedProviders = [AuthProvider.Google, AuthProvider.Facebook, AuthProvider.EmailAndPassword];
+
+    this.headerText.setHeaderText({
+      title: 'Login'
+    } as IHeaderText);
   }
   ngOnInit() {
     this._initResetPasswordFormGroupBuilder();

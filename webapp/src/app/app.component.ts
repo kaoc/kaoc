@@ -1,6 +1,7 @@
 import {Component} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import { Router, NavigationStart } from '@angular/router';
 import {MatSnackBar} from '@angular/material';
+import { HeaderText, IHeaderText } from './utility/HeaderText';
 
 @Component({
   selector: 'app-root',
@@ -10,7 +11,7 @@ import {MatSnackBar} from '@angular/material';
 export class AppComponent {
   title = 'KAOC';
 
-  constructor(private activatedRoute: ActivatedRoute, private snackBar: MatSnackBar) {
+  constructor(private router: Router, private snackBar: MatSnackBar, private headerText: HeaderText) {
 
     const search = document.location.search;
     let message = null;
@@ -32,5 +33,10 @@ export class AppComponent {
         duration: 5000
       });
     }
+    router.events.subscribe(event => {
+      if (event instanceof NavigationStart) {
+        headerText.setHeaderText({} as IHeaderText);
+      }
+    });
   }
 }

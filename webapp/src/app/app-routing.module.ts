@@ -1,3 +1,4 @@
+import { KOAC_BYLAW, KOAC_HISTORY, KOAC_MEMBER_PROFILE, KOAC_PAYMENT } from './URLConstants';
 import {NgModule} from '@angular/core';
 import {Routes, RouterModule} from '@angular/router';
 import {KaocHistoryComponent} from './static/about/kaoc-history/kaoc-history.component';
@@ -17,10 +18,10 @@ const routes: Routes = [
     path: '',
     component: AppLayoutComponent,
     children: [
-      {path: 'kaochistory', component: KaocHistoryComponent},
-      {path: 'kaocbylaw', component: KaocByeLawComponent},
-      {path: 'squareprocesspaymentresult', component: SquarePaymentResultComponent},
-      {path: 'memberprofile', component: MemberProfileComponent}
+      {path: KOAC_HISTORY, component: KaocHistoryComponent},
+      {path: KOAC_BYLAW, component: KaocByeLawComponent},
+      {path: KOAC_PAYMENT, component: SquarePaymentResultComponent},
+      {path: KOAC_MEMBER_PROFILE, component: MemberProfileComponent}
     ]
   }
 ];
