@@ -38,12 +38,30 @@
    color: white;
  }
 .sortBtn{
-  background-color: white;
-  border: 1px solid #ddd;
+  border: 1px solid #CCC;
+  border-radius: 25px;
+  height: 30px;
+  margin-top: 15px;
+
+  & > span {
+    font-size: 14px;
+  }
 }
  .sortBtn:hover,.sortBtn:focus {
    z-index: 2;
    color: #ffffff;
    background-color: #337ab7;
-   border-color: #ddd;
+   border-color: #CCC;
+ }
+
+
+ .member-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  &_heading {
+    display: flex;
+    justify-content: space-between;
+  }
  }

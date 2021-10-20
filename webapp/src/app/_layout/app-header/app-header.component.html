@@ -66,80 +66,80 @@
         </div>
       </mat-sidenav-content>
     </mat-sidenav-container>
-    <!--Side NavBar-->
-    <mat-sidenav #sidenav>
-      <div fxLayout="column">
-
-        <div class="avatar-container-side-menu" fxLayout="column" fxFlexAlign="center center"
-          style="align-items: center">
-          <div class="txtr" style="width:100%;"><button class="bu_close" (click)="sidenav.close()">
-              <mat-icon>close</mat-icon>
-            </button></div>
-          <ngx-auth-firebaseui-avatar *ngIf="loggedIn" [links]="">
-
-            <!--                (onMenuOpen)="sidenav.toggle()-->
-          </ngx-auth-firebaseui-avatar>
-          <div *ngIf="loggedIn" class="display-name">
-            {{fullName}}
-          </div>
-          <div *ngIf="!loggedIn">
-            <button mat-icon-button (click)="sidenav.toggle() && navigateToLoginPage()">
-              <mat-icon>account_circle</mat-icon>
-            </button>
-          </div>
-        </div>
-        <button mat-menu-item routerLink="/" (click)="sidenav.close()">
-          <mat-icon>home</mat-icon> Home
-        </button>
-        <mat-divider></mat-divider>
-
-        <button *ngIf="loggedIn===true" mat-menu-item routerLink="/secured/profile" (click)="sidenav.close()">
-          <mat-icon>account_circle</mat-icon> Profile
-        </button>
-        <mat-divider></mat-divider>
-        <!--<h4 *ngIf="isAdmin===true" class="section-label">Admin</h4>-->
-        <button *ngIf="isAdmin===true" mat-menu-item routerLink="/secured/admin/memberprofile"
-          (click)="sidenav.close()">
-          <mat-icon>add_circle_outline</mat-icon> Add Member
-        </button>
-        <button *ngIf="isAdmin===true" mat-menu-item routerLink="/secured/admin/listmembers"
-          (click)="sidenav.close()">
-          <mat-icon>search</mat-icon> View/Edit Member
-        </button>
-        <mat-divider></mat-divider>
-        <button mat-menu-item routerLink="/kaochistory" (click)="sidenav.close()">
-          <mat-icon>history</mat-icon>KAOC History
-        </button>
-        <button mat-menu-item routerLink="/kaocbylaw" (click)="sidenav.close()">
-          <mat-icon>policy</mat-icon>Bylaws
-        </button>
-        <mat-divider></mat-divider>
-        <button mat-menu-item routerLink="/kaochistory" (click)="sidenav.close()" class="hidden-lg hidden-md">
-          <i class=""><img class="mr-r-13" src="/assets/images/ico_about_black.png" width="21" height="20"
-              alt="" /></i>
-          About Us
-        </button>
-        <button mat-menu-item routerLink="" (click)="sidenav.close()" class="hidden-lg hidden-md">
-          <i class=""><img class="mr-r-13" src="/assets/images/ico_event_black.png" width="21" height="20"
-              alt="" /></i>
-          Events
-        </button>
-        <button mat-menu-item routerLink="" (click)="sidenav.close()" class="hidden-lg hidden-md">
-          <i class=""><img class="mr-r-13" src="/assets/images/ico_sponors_black.png" width="21" height="20"
-              alt="" /></i>Sponsors
-        </button>
-        <button mat-menu-item routerLink="" (click)="sidenav.close()" class="hidden-lg hidden-md">
-          <i class=""><img class="mr-r-13" src="/assets/images/ico_magazine_black.png" width="21" height="20"
-              alt="" /></i>Magazine
-        </button>
-        <button mat-menu-item routerLink="" (click)="sidenav.close()" class="hidden-lg hidden-md">
-          <i class=""><img class="mr-r-13" src="/assets/images/ico_contact_black.png" width="21" height="20"
-              alt="" /></i>Contact Us
-        </button>
-      </div>
-    </mat-sidenav>
   </div>
 </div>
+<!--Side NavBar-->
+<mat-sidenav #sidenav>
+  <div fxLayout="column">
+
+    <div class="avatar-container-side-menu" fxLayout="column" fxFlexAlign="center center"
+      style="align-items: center">
+      <div class="txtr" style="width:100%;"><button class="bu_close" (click)="sidenav.close()">
+          <mat-icon>close</mat-icon>
+        </button></div>
+      <ngx-auth-firebaseui-avatar *ngIf="loggedIn" [links]="">
+
+        <!--                (onMenuOpen)="sidenav.toggle()-->
+      </ngx-auth-firebaseui-avatar>
+      <div *ngIf="loggedIn" class="display-name">
+        {{fullName}}
+      </div>
+      <div *ngIf="!loggedIn">
+        <button mat-icon-button (click)="sidenav.toggle() && navigateToLoginPage()">
+          <mat-icon>account_circle</mat-icon>
+        </button>
+      </div>
+    </div>
+    <button mat-menu-item routerLink="/" (click)="sidenav.close()">
+      <mat-icon>home</mat-icon> Home
+    </button>
+    <mat-divider></mat-divider>
+
+    <button *ngIf="loggedIn===true" mat-menu-item routerLink="/secured/profile" (click)="sidenav.close()">
+      <mat-icon>account_circle</mat-icon> Profile
+    </button>
+    <mat-divider></mat-divider>
+    <!--<h4 *ngIf="isAdmin===true" class="section-label">Admin</h4>-->
+    <button *ngIf="isAdmin===true" mat-menu-item routerLink="/secured/admin/memberprofile"
+      (click)="sidenav.close()">
+      <mat-icon>add_circle_outline</mat-icon> Add Member
+    </button>
+    <button *ngIf="isAdmin===true" mat-menu-item routerLink="/secured/admin/listmembers"
+      (click)="sidenav.close()">
+      <mat-icon>search</mat-icon> View/Edit Member
+    </button>
+    <mat-divider></mat-divider>
+    <button mat-menu-item routerLink="/kaochistory" (click)="sidenav.close()">
+      <mat-icon>history</mat-icon>KAOC History
+    </button>
+    <button mat-menu-item routerLink="/kaocbylaw" (click)="sidenav.close()">
+      <mat-icon>policy</mat-icon>Bylaws
+    </button>
+    <mat-divider></mat-divider>
+    <button mat-menu-item routerLink="/kaochistory" (click)="sidenav.close()" class="hidden-lg hidden-md">
+      <i class=""><img class="mr-r-13" src="/assets/images/ico_about_black.png" width="21" height="20"
+          alt="" /></i>
+      About Us
+    </button>
+    <button mat-menu-item routerLink="" (click)="sidenav.close()" class="hidden-lg hidden-md">
+      <i class=""><img class="mr-r-13" src="/assets/images/ico_event_black.png" width="21" height="20"
+          alt="" /></i>
+      Events
+    </button>
+    <button mat-menu-item routerLink="" (click)="sidenav.close()" class="hidden-lg hidden-md">
+      <i class=""><img class="mr-r-13" src="/assets/images/ico_sponors_black.png" width="21" height="20"
+          alt="" /></i>Sponsors
+    </button>
+    <button mat-menu-item routerLink="" (click)="sidenav.close()" class="hidden-lg hidden-md">
+      <i class=""><img class="mr-r-13" src="/assets/images/ico_magazine_black.png" width="21" height="20"
+          alt="" /></i>Magazine
+    </button>
+    <button mat-menu-item routerLink="" (click)="sidenav.close()" class="hidden-lg hidden-md">
+      <i class=""><img class="mr-r-13" src="/assets/images/ico_contact_black.png" width="21" height="20"
+          alt="" /></i>Contact Us
+    </button>
+  </div>
+</mat-sidenav>
 <div class="page-title" *ngIf="titleInfo?.title !== undefined">
   <div>
     <h2>{{titleInfo?.title}}</h2>

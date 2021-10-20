@@ -19,7 +19,7 @@ export class HeaderText {
         return new Promise(resolve => {
             this.subject.subscribe(message => {
                 resolve(message);
-            });
+            }).unsubscribe();
         });
     }
 }

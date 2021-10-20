@@ -16,8 +16,12 @@
     transition: all 0.3s cubic-bezier(.25,.8,.25,1);
     cursor: pointer;
     border-radius: 25px;
-
+    border-color: transparent;
     background-image: linear-gradient(to right, #45ab1c 0%, #3f8714 100%)
+}
+
+.app-button.blue {
+    background-image: linear-gradient(to right, $darkblue 0%, $darkblue 100%)
 }
 
 .card {

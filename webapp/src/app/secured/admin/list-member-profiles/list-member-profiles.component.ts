@@ -4,11 +4,12 @@ import {Member} from '../../Member';
 import {Router} from '@angular/router';
 import _ from 'lodash';
 import {MatDialog, MatTableDataSource} from '@angular/material';
+import { HeaderText, IHeaderText } from 'src/app/utility/HeaderText';
 
 @Component({
-  selector: 'list-member-profiles',
+  selector: 'app-list-member-profiles',
   templateUrl: './list-member-profiles.component.html',
-  styleUrls: ['./list-member-profiles.component.css']
+  styleUrls: ['./list-member-profiles.component.scss']
 })
 
 export class ListMemberProfilesComponent implements OnInit {
@@ -21,7 +22,11 @@ export class ListMemberProfilesComponent implements OnInit {
   @Input() enableFilter: boolean;
 
   constructor(private memberService: MemberService,
-              private router: Router) {
+              private router: Router,
+              private headerText: HeaderText) {
+                this.headerText.setHeaderText({
+                  title: 'Member(s)'
+                } as IHeaderText);
   }
 
   ngOnInit() {

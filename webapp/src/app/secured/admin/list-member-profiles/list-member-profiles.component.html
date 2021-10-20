@@ -1,44 +1,35 @@
-<ngx-spinner bdColor="rgba(51,51,51,0.8)" size="medium" color="#fff" type="ball-scale-multiple">
-  <p style="font-size: 20px; color: white">Processing Request</p>
-</ngx-spinner>
-<div style="padding: 0 25px;">
-  <div class="contentheading">
-    <h4>Member(s)</h4>
-    <form>
-      <div class="input-group membersearch">
-        <div class="input-group-btn ">
-          <mat-form-field>
-            <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Search">
-          </mat-form-field>
-        </div>
-      </div>
-    </form>
-  </div>
-  <mat-card class="example-card">
-    <mat-card-content>
-      <div class=" col-md-3 col-xs-12 members" *ngFor="let m of pageOfItems">
-        <a [routerLink]="['/secured/admin/memberprofile', m.docId]">
-          <div class="memberlist">
-            <div class="profile_txt">{{m.firstName.toString().substr(0, 1).toUpperCase()}}</div>
-            <h4>{{m.firstName}} {{m.lastName}} </h4>
-            <p>{{m.emailId != null ? m.emailId : "."}}</p>
-            <p>{{m.phoneNumber != null ? m.phoneNumber : "N/A"}} </p>
-            <span>Edit</span>
-          </div>
-        </a>
-      </div>
-      <div class="clearfix"></div>
-      <!--  <mat-paginator [pageSizeOptions]="[5, 10, 20, 50, 100]" showFirstLastButtons></mat-paginator>-->
+<div class="card">
+  <ngx-spinner bdColor="rgba(51,51,51,0.8)" size="medium" color="#fff" type="ball-scale-multiple">
+    <p style="font-size: 20px; color: white">Processing Request</p>
+  </ngx-spinner>
+  <div style="padding: 0 25px;">
+    <div class="member-list_heading">
       <button class="sortBtn" (click)="sort()">FirstName
         <span *ngIf="isAsc" class="material-icons">arrow_upward</span>
         <span *ngIf="!isAsc" class="material-icons">arrow_downward</span>
       </button>
-      <jw-pagination [items]="members" (changePage)="onChangePage($event)" style="float: right"></jw-pagination>
-      <div class="clearfix"></div>
-    </mat-card-content>
-  </mat-card>
-
-
-  <div class="clearfix"></div>
-
+      <form>
+        <div class="input-group membersearch">
+          <div class="input-group-btn ">
+            <mat-form-field>
+              <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Search">
+            </mat-form-field>
+          </div>
+        </div>
+      </form>
+  </div>
+  <div class="member-list">
+    <div class=" col-md-3 col-xs-12 members" *ngFor="let m of pageOfItems">
+      <a [routerLink]="['/secured/admin/memberprofile', m.docId]">
+        <div class="memberlist">
+          <div class="profile_txt">{{m.firstName.toString().substr(0, 1).toUpperCase()}}</div>
+          <h4>{{m.firstName}} {{m.lastName}} </h4>
+          <p>{{m.emailId != null ? m.emailId : "."}}</p>
+          <p>{{m.phoneNumber != null ? m.phoneNumber : "N/A"}} </p>
+          <span>Edit</span>
+        </div>
+      </a>
+    </div>
+  </div>
+  <jw-pagination [items]="members" (changePage)="onChangePage($event)" style="margin: 35px;display: flex;justify-content: center;"></jw-pagination>
 </div>

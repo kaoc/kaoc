@@ -10,6 +10,10 @@
 
 }
 
+.member-profile {
+  padding-top: 15px;
+}
+
 /*.mat-card{*/
 /*  min-width: 100% !important;*/
 /*  max-width: 100% !important;*/
@@ -21,6 +25,12 @@
   visibility: hidden;
   height: 0;
   width: 0;
+}
+
+.mat-step-header {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: space-evenly;
 }
 
 
