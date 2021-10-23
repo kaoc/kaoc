@@ -7,7 +7,6 @@ import { MatSnackBar } from '@angular/material';
 import { MemberService } from '../member.service';
 import { Membership } from '../Membership';
 import { Router } from '@angular/router';
-import { HeaderText, IHeaderText } from 'src/app/utility/HeaderText';
 
 @Component({
   selector: 'app-profile',
@@ -35,8 +34,7 @@ export class ProfileComponent implements OnInit {
       private authService: AuthService,
       private fns: AngularFireFunctions,
       private snackBar: MatSnackBar,
-      private memberServie: MemberService,
-      private headerText: HeaderText) {
+      private memberServie: MemberService) {
       authService.firebaseUser.subscribe(firebaseUser => {
           if (firebaseUser) {
               this.firebaseUser = firebaseUser;
@@ -61,10 +59,6 @@ export class ProfileComponent implements OnInit {
               this.profileState = 'kaocUserNotFound';
           }
       });
-
-      this.headerText.setHeaderText({
-        title: 'KAOC Profile'
-      } as IHeaderText);
     }
 
     setEmailIdToLink(value) {

@@ -10,7 +10,6 @@ import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
 
 import {DialogWinComponent} from '../dialog-win/dialog-win.component';
 import {ConfirmDelComponent} from './confirm-del.component';
-import { HeaderText, IHeaderText } from 'src/app/utility/HeaderText';
 
 declare var $: any;
 
@@ -69,8 +68,7 @@ export class MemberProfileComponent implements OnInit {
               private route: ActivatedRoute,
               private breakpointObserver: BreakpointObserver,
               public dialog: MatDialog,
-              private router: Router,
-              private headerText: HeaderText
+              private router: Router
   ) {
 
     breakpointObserver.observe([
@@ -92,14 +90,6 @@ export class MemberProfileComponent implements OnInit {
 
     this.queryByMemberId = this.route.snapshot.paramMap.get('id');
     console.log('queryByMemberId=' + this.queryByMemberId + 'this.memberService.routedFrom=' + this.memberService.routedFrom);
-
-    this.router.events.subscribe(event => {
-      if (event instanceof NavigationEnd) {
-        this.headerText.setHeaderText({
-          title: 'Add Member'
-        } as IHeaderText);
-      }
-    });
 
   }
 

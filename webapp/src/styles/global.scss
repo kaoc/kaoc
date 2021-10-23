@@ -30,4 +30,22 @@
     border-radius: 10px;
     border: 1px solid $gray;
     position: relative;
+
+    @media screen and (max-width: 767px){
+        margin: 55% 10% 50px;
+    }
+
+    @media screen and (min-width: 1400px){
+        margin: 20% 10% 50px;
+    }
+}
+
+.member-profile {
+    .mat-list-text {
+        flex-direction: row !important;
+    }
+    .mat-line {
+        width: 20% !important;
+        margin-right: 10px !important;
+    }
 }

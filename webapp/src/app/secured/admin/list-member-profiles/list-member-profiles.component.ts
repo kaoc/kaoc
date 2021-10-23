@@ -4,7 +4,6 @@ import {Member} from '../../Member';
 import {Router} from '@angular/router';
 import _ from 'lodash';
 import {MatDialog, MatTableDataSource} from '@angular/material';
-import { HeaderText, IHeaderText } from 'src/app/utility/HeaderText';
 
 @Component({
   selector: 'app-list-member-profiles',
@@ -22,12 +21,7 @@ export class ListMemberProfilesComponent implements OnInit {
   @Input() enableFilter: boolean;
 
   constructor(private memberService: MemberService,
-              private router: Router,
-              private headerText: HeaderText) {
-                this.headerText.setHeaderText({
-                  title: 'Member(s)'
-                } as IHeaderText);
-  }
+              private router: Router) { }
 
   ngOnInit() {
     this.memberService.getAllMembers().subscribe(members => {

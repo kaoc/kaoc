@@ -5,6 +5,8 @@
   margin: 50px;
   
   &-greeting {
+    display: flex;
+    flex-direction: column;
     text-align: center;
     font-size: 24px;
     font-weight: 400;

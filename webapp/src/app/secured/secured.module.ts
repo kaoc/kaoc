@@ -28,7 +28,6 @@ import {AppHeaderComponent} from '../_layout/app-header/app-header.component';
 import {AppFooterComponent} from '../_layout/app-footer/app-footer.component';
 
 import {JwPaginationModule} from 'jw-angular-pagination';
-import { HeaderText } from '../utility/HeaderText';
 
 
 @NgModule({
@@ -64,9 +63,6 @@ import { HeaderText } from '../utility/HeaderText';
   ],
   exports: [
     UserTableComponent, DialogWinComponent, ConfirmDelComponent, AppHeaderComponent, AppFooterComponent
-  ],
-  providers: [
-    HeaderText
   ],
   entryComponents: [  DialogWinComponent , ConfirmDelComponent],
 

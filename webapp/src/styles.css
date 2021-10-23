@@ -1585,3 +1585,23 @@ input[type="checkbox"]:checked::before{
     border-left:1px solid #000 !important
   }
 }
+
+
+ngx-auth-firebaseui-login #login-form-wrapper #login-form {
+  padding: 0 !important;
+}
+
+ngx-auth-firebaseui-login #login-form-wrapper #login-form .title {
+  margin: 0;
+}
+
+ngx-auth-firebaseui-login #login-form-wrapper #login-form form .remember-forgot-password .forgot-password {
+  margin-bottom: 0;
+  padding: 0;
+}
+
+ngx-auth-firebaseui-login #login-form-wrapper #login-form form .submit-button {
+  width: 140px !important;
+  margin: 0 !important;
+  border-radius: 25px;
+}

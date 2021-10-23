@@ -33,4 +33,44 @@
   .signup-step-container > div {
     width: 100%;
   }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .family-cta {
+    display: flex;
+    justify-content: center;
+    height: 35px;
+
+    & > button {
+      padding: 5px 10px;
+      display: inline-flex;
+      vertical-align: bottom;
+      align-items: center;
+      margin-right: 10px;
+
+      & > mat-icon {
+        margin-right: 5px;
+      }
+    }
+  }
+
+  .payment-cta {
+    display: flex;
+    justify-content: center;
+    height: 35px;
+
+    & > button {
+      padding: 5px 10px;
+      display: inline-flex;
+      vertical-align: bottom;
+      align-items: center;
+      margin-right: 10px;
+
+      & > mat-icon {
+        margin-right: 5px;
+      }
+    }
+  }
 }

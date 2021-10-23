@@ -1,3 +1,4 @@
+import { ADMIN_LIST_MEMBERS, ADMIN_MEMBER_PROFILE, ADMIN_SEARCH, PROFILE, USER_MEMBER_PROFILE } from './../URLConstants';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { LoginComponent } from './login/login.component';
@@ -9,40 +10,41 @@ import { SearchUsersComponent } from './admin/search-users/search-users.componen
 import { MemberProfileComponent } from './admin/member-profile/member-profile.component';
 import { ListMemberProfilesComponent } from './admin/list-member-profiles/list-member-profiles.component';
 import { ProfileLinkStatusComponent } from './profile-link-status/profile-link-status.component';
+import { LOGIN, PROFILE_LINK_STATUS, SECURED_CONTEXT, VERIFY } from '../URLConstants';
 
 
 const routes: Routes = [{
-    path: 'secured',
+    path: SECURED_CONTEXT,
     component: SecuredComponent,
     children : [{
-        path: 'login',
+        path: LOGIN,
         component: LoginComponent
     }, {
-        path: 'verify',
+        path: VERIFY,
         component: VerifyEmailComponent
     }, {
-      path: 'profileLinkStatus/:encodedMessage',
+      path: PROFILE_LINK_STATUS,
       component: ProfileLinkStatusComponent,
       canActivate: [AuthGuardService],
       data: {
           expectedRole: 'member'
       }
     }, {
-        path: 'profile',
+        path: PROFILE,
         component: ProfileComponent,
         canActivate: [AuthGuardService],
         data: {
             expectedRole: 'member'
         }
     }, {
-      path: 'user/memberprofile/:id',
+      path: USER_MEMBER_PROFILE,
       component: MemberProfileComponent,
       canActivate: [AuthGuardService],
       data: {
           expectedRole: 'member'
       }
     }, {
-        path: 'admin/search',
+        path: ADMIN_SEARCH,
         pathMatch: 'prefix',
         component: SearchUsersComponent,
         canActivate: [AuthGuardService],
@@ -50,21 +52,21 @@ const routes: Routes = [{
             expectedRole: 'admin'
         }
     }, {
-        path: 'admin/memberprofile',
+        path: ADMIN_MEMBER_PROFILE,
         component: MemberProfileComponent,
         canActivate: [AuthGuardService],
         data: {
             expectedRole: 'admin'
         }
     }, {
-        path: 'admin/memberprofile/:id',
+        path: `${ADMIN_MEMBER_PROFILE}/:id`,
         component: MemberProfileComponent,
         canActivate: [AuthGuardService],
         data: {
             expectedRole: 'admin'
         }
     }, {
-        path: 'admin/listmembers',
+        path: ADMIN_LIST_MEMBERS,
         component: ListMemberProfilesComponent,
         canActivate: [AuthGuardService],
         data: {

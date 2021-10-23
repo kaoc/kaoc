@@ -1,12 +1,23 @@
 .app-login {
     & > div {
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
+        @media screen and (min-width: 769px) {
+            justify-content: space-between;   
+        }
+        & > div {
+            @media screen and (min-width: 769px) {
+                width: 50%;   
+            }
+        }
     }
 
-    ngx-auth-firebaseui-providers {
-        & > div > & div {
-            flex-direction: row !important;
+    .left-image {
+        display: flex;
+        & > img {
+            width: 100%;
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
         }
     }
 }

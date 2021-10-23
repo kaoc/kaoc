@@ -64,7 +64,8 @@
                   <label>PhoneNumber *</label>
                   <input matInput placeholder="Mobile number" formControlName="phoneNumber">
                   <mat-hint>Enter a 10 digit phone number</mat-hint>
-                </div></div>
+                </div>
+              </div>
               <mat-form-field class="invisible">
                 <input matInput formControlName="kaocUserId">
               </mat-form-field>
@@ -80,41 +81,36 @@
 
         <ng-template #addMemberFamilyStep>
           <form [formGroup]="memberDetForm">
-            <!--                        <mat-form-field class="form-full-width">-->
-            <label>Email Id</label>
-            <input matInput class="form-control"  class="form-control" formControlName="emailId"
+              <div class="form-group">
+                <label>Email Id</label>
+                <input matInput class="form-control"  class="form-control" formControlName="emailId"
                     type="email">
-            <!--                        </mat-form-field>-->
+              </div>
+              <div class="form-group">
+                <label>First name</label>
+                <input formControlName="firstName"  class="form-control" >
+              </div>
+              <div class="form-group">
+                <label>Last name</label>
+                <input formControlName="lastName" class="form-control" >
+              </div>
+              <div class="form-group">
+                <label>Mobile Number</label>
+                <input formControlName="phoneNumber" class="form-control" >
+                <mat-hint>Enter a 10 digit phone number</mat-hint>
+              </div>
+              <div class="form-group">
+                <label>Age group</label><br>
+                <select formControlName="ageGroup" class="col-md-12 col-lg-12 form-control">
+                  <option value="Adult" selected>Adult</option>
+                  <option value="Child">Child</option>
+                </select>
+              </div>
+              <mat-form-field class="invisible">
+                <input matInput formControlName="kaocUserId">
+              </mat-form-field>
 
-            <!--                        <mat-form-field class="form-full-width">-->
-            <label>First name</label>
-            <input formControlName="firstName"  class="form-control" >
-            <!--                        </mat-form-field>-->
-
-            <!--                        <mat-form-field class="form-full-width">-->
-            <label>Last name</label>
-            <input formControlName="lastName" class="form-control" >
-            <!--                        </mat-form-field>-->
-
-            <!--                        <mat-form-field class="form-full-width">-->
-            <label>Mobile Number</label>
-            <input formControlName="phoneNumber" class="form-control" >
-            <mat-hint>Enter a 10 digit phone number</mat-hint>
-            <!--                        </mat-form-field>-->
-
-            <!--                        <mat-form-field class="form-full-width">-->
-            <br>
-            <label>Age group</label><br>
-            <select formControlName="ageGroup" class="col-md-12 col-lg-12 form-control">
-              <option value="Adult" selected>Adult</option>
-              <option value="Child">Child</option>
-            </select>
-            <mat-form-field class="invisible">
-              <input matInput formControlName="kaocUserId">
-            </mat-form-field>
-            <!--                        </mat-form-field>-->
-            <div class="clearfix"></div>
-            <div fxLayout="row" fxLayoutAlign="center" fxLayoutGap="5px" style="margin-top: 10px;">
+            <div class="family-cta">
               <mat-error *ngIf="memberDetFormError"><b>{{this.errorMsg}}</b></mat-error>
               <button class="app-button blue" (click)="setStepper(0)">
                 Back
@@ -145,11 +141,15 @@
               <mat-icon mat-list-icon *ngIf="element.ageGroup == 'Adult'">supervisor_account</mat-icon>
               <mat-icon mat-list-icon *ngIf="element.ageGroup != 'Adult'">face</mat-icon>
               <div mat-line>
-                <div class="name">{{element.firstName}} {{element.lastName}}</div>
+                <div class="name">{{element.firstName}}</div>
+              </div>
+              <div mat-line>
+                <div class="name">{{element.lastName}}</div>
               </div>
               <div mat-line>
                 <span class="email">{{element.emailId}}</span>
-                &nbsp;
+              </div>
+              <div mat-line>
                 <span class="phone">{{element.phoneNumber}}</span>
               </div>
 
@@ -180,51 +180,41 @@
                   style="padding-left: 20px; color:maroon; font-weight: 900;">
               Payment Status : {{memberPaymentStatus}}
             </div>
-            <br/>
-
             <div class="row">
               <div class="col-md-12 col-lg-12">
                 <div class="form-group">
                   <label>Payment method</label>
-                  <select formControlName="paymentMethod" required class="col-md-12 col-lg-12 form-control">
+                  <select formControlName="paymentMethod" required class="form-control">
                     <option *ngFor="let paymode of paymentList" [value]="paymode"
                             [disabled]="disablePayButton">
                       {{paymode}}
                     </option>
                   </select>
-                  <br>
+                </div>
+                <div class="form-group">
                   <label>Amount</label>
-                  <!--                      <mat-form-field class="form-full-width">-->
                   <input formControlName="paymentAmount" readonly="true"  class="form-control">
-                  <!--                      </mat-form-field>-->
+                </div>
+                <div class="form-group">
                   <label>Transaction Reference No</label>
-                  <!--                      <mat-form-field class="form-full-width">-->
-                  <input  class="form-control"
-                          formControlName="paymentExternalSystemRef"
-                  >
-                  <!--                      </mat-form-field>-->
+                  <input  class="form-control" formControlName="paymentExternalSystemRef">
+                </div>
+                <div class="form-group">
                   <label>Memo</label>
-                  <!--                      <mat-form-field class="form-full-width">-->
-                  <textarea  formControlName="paymentNotes" rows="3"  class="form-control"
-                  ></textarea>
-                  <!--                      </mat-form-field>-->
-                  <div class="clearfix"></div>
-                  <div fxLayout="row" fxLayoutAlign="center" fxLayoutGap="5px">
-
-                    <mat-error><b>{{this.paymentErrorMsg}}</b></mat-error>
-                    <button (click)="setStepper(1)" class="app-button blue">
-                      Back
-                    </button>
-                    <!-- TODO: update this condition on when to disable submitPayment. Right now, hardcoded to paypal -->
-                    <div *ngIf="this.paypalStatus === ''">
-                      <button (click)="submitPayment()" class="app-button">
-                        <mat-icon matTooltip="Pay KAOC">payment</mat-icon>
-                        {{paymentStepperBtnLabel}}
-                      </button>
-                    </div>
-                  </div>
-                  <div fxLayout="row" fxLayoutAlign="center" fxLayoutGap="5px"></div></div></div>
-              <br>
+                  <textarea  formControlName="paymentNotes" rows="3"  class="form-control"></textarea>
+                </div>
+                <div class="payment-cta">
+                  <mat-error><b>{{this.paymentErrorMsg}}</b></mat-error>
+                  <button (click)="setStepper(1)" class="app-button blue">
+                    Back
+                  </button>
+                  <!-- TODO: update this condition on when to disable submitPayment. Right now, hardcoded to paypal -->
+                  <button (click)="submitPayment()" class="app-button" *ngIf="this.paypalStatus === ''">
+                    <mat-icon matTooltip="Pay KAOC">payment</mat-icon>
+                    {{paymentStepperBtnLabel}}
+                  </button>
+                </div>
+              </div>
               <div
                 *ngIf="getPaymentDocumentRefNo() !== null && this.paymentForm.value.paymentMethod === 'Paypal' && this.paypalStatus !== ''">
                 <h3 *ngIf="!this.memberPaymentStatus || this.memberPaymentStatus.toUpperCase() !== 'PAID'">
