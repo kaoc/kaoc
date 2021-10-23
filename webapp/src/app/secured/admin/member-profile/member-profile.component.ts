@@ -458,11 +458,11 @@ export class MemberProfileComponent implements OnInit {
 
     console.log('setPaymentAmount.membershipType=' + this.membershipTypeForm.controls.membershipType.value);
     if (this.membershipTypeForm.controls.membershipType.value === 'SRCITIZEN') {
-      this.membershipAmt = '35';
+      this.membershipAmt = '40';
     } else if (this.membershipTypeForm.controls.membershipType.value === 'INDIVIDUAL') {
-      this.membershipAmt = '55';
+      this.membershipAmt = '40';
     } else if (this.membershipTypeForm.controls.membershipType.value === 'FAMILY') {
-      this.membershipAmt = '95';
+      this.membershipAmt = '80';
     }
     this.paymentForm.controls.paymentAmount.patchValue(this.membershipAmt);
 

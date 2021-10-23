@@ -1,11 +1,15 @@
-<div *ngIf="errorCode === 'SUCCESS'; else elseBlock">
-  <p>Square payment succesful!</p>
-  <p>{{kaocPaymentsMetaInfo}}</p>
-</div>
-<ng-template #elseBlock>
-  <p>Square payment failed.Please retry. Error description below</p>
-  <p>{{errorCode}}</p>
-  <p>{{errorDescription}}</p>
-  <p>{{kaocPaymentsMetaInfo}}</p>
-</ng-template>
+<div class="card">
+  <div class="square-payment">
+    <div *ngIf="errorCode === 'SUCCESS'; else elseBlock">
+      <p>Square payment succesful!</p>
+      <p>{{kaocPaymentsMetaInfo}}</p>
+    </div>
+    <ng-template #elseBlock>
+      <p>Square payment failed.Please retry. Error description below</p>
+      <p>{{errorCode}}</p>
+      <p>{{errorDescription}}</p>
+      <p>{{kaocPaymentsMetaInfo}}</p>
+    </ng-template>
 <!-- <p>{{this.platformUtils.getMobileOperatingSystem()}}</p> -->
+  </div>
+</div>

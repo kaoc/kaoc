@@ -5,7 +5,7 @@ import { PlatformUtilsService } from '../../utils/platform-utils.service';
 @Component({
   selector: 'square-payment-result',
   templateUrl: './square-payment-result.component.html',
-  styleUrls: ['./square-payment-result.component.css']
+  styleUrls: ['./square-payment-result.component.scss']
 })
 export class SquarePaymentResultComponent implements OnInit {
   // paymentId received as REQUEST_METADATA in URL params
