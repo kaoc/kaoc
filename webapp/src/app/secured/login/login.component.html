@@ -1,21 +1,32 @@
-<div class="clearfix"></div>
-<!--Login -->
-<ngx-auth-firebaseui-login
-  *ngIf="activity === 'login'"
-  [providers]="supportedProviders"
-  (onCreateAccountRequested)="activity='registration'"
-  (onResetPasswordRequested)="activity='resetPassword'"
-  (onError)="handleLoginError($event)"
-  >
-</ngx-auth-firebaseui-login>
+<div class="app-login">
+  <div class="card">
+    <div class="left-image hidden-sm hidden-xs">
+      <img src="/assets/images/login_img.jpg" 
 
-<!-- Register -->
-<ngx-auth-firebaseui-register
-  *ngIf="activity === 'registration'"
-  (onLoginRequested)="activity='login'"
-  (onSuccess)="handleRegistrationSuccess($event)"
-  (onError)="handleRegistrationError($event)">
-</ngx-auth-firebaseui-register>
+      />
+    </div>
+    <div class="">
+      <!--Login -->
+      <ngx-auth-firebaseui-login
+      *ngIf="activity === 'login'"
+      [providers]="supportedProviders"
+      (onCreateAccountRequested)="activity='registration'"
+      (onResetPasswordRequested)="activity='resetPassword'"
+      (onError)="handleLoginError($event)"
+      >
+      </ngx-auth-firebaseui-login>
+
+      <!-- Register -->
+      <ngx-auth-firebaseui-register
+      *ngIf="activity === 'registration'"
+      (onLoginRequested)="activity='login'"
+      (onSuccess)="handleRegistrationSuccess($event)"
+      (onError)="handleRegistrationError($event)">
+      </ngx-auth-firebaseui-register>
+    </div>
+  </div>
+</div>
+
 
 <!--Reset Password -->
 <div *ngIf="activity === 'resetPassword'" fxLayout="column" fxLayoutAlign="center center" style="width:100%;padding:10px;padding-top: 50px;">

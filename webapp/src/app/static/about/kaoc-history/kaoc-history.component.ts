@@ -1,15 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
-  selector: 'kaoc-history',
+  selector: 'app-history',
   templateUrl: './kaoc-history.component.html',
-  styleUrls: ['./kaoc-history.component.css']
+  styleUrls: ['./kaoc-history.component.scss']
 })
-export class KaocHistoryComponent implements OnInit {
+export class KaocHistoryComponent {
 
   constructor() { }
-
-  ngOnInit() {
-  }
 
 }

@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import { Router } from '@angular/router';
 import {MatSnackBar} from '@angular/material';
 
 @Component({
@@ -10,7 +10,7 @@ import {MatSnackBar} from '@angular/material';
 export class AppComponent {
   title = 'KAOC';
 
-  constructor(private activatedRoute: ActivatedRoute, private snackBar: MatSnackBar) {
+  constructor(private router: Router, private snackBar: MatSnackBar) {
 
     const search = document.location.search;
     let message = null;

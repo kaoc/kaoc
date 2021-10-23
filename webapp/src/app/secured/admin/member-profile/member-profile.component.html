@@ -1,317 +1,274 @@
-<div overflow-y:auto>
+<div class="card member-profile">
   <div fxLayout="column" fxLayoutAlign="space-evenly start">
 
     <ngx-spinner bdColor="rgba(51,51,51,0.8)" size="medium" color="#fff" type="ball-scale-multiple">
       <p style="font-size: 20px; color: white">Processing Request</p>
     </ngx-spinner>
     <section class="signup-step-container">
-      <div class="container">
-        <div class="row d-flex justify-content-center">
-          <div class="col-md-10">
-            <div class="wizard">
-              <ng-template #addMemberStep>
-                <mat-card>
-                  <mat-card-header>
-                    <mat-card-subtitle style="padding-left: 20px;" *ngIf="memberStatus">Member Status :
-                      <span *ngIf="memberStatus==='Active'"
-                            style="color:green; font-weight:bold">{{memberStatus}}</span>
-                      <span *ngIf="memberStatus==='InActive'"
-                            style="color:red; font-weight:bold">{{memberStatus}}</span>
-                    </mat-card-subtitle>
-                  </mat-card-header>
-                  <mat-card-content>
-                    <div class="tab-content" id="main_form">
-                      <div class="tab-pane active" role="tabpanel" id="step1">
-                        <!--                        <h4 class="text-center">Member Details</h4>-->
-                        <form [formGroup]="membershipTypeForm" class="example-form" class="login-box">
-                          <div class="row">
-                            <div class="col-md-6 col-lg-6">
-                              <div class="form-group">
-                                <label>Membership Type *</label>
-                                <select (change)="setPaymentAmount()" formControlName="membershipType" class="form-control" required>
-                                  <option value="INDIVIDUAL">Individual</option>
-                                  <option value="FAMILY">Family</option>
-                                  <option value="SRCITIZEN">Sr.Citizen</option>
-                                </select>
-                              </div>
-                            </div>
-                            <div class="col-md-6">
-                              <div class="form-group">
-                                <label>Membership amount *</label>
-                                <input class="form-control" type="text" name="name" [value]="membershipAmt" disabled matInput>
-                              </div>
-                            </div>
-                          </div>
-                        </form>
-                      </div>
+      <div class="col-md-12">
+        <ng-template #addMemberStep>
+          <div style="margin-bottom: 10px;" *ngIf="memberStatus">
+            Member Status :
+            <span *ngIf="memberStatus==='Active'"
+                style="color:green; font-weight:bold">{{memberStatus}}</span>
+            <span *ngIf="memberStatus==='InActive'"
+                style="color:red; font-weight:bold">{{memberStatus}}</span>
+          </div>
+          
+          <div class="tab-content" id="main_form">
+            <div class="tab-pane active" role="tabpanel" id="step1">
+              <!--                        <h4 class="text-center">Member Details</h4>-->
+              <form [formGroup]="membershipTypeForm" class="example-form" class="login-box">
+                <div class="row">
+                  <div class="col-md-6 col-lg-6">
+                    <div class="form-group">
+                      <label>Membership Type *</label>
+                      <select (change)="setPaymentAmount()" formControlName="membershipType" class="form-control" required>
+                        <option value="INDIVIDUAL">Individual</option>
+                        <option value="FAMILY">Family</option>
+                        <option value="SRCITIZEN">Sr.Citizen</option>
+                      </select>
                     </div>
-
-                    <form [formGroup]="memberForm" class="example-form login-box row g-3 needs-validation">
-                      <div class="">
-                        <div class="col-md-6">
-                          <div class="form-group">
-                            <label>Email *</label>
-                            <input matInput placeholder="Email Id" formControlName="emailId" required>
-                          </div>
-                        </div>
-                        <div class="col-md-6">
-                          <div class="form-group">
-                            <label>FirstName *</label>
-                            <input matInput placeholder="First name" formControlName="firstName" required>
-                          </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6">
-                          <div class="form-group">
-                            <label>LastName *</label>
-                            <input matInput placeholder="Last name" formControlName="lastName" required>
-                          </div></div>
-                        <div class="col-lg-6 col-md-6">
-                          <div class="form-group">
-                            <label>PhoneNumber *</label>
-                            <input matInput placeholder="Mobile number" formControlName="phoneNumber">
-                            <mat-hint>Enter a 10 digit phone number</mat-hint>
-                          </div></div>
-                        <mat-form-field class="invisible">
-                          <input matInput formControlName="kaocUserId">
-                        </mat-form-field>
-                        <div fxLayout="row" fxLayoutAlign="center" fxLayoutGap="5px">
-                          <br/>
-                          <!--                          <button mat-raised-button class="kaoc-btn-primary" (click)="addMember(0,1)">Next</button>-->
-                          <!--                          <button mat-raised-button class="kaoc-btn-primary" (click)="addMember(0,2)">Skip Family &-->
-                          <!--                            Pay-->
-                          <!--                          </button>-->
-                        </div>
-                      </div>
-                      <div class="clearfix"></div>
-                      <ul class="list-inline pull-right">
-                        <li>
-                          <button type="submit" mat-raised-button class="default-btn next-step" (click)="addMember(0,1)">Next</button>&nbsp;
-                          <button mat-raised-button class="default-btn next-step" (click)="addMember(0,2)">Skip Family & Pay</button>
-                        </li>
-                      </ul>
-                    </form>
-
-                  </mat-card-content>
-                </mat-card>
-              </ng-template>
-
-              <ng-template #addMemberFamilyStep>
-                <mat-card class="flex">
-                  <div class="scrollable">
-                    <mat-card-header>
-                      <mat-card-title></mat-card-title>
-                    </mat-card-header>
-                    <mat-card-content>
-                      <form [formGroup]="memberDetForm">
-                        <!--                        <mat-form-field class="form-full-width">-->
-                        <label>Email Id</label>
-                        <input matInput class="form-control"  class="form-control" formControlName="emailId"
-                               type="email">
-                        <!--                        </mat-form-field>-->
-
-                        <!--                        <mat-form-field class="form-full-width">-->
-                        <label>First name</label>
-                        <input formControlName="firstName"  class="form-control" >
-                        <!--                        </mat-form-field>-->
-
-                        <!--                        <mat-form-field class="form-full-width">-->
-                        <label>Last name</label>
-                        <input formControlName="lastName" class="form-control" >
-                        <!--                        </mat-form-field>-->
-
-                        <!--                        <mat-form-field class="form-full-width">-->
-                        <label>Mobile Number</label>
-                        <input formControlName="phoneNumber" class="form-control" >
-                        <mat-hint>Enter a 10 digit phone number</mat-hint>
-                        <!--                        </mat-form-field>-->
-
-                        <!--                        <mat-form-field class="form-full-width">-->
-                        <br>
-                        <label>Age group</label><br>
-                        <select formControlName="ageGroup" class="col-md-12 col-lg-12 form-control">
-                          <option value="Adult" selected>Adult</option>
-                          <option value="Child">Child</option>
-                        </select>
-                        <mat-form-field class="invisible">
-                          <input matInput formControlName="kaocUserId">
-                        </mat-form-field>
-                        <!--                        </mat-form-field>-->
-                        <div class="clearfix"></div>
-                        <div fxLayout="row" fxLayoutAlign="center" fxLayoutGap="5px" style="margin-top: 10px;">
-                          <mat-error *ngIf="memberDetFormError"><b>{{this.errorMsg}}</b></mat-error>
-                          <button mat-raised-button color="primary" (click)="setStepper(0)"  class="default-btn next-step">
-                            Back
-                          </button>
-                          <button *ngIf="familyUpdateIndex>=0" mat-raised-button color="primary"
-                                  (click)="updateMember(familyUpdateIndex)"  class="default-btn next-step">
-                            <mat-icon matTooltip="Update Member">save</mat-icon>
-                            Save
-                          </button>
-                          <button *ngIf="familyUpdateIndex===-1" mat-raised-button color="primary"
-                                  (click)="addFamily(1)"  class="default-btn next-step">
-                            <mat-icon matTooltip="Add Member">person_add</mat-icon>
-                            Add
-                          </button>
-                          <button mat-raised-button class="kaoc-btn-primary default-btn next-step" (click)="goTo(2)">
-                            <mat-icon matTooltip="Pay KAOC">payment</mat-icon>
-                            {{familyStepperPaymentBtnLabel}}
-                          </button>
-                        </div>
-                      </form>
-                      <mat-list class="txtl">
-                        <h2 mat-subheader>
-                          <mat-icon>view_list</mat-icon>
-                          List of members
-                        </h2>
-                        <mat-divider></mat-divider>
-                        <mat-list-item *ngFor="let element of data.members | slice:1  ; let index=index;">
-                          <mat-icon mat-list-icon *ngIf="element.ageGroup == 'Adult'">supervisor_account</mat-icon>
-                          <mat-icon mat-list-icon *ngIf="element.ageGroup != 'Adult'">face</mat-icon>
-                          <div mat-line>
-                            <div class="name">{{element.firstName}} {{element.lastName}}</div>
-                          </div>
-                          <div mat-line>
-                            <span class="email">{{element.emailId}}</span>
-                            &nbsp;
-                            <span class="phone">{{element.phoneNumber}}</span>
-                          </div>
-
-                          <!--
-                          <h4 mat-line>Email id: {{element.emailId}}</h4>
-                          <p mat-line>First name: {{element.firstName}} </p>
-                          <p mat-line>Last name: {{element.lastName}} </p>
-                          <p mat-line>Phone No: {{element.phoneNumber}} </p>
-                          <p mat-line>Age Group: {{element.ageGroup}} </p>
-                          -->
-                          <p mat-line>
-                            <button (click)="editMember(element,index+1)" matTooltip="Edit">
-                              <mat-icon color="primary">edit</mat-icon>
-                            </button> &nbsp;
-                            <button (click)="confirmDelete(element,index+1)" matTooltip="Delete">
-                              <mat-icon color="warn">delete</mat-icon>
-                            </button>
-                          </p>
-                          <mat-divider></mat-divider>
-                        </mat-list-item>
-                      </mat-list>
-                    </mat-card-content>
                   </div>
-                </mat-card>
-              </ng-template>
-
-              <ng-template #paymentStep>
-                <mat-card>
-                  <mat-card-content>
-                    <form [formGroup]="paymentForm" class="example-form ">
-
-                      <div *ngIf="memberPaymentStatus" class="form-full-width txtl"
-                           style="padding-left: 20px; color:maroon; font-weight: 900;">
-                        Payment Status : {{memberPaymentStatus}}
-                      </div>
-                      <br/>
-
-                      <div class="row">
-                        <div class="col-md-12 col-lg-12">
-                          <div class="form-group">
-                            <label>Payment method</label>
-                            <select formControlName="paymentMethod" required class="col-md-12 col-lg-12 form-control">
-                              <option *ngFor="let paymode of paymentList" [value]="paymode"
-                                      [disabled]="disablePayButton">
-                                {{paymode}}
-                              </option>
-                            </select>
-                            <br>
-                            <label>Amount</label>
-                            <!--                      <mat-form-field class="form-full-width">-->
-                            <input formControlName="paymentAmount" readonly="true"  class="form-control">
-                            <!--                      </mat-form-field>-->
-                            <label>Transaction Reference No</label>
-                            <!--                      <mat-form-field class="form-full-width">-->
-                            <input  class="form-control"
-                                    formControlName="paymentExternalSystemRef"
-                            >
-                            <!--                      </mat-form-field>-->
-                            <label>Memo</label>
-                            <!--                      <mat-form-field class="form-full-width">-->
-                            <textarea  formControlName="paymentNotes" rows="3"  class="form-control"
-                            ></textarea>
-                            <!--                      </mat-form-field>-->
-                            <div class="clearfix"></div>
-                            <div fxLayout="row" fxLayoutAlign="center" fxLayoutGap="5px">
-
-                              <mat-error><b>{{this.paymentErrorMsg}}</b></mat-error>
-                              <button mat-raised-button color="primary" (click)="setStepper(1)" class="default-btn next-step">
-                                Back
-                              </button>
-                              <!-- TODO: update this condition on when to disable submitPayment. Right now, hardcoded to paypal -->
-                              <div *ngIf="this.paypalStatus === ''">
-                                <button mat-raised-button class="kaoc-btn-primary" (click)="submitPayment()" class="default-btn next-step">
-                                  <mat-icon matTooltip="Pay KAOC">payment</mat-icon>
-                                  {{paymentStepperBtnLabel}}
-                                </button>
-                              </div>
-                            </div>
-                            <div fxLayout="row" fxLayoutAlign="center" fxLayoutGap="5px"></div></div></div>
-                        <br>
-                        <div
-                          *ngIf="getPaymentDocumentRefNo() !== null && this.paymentForm.value.paymentMethod === 'Paypal' && this.paypalStatus !== ''">
-                          <h3 *ngIf="!this.memberPaymentStatus || this.memberPaymentStatus.toUpperCase() !== 'PAID'">
-                            Proceed with payment...</h3>
-                          <app-paypal (paypalStatusEvent)="handlePaypalStatusEvent($event)"
-                                      kaocPaymentsDocId="{{this.getPaymentDocumentRefNo()}}"
-                                      paymentAmount="{{this.membershipAmt}}"
-                                      paymentDescription="KAOC Membership"></app-paypal>
-                        </div>
-                      </div>
-                    </form>
-                  </mat-card-content>
-                </mat-card>
-              </ng-template>
-
-              <ng-template [ngIf]="smallScreen" [ngIfElse]="bigScreen">
-                <mat-vertical-stepper [linear]="true" #stepper>
-                  <mat-step [stepControl]="memberForm" (click)="addMember(0,1)">
-                    <ng-template matStepLabel>Member Details</ng-template>
-                    <br/>
-                    <ng-container *ngTemplateOutlet="addMemberStep"></ng-container>
-                  </mat-step>
-                  <mat-step [stepControl]="memberDetForm" optional>
-                    <ng-template matStepLabel><p class="pd" (click)="addMember(0,2)">Family Details</p></ng-template>
-                    <br/>
-                    <ng-container *ngTemplateOutlet="addMemberFamilyStep"></ng-container>
-                  </mat-step>
-                  <mat-step [stepControl]="paymentForm">
-                    <ng-template matStepLabel>Payment</ng-template>
-                    <br/>
-                    <ng-container *ngTemplateOutlet="paymentStep"></ng-container>
-                  </mat-step>
-
-                </mat-vertical-stepper>
-              </ng-template>
-
-              <ng-template #bigScreen>
-                <mat-horizontal-stepper [linear]="true" #stepper>
-                  <mat-step [stepControl]="memberForm" (click)="addMember(0,1)">
-                    <ng-template matStepLabel>Member Details</ng-template>
-                    <br/>
-                    <ng-container *ngTemplateOutlet="addMemberStep"></ng-container>
-                  </mat-step>
-                  <mat-step [stepControl]="memberDetForm" optional>
-                    <ng-template matStepLabel><p (click)="addMember(0,2)">Family Details</p></ng-template>
-                    <br/>
-                    <ng-container *ngTemplateOutlet="addMemberFamilyStep"></ng-container>
-                  </mat-step>
-                  <mat-step [stepControl]="paymentForm">
-                    <ng-template matStepLabel>Payment</ng-template>
-                    <br/>
-                    <ng-container *ngTemplateOutlet="paymentStep"></ng-container>
-                  </mat-step>
-
-                </mat-horizontal-stepper>
-              </ng-template>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Membership amount *</label>
+                      <input class="form-control" type="text" name="name" [value]="membershipAmt" disabled matInput>
+                    </div>
+                  </div>
+                </div>
+              </form>
             </div>
           </div>
-        </div>
+          <form [formGroup]="memberForm" class="example-form login-box row g-3 needs-validation">
+            <div class="">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Email *</label>
+                  <input matInput placeholder="Email Id" formControlName="emailId" required>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>FirstName *</label>
+                  <input matInput placeholder="First name" formControlName="firstName" required>
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-6">
+                <div class="form-group">
+                  <label>LastName *</label>
+                  <input matInput placeholder="Last name" formControlName="lastName" required>
+                </div></div>
+              <div class="col-lg-6 col-md-6">
+                <div class="form-group">
+                  <label>PhoneNumber *</label>
+                  <input matInput placeholder="Mobile number" formControlName="phoneNumber">
+                  <mat-hint>Enter a 10 digit phone number</mat-hint>
+                </div>
+              </div>
+              <mat-form-field class="invisible">
+                <input matInput formControlName="kaocUserId">
+              </mat-form-field>
+            </div>
+            <ul class="list-inline pull-right">
+              <li>
+                <button type="submit" class="app-button blue" (click)="addMember(0,1)">Next</button>&nbsp;
+                <button class="app-button" (click)="addMember(0,2)">Skip Family & Pay</button>
+              </li>
+            </ul>
+          </form>
+        </ng-template>
+
+        <ng-template #addMemberFamilyStep>
+          <form [formGroup]="memberDetForm">
+              <div class="form-group">
+                <label>Email Id</label>
+                <input matInput class="form-control"  class="form-control" formControlName="emailId"
+                    type="email">
+              </div>
+              <div class="form-group">
+                <label>First name</label>
+                <input formControlName="firstName"  class="form-control" >
+              </div>
+              <div class="form-group">
+                <label>Last name</label>
+                <input formControlName="lastName" class="form-control" >
+              </div>
+              <div class="form-group">
+                <label>Mobile Number</label>
+                <input formControlName="phoneNumber" class="form-control" >
+                <mat-hint>Enter a 10 digit phone number</mat-hint>
+              </div>
+              <div class="form-group">
+                <label>Age group</label><br>
+                <select formControlName="ageGroup" class="col-md-12 col-lg-12 form-control">
+                  <option value="Adult" selected>Adult</option>
+                  <option value="Child">Child</option>
+                </select>
+              </div>
+              <mat-form-field class="invisible">
+                <input matInput formControlName="kaocUserId">
+              </mat-form-field>
+
+            <div class="family-cta">
+              <mat-error *ngIf="memberDetFormError"><b>{{this.errorMsg}}</b></mat-error>
+              <button class="app-button blue" (click)="setStepper(0)">
+                Back
+              </button>
+              <button *ngIf="familyUpdateIndex>=0"
+                      (click)="updateMember(familyUpdateIndex)"  class="app-button blue">
+                <mat-icon matTooltip="Update Member">save</mat-icon>
+                Save
+              </button>
+              <button *ngIf="familyUpdateIndex===-1"
+                      (click)="addFamily(1)"  class="app-button">
+                <mat-icon matTooltip="Add Member">person_add</mat-icon>
+                Add
+              </button>
+              <button class="app-button" (click)="goTo(2)">
+                <mat-icon matTooltip="Pay KAOC">payment</mat-icon>
+                {{familyStepperPaymentBtnLabel}}
+              </button>
+            </div>
+          </form>
+          <mat-list class="txtl">
+            <h2 mat-subheader>
+              <mat-icon>view_list</mat-icon>
+              List of members
+            </h2>
+            <mat-divider></mat-divider>
+            <mat-list-item *ngFor="let element of data.members | slice:1  ; let index=index;">
+              <mat-icon mat-list-icon *ngIf="element.ageGroup == 'Adult'">supervisor_account</mat-icon>
+              <mat-icon mat-list-icon *ngIf="element.ageGroup != 'Adult'">face</mat-icon>
+              <div mat-line>
+                <div class="name">{{element.firstName}}</div>
+              </div>
+              <div mat-line>
+                <div class="name">{{element.lastName}}</div>
+              </div>
+              <div mat-line>
+                <span class="email">{{element.emailId}}</span>
+              </div>
+              <div mat-line>
+                <span class="phone">{{element.phoneNumber}}</span>
+              </div>
+
+              <!--
+              <h4 mat-line>Email id: {{element.emailId}}</h4>
+              <p mat-line>First name: {{element.firstName}} </p>
+              <p mat-line>Last name: {{element.lastName}} </p>
+              <p mat-line>Phone No: {{element.phoneNumber}} </p>
+              <p mat-line>Age Group: {{element.ageGroup}} </p>
+              -->
+              <p mat-line>
+                <button (click)="editMember(element,index+1)" matTooltip="Edit">
+                  <mat-icon color="primary">edit</mat-icon>
+                </button> &nbsp;
+                <button (click)="confirmDelete(element,index+1)" matTooltip="Delete">
+                  <mat-icon color="warn">delete</mat-icon>
+                </button>
+              </p>
+              <mat-divider></mat-divider>
+            </mat-list-item>
+          </mat-list>
+        </ng-template>
+
+        <ng-template #paymentStep>
+          <form [formGroup]="paymentForm" class="example-form ">
+
+            <div *ngIf="memberPaymentStatus" class="form-full-width txtl"
+                  style="padding-left: 20px; color:maroon; font-weight: 900;">
+              Payment Status : {{memberPaymentStatus}}
+            </div>
+            <div class="row">
+              <div class="col-md-12 col-lg-12">
+                <div class="form-group">
+                  <label>Payment method</label>
+                  <select formControlName="paymentMethod" required class="form-control">
+                    <option *ngFor="let paymode of paymentList" [value]="paymode"
+                            [disabled]="disablePayButton">
+                      {{paymode}}
+                    </option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Amount</label>
+                  <input formControlName="paymentAmount" readonly="true"  class="form-control">
+                </div>
+                <div class="form-group">
+                  <label>Transaction Reference No</label>
+                  <input  class="form-control" formControlName="paymentExternalSystemRef">
+                </div>
+                <div class="form-group">
+                  <label>Memo</label>
+                  <textarea  formControlName="paymentNotes" rows="3"  class="form-control"></textarea>
+                </div>
+                <div class="payment-cta">
+                  <mat-error><b>{{this.paymentErrorMsg}}</b></mat-error>
+                  <button (click)="setStepper(1)" class="app-button blue">
+                    Back
+                  </button>
+                  <!-- TODO: update this condition on when to disable submitPayment. Right now, hardcoded to paypal -->
+                  <button (click)="submitPayment()" class="app-button" *ngIf="this.paypalStatus === ''">
+                    <mat-icon matTooltip="Pay KAOC">payment</mat-icon>
+                    {{paymentStepperBtnLabel}}
+                  </button>
+                </div>
+              </div>
+              <div
+                *ngIf="getPaymentDocumentRefNo() !== null && this.paymentForm.value.paymentMethod === 'Paypal' && this.paypalStatus !== ''">
+                <h3 *ngIf="!this.memberPaymentStatus || this.memberPaymentStatus.toUpperCase() !== 'PAID'">
+                  Proceed with payment...</h3>
+                <app-paypal (paypalStatusEvent)="handlePaypalStatusEvent($event)"
+                            kaocPaymentsDocId="{{this.getPaymentDocumentRefNo()}}"
+                            paymentAmount="{{this.membershipAmt}}"
+                            paymentDescription="KAOC Membership"></app-paypal>
+              </div>
+            </div>
+          </form>
+        </ng-template>
+
+        <ng-template [ngIf]="smallScreen" [ngIfElse]="bigScreen">
+          <mat-vertical-stepper [linear]="true" #stepper>
+            <mat-step [stepControl]="memberForm" (click)="addMember(0,1)">
+              <ng-template matStepLabel>Member Details</ng-template>
+              <div class="spacer"></div>
+              <ng-container *ngTemplateOutlet="addMemberStep"></ng-container>
+            </mat-step>
+            <mat-step [stepControl]="memberDetForm" optional>
+              <ng-template matStepLabel><p class="pd" (click)="addMember(0,2)">Family Details</p></ng-template>
+              <div class="spacer"></div>
+              <ng-container *ngTemplateOutlet="addMemberFamilyStep"></ng-container>
+            </mat-step>
+            <mat-step [stepControl]="paymentForm">
+              <ng-template matStepLabel>Payment</ng-template>
+              <div class="spacer"></div>
+              <ng-container *ngTemplateOutlet="paymentStep"></ng-container>
+            </mat-step>
+
+          </mat-vertical-stepper>
+        </ng-template>
+
+        <ng-template #bigScreen>
+          <mat-horizontal-stepper [linear]="true" #stepper>
+            <mat-step [stepControl]="memberForm" (click)="addMember(0,1)">
+              <ng-template matStepLabel>Member Details</ng-template>
+              <div class="spacer"></div>
+              <ng-container *ngTemplateOutlet="addMemberStep"></ng-container>
+            </mat-step>
+            <mat-step [stepControl]="memberDetForm" optional>
+              <ng-template matStepLabel><p (click)="addMember(0,2)">Family Details</p></ng-template>
+              <div class="spacer"></div>
+              <ng-container *ngTemplateOutlet="addMemberFamilyStep"></ng-container>
+            </mat-step>
+            <mat-step [stepControl]="paymentForm">
+              <ng-template matStepLabel>Payment</ng-template>
+              <div class="spacer"></div>
+              <ng-container *ngTemplateOutlet="paymentStep"></ng-container>
+            </mat-step>
+
+          </mat-horizontal-stepper>
+        </ng-template>
       </div>
     </section>
   </div>

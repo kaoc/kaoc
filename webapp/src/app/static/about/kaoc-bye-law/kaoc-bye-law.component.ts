@@ -1,15 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
-  selector: 'kaoc-bye-law',
+  selector: 'app-kaoc-bye-law',
   templateUrl: './kaoc-bye-law.component.html',
   styleUrls: ['./kaoc-bye-law.component.css']
 })
-export class KaocByeLawComponent implements OnInit {
+export class KaocByeLawComponent {
 
-  constructor() { }
-
-  ngOnInit() {
-  }
+  constructor() {}
 
 }

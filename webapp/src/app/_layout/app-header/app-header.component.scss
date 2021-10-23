@@ -1,0 +1,84 @@
+@import '../../../styles/_variables';
+.nav-bar {
+  width: 100%;
+  background-color: $darkblue;
+  background-image: url('/assets/images/header_bg.jpg');
+  background-size: cover;
+  font-family: 'Poppins', sans-serif;
+  height: $headerHeight;
+  @media screen and (max-width: 767px){
+    height: 225px;
+  }
+  @media screen and (max-width: 991px){
+    height: 320px;
+  }
+  position: absolute;
+  top: 0;
+
+  .nav-bar_menu {
+    position: fixed;
+    top: 0;
+    font-size: 14px;
+    width: inherit;
+  }
+
+  mat-sidenav-container {
+    background-color: $darkblue;
+  }
+
+  mat-toolbar {
+    height: $toolBarHeight;
+  }
+
+  .navigation {
+    width: 60%;
+    & > ul {
+      display: flex;
+      list-style: none;
+      justify-content: space-evenly;
+      a.link {
+        font-size: 14px;
+        line-height: 1.2;
+        color: $white;
+        text-decoration: none;
+        text-transform: uppercase;
+        font-weight: normal;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 12px;
+
+        & > i {
+          margin-bottom: 10px;
+        }
+      }
+
+      li:last-child {
+        padding-top: 17px;
+      }
+    }
+  }
+}
+
+.page-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: $white;
+  position: absolute;
+  top: 0;
+  margin: 15% 0 auto;
+  width: 100%;
+
+  & > div {
+    display: inherit;
+    flex-direction: inherit;
+    align-items: inherit;
+    border-bottom: 1px solid $white;
+    padding: 0 20px;
+    & > p {
+      font-weight: 100;
+    }
+  }
+}

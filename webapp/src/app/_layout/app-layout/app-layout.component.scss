@@ -1,0 +1,6 @@
+@import '../../../styles/variables';
+.app {
+    &-spacer {
+        padding-top: $toolBarHeight;
+    }
+}

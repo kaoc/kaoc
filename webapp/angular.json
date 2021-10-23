@@ -36,6 +36,7 @@
             "styles": [
               "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
               "src/styles.css",
+              "src/styles/global.scss",
               "./node_modules/font-awesome/css/font-awesome.css",
               "src/app/css/animate.min.css",
               "src/app/css/bootstrap.css"

@@ -19,20 +19,19 @@ export interface DialogData {
 }
 
 @Component({
-  selector: 'member-profile',
+  selector: 'app-member-profile',
   templateUrl: './member-profile.component.html',
-  styleUrls: ['./member-profile.component.css']
+  styleUrls: ['./member-profile.component.scss']
 })
 export class MemberProfileComponent implements OnInit {
   @ViewChild('stepper') stepper: MatStepper;
   paypalStatus = '';
 
   smallScreen: boolean;
-  disablePayButton: boolean = false;
-  errorMsg: string = '';
-  paymentErrorMsg: string = '';
+  disablePayButton = false;
+  errorMsg = '';
+  paymentErrorMsg = '';
   memberPageTitle: string;
-  //data:any= '';
 
   memberDetFormError = false;
   saved = false;
@@ -44,8 +43,8 @@ export class MemberProfileComponent implements OnInit {
   memberDetForm: FormGroup;
   paymentForm: FormGroup;
   paymentList: string[] = ['Cash', 'Check', 'Square', 'Paypal'];
-  membershipAmt: string = '0';
-  familyUpdateIndex: number = -1;
+  membershipAmt = '0';
+  familyUpdateIndex = -1;
   memberShip: Membership;
 
   memberdet;
@@ -54,7 +53,7 @@ export class MemberProfileComponent implements OnInit {
   member: Member[];
   members: FormArray;
 
-  //Defaults
+  // Defaults
   familyStepperPaymentBtnLabel: string;
   paymentStepperBtnLabel: string;
   isLinear: boolean;
@@ -80,14 +79,14 @@ export class MemberProfileComponent implements OnInit {
     });
 
     this.setDefaults();
-    //console.log('Inside MemberProfile constructor. memberService.routedFrom= ' + this.memberService.routedFrom);
+    // console.log('Inside MemberProfile constructor. memberService.routedFrom= ' + this.memberService.routedFrom);
 
     // const navigation = this.route.getCurrentNavigation();
     // const state = navigation.extras.state as {id: string};
-    //this.queryByMemberId = state.id;
+    // this.queryByMemberId = state.id;
 
     // this.queryByMemberId=this.route.getCurrentNavigation().extras.state.id;
-    //this.memberService.routedFrom=route.snapshot.paramMap.get('routeTo');
+    // this.memberService.routedFrom=route.snapshot.paramMap.get('routeTo');
 
     this.queryByMemberId = this.route.snapshot.paramMap.get('id');
     console.log('queryByMemberId=' + this.queryByMemberId + 'this.memberService.routedFrom=' + this.memberService.routedFrom);
@@ -180,11 +179,18 @@ export class MemberProfileComponent implements OnInit {
       if (this.memberService.membershipDetails.pastMembership) {
         this.disablePayButton = false;
         this.memberStatus = 'InActive';
-        //this.memberPaymentStatus = this.memberService.membershipDetails.pastMembership.paymentStatus.toUpperCase();
-        this.membershipTypeForm.controls.membershipType.setValue(this.memberService.membershipDetails.pastMembership.membershipType.toUpperCase());
-        console.log('this.memberService.membershipDetails.membershipType' + this.memberService.membershipDetails.pastMembership.membershipType);
+        // this.memberPaymentStatus = this.memberService.membershipDetails.pastMembership.paymentStatus.toUpperCase();
+        this.membershipTypeForm.controls.membershipType.setValue(
+          this.memberService.membershipDetails.pastMembership.membershipType.toUpperCase()
+        );
+        console.log(
+          'this.memberService.membershipDetails.membershipType' + this.memberService.membershipDetails.pastMembership.membershipType
+        );
       } else if (this.memberService.membershipDetails.membership) {
-        console.log('this.memberService.membershipDetails.membershipType' + this.memberService.membershipDetails.membership.membershipType.toUpperCase());
+        console.log(
+          'this.memberService.membershipDetails.membershipType'
+          + this.memberService.membershipDetails.membership.membershipType.toUpperCase()
+        );
         this.memberPaymentStatus = this.memberService.membershipDetails.membership.paymentStatus.toUpperCase();
         this.membershipTypeForm.controls.membershipType.setValue(this.memberService.membershipDetails.membership.membershipType);
       }
@@ -209,13 +215,13 @@ export class MemberProfileComponent implements OnInit {
       if (this.memberService.membershipDetails.members.length > 0) {
 
         let counter = 0;
-        //******************** No adult flag passed from service so setValue fails */
-        //this.memberForm.setValue (this.memberService.membershipDetails.members[0]);
+        // ******************** No adult flag passed from service so setValue fails */
+        // this.memberForm.setValue (this.memberService.membershipDetails.members[0]);
 
         this.memberService.membershipDetails.members.forEach(element => {
           console.log('counter=' + counter);
 
-          if (counter == 0) {
+          if (counter === 0) {
             this.memberForm.controls.emailId.setValue(this.memberService.membershipDetails.members[counter].emailId);
             this.memberForm.controls.firstName.setValue(this.memberService.membershipDetails.members[counter].firstName);
             this.memberForm.controls.lastName.setValue(this.memberService.membershipDetails.members[counter].lastName);
@@ -242,7 +248,7 @@ export class MemberProfileComponent implements OnInit {
       }
 
       console.log('array length ' + this.memberService.membershipDetails.members.length);
-      //this.data.members[0]= this.memberService.membershipDetails.members[0];
+      // this.data.members[0]= this.memberService.membershipDetails.members[0];
 
       // console.log('emailId=' + JSON.stringify(this.data.members[0]  ));
 
@@ -293,7 +299,7 @@ export class MemberProfileComponent implements OnInit {
 
   validateMemberDetForm() {
     let errCount = 0;
-    if (this.memberDetForm.controls.ageGroup.value == 'Adult') {
+    if (this.memberDetForm.controls.ageGroup.value === 'Adult') {
 
       console.log('validateMemberDetForm>>> memberDetForm.value=' + JSON.stringify(this.memberDetForm.value));
 
@@ -305,7 +311,7 @@ export class MemberProfileComponent implements OnInit {
         console.log(this.errorMsg);
         return false;
       } else {
-        if (this.validatePhoneNo(this.memberDetForm.controls.phoneNumber.value) == false) {
+        if (!this.validatePhoneNo(this.memberDetForm.controls.phoneNumber.value)) {
           this.errorMsg = 'Enter a 10 digit phone number';
           this.memberDetFormError = true;
           return false;
@@ -314,7 +320,7 @@ export class MemberProfileComponent implements OnInit {
           this.memberDetFormError = false;
         }
 
-        if (this.validateEmail(this.memberDetForm.controls.emailId.value) == false) {
+        if (!this.validateEmail(this.memberDetForm.controls.emailId.value)) {
           this.errorMsg = 'Invalid Email id';
           this.memberDetFormError = true;
           return false;
@@ -329,7 +335,7 @@ export class MemberProfileComponent implements OnInit {
         this.memberDetFormError = false;
 
       } else {
-        if (this.validatePhoneNo(this.memberDetForm.controls.phoneNumber.value) == false) {
+        if (!this.validatePhoneNo(this.memberDetForm.controls.phoneNumber.value)) {
           this.errorMsg = 'Enter a 10 digit phone number';
           this.memberDetFormError = true;
           errCount++;
@@ -340,14 +346,14 @@ export class MemberProfileComponent implements OnInit {
         }
       }
 
-      if (errCount == 0) {
+      if (errCount === 0) {
         if (this.isNullField(this.memberDetForm.controls.firstName.value) || this.isNullField(this.memberDetForm.controls.lastName.value)) {
           this.errorMsg = 'Name is mandatory for Child group';
           console.log(this.errorMsg);
           this.memberDetFormError = true;
           errCount++;
         } else {
-          if (this.validateEmail(this.memberDetForm.controls.emailId.value) == false) {
+          if (!this.validateEmail(this.memberDetForm.controls.emailId.value)) {
             this.errorMsg = 'Invalid Email id';
             this.memberDetFormError = true;
             errCount++;
@@ -500,8 +506,8 @@ export class MemberProfileComponent implements OnInit {
     console.log('in validateEmail ' + emailId);
     this.errorMsg = '';
     this.memberDetFormError = false;
-    this.errorMsg.substr;
-    if (emailId && emailId.indexOf('@') == -1) {
+    // this.errorMsg.substr;
+    if (emailId && emailId.indexOf('@') === -1) {
       return false;
     }
 
@@ -545,13 +551,13 @@ export class MemberProfileComponent implements OnInit {
 
   validatePhoneNo(mobileNo) {
 
-    let fieldVal = mobileNo;
+    const fieldVal = mobileNo;
     if (fieldVal === '' || fieldVal === null || fieldVal === undefined) {
       return true;
     } else {
       console.log('fieldVal.length' + fieldVal.length);
 
-      if (fieldVal.length == 10) {
+      if (fieldVal.length === 10) {
         if (Number(+fieldVal)) {
           console.log('Number format newStr=' + fieldVal);
           return true;
