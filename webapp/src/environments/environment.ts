@@ -19,6 +19,8 @@ export const environment = {
     },
     square: {
       // Application Id in https://developer.squareup.com/apps/
+      // TODO: This is Rafeeq's square account. Need to change to a test Square account for Kaoc
+      // Note that Square's sandbox does not support Point of Sale.
       appId               : 'sq0idp-SwIIqsQfPszLsEDFFyupkg'
     },
     paypal: {
