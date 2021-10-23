@@ -4,7 +4,7 @@ import { AngularFireAuth } from '@angular/fire/auth';
 @Component({
   selector: 'app-verify-email',
   templateUrl: './verify-email.component.html',
-  styleUrls: ['./verify-email.component.css']
+  styleUrls: ['./verify-email.component.scss']
 })
 export class VerifyEmailComponent implements OnInit {
   emailSent = false;

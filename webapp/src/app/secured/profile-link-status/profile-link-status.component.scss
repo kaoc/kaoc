@@ -1,4 +1,4 @@
-.profile {
+.profile-link-status {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -29,19 +29,4 @@
     padding-left: 40px;
     padding-right: 40px;
   }
-}
-
-.membership-state-active {
-  font-weight: bold;
-  color: green;
-}
-
-.membership-state-inactive {
-  font-weight: bold;
-  color: red;
-}
-
-.payment-state-incomplete {
-  font-weight: bold;
-  color: rgb(255, 140, 0);
 }

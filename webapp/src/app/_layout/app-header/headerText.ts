@@ -1,10 +1,12 @@
-import { SECURED_CONTEXT, PROFILE, ADMIN_LIST_MEMBERS, LOGIN, ADMIN_MEMBER_PROFILE, KOAC_HISTORY } from '../../URLConstants';
+import { SECURED_CONTEXT, PROFILE, ADMIN_LIST_MEMBERS, LOGIN, ADMIN_MEMBER_PROFILE, KOAC_HISTORY, VERIFY,PROFILE_LINK_STATUS } from '../../URLConstants';
 export const getHeaderText = (url) => {
     const titleInfo = {
         title: '',
         subTitle: ''
     };
     switch (url) {
+        case `/${SECURED_CONTEXT}/${VERIFY}`:
+        case `/${SECURED_CONTEXT}/${PROFILE_LINK_STATUS}`:
         case `/${SECURED_CONTEXT}/${PROFILE}`:
             titleInfo.title = 'KAOC Profile';
             break;

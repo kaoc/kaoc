@@ -117,25 +117,30 @@ exports.handleUserAdded = functions.auth.user().onCreate((user) => {
             .limit(1)
             .get()
             .then(kaocUserQuerySnapshot => {
-                if(!kaocUserQuerySnapshot.empty) {    
-                    // profile exists
-                    var userNameSplit = user.displayName.split(' ');
-                    var firstName = userNameSplit[0];
-                    var lastName = userNameSplit[userNameSplit.length - 1];
+                if(!kaocUserQuerySnapshot.empty) {
+                    console.log(`Found kaoc profile for newly created user with email ${user.email}`);    
                 
-                    const kaocMemberData = {
+                    let kaocMemberData = {
                         'emailId': user.email,
-                        'firstName': firstName,
-                        'lastName': lastName,
                         'loginId': user.uid
                     };
-                
+
+                    // profile exists
+                    if(user.displayName) {
+                        var userNameSplit = displayName.split(' ');
+                        var firstName = userNameSplit[0];
+                        var lastName = userNameSplit[userNameSplit.length - 1];
+                        kaocMemberData.firstName = firstName;
+                        kaocMemberData.lastName = lastName;
+                    }
+                    
                     if(user.phoneNumber) {
                         kaocMemberData.phoneNumber = user.phoneNumber;
                     }
                     // add or update is called. But it is always update
                     return _addOrUpdateMember(kaocMemberData);
                 } else {
+                    console.log(`Could not find kaoc profile for newly created user with email ${user.email}`);
                     return null;
                 }
             });

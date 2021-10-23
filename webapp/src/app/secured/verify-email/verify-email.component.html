@@ -1,16 +1,18 @@
-<div>
-  <div *ngIf="!emailSent">
-    <p>
-      Your email account needs to be verified to be able to use the account.
-      If you have not recieved verification, please request by using the button below.
-    </p>
+<div class="card">
+  <div class="verify">
+    <div *ngIf="!emailSent">
+      <p>
+        Your email account needs to be verified to be able to use the account.
+        If you have not recieved verification, please request by using the button below.
+      </p>
 
-    <button mat-button-raised color="primary" (click)="verifyEmail()">Request Verification Email</button>
-  </div>
+      <button mat-button-raised color="primary" (click)="verifyEmail()">Request Verification Email</button>
+    </div>
 
-  <div *ngIf="emailSent">
-    <p>
-      An email has been sent to your email address. Please follow instructions in the email to complete the verification.
-    </p>
+    <div *ngIf="emailSent">
+      <p>
+        An email has been sent to your email address. Please follow instructions in the email to complete the verification.
+      </p>
+    </div>
   </div>
 </div>

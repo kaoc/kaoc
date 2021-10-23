@@ -2,6 +2,7 @@ import {PaypalPaymentComponent} from './../../../payment/paypal-payment/paypal-p
 import {Component, OnInit, ViewChild, Inject} from '@angular/core';
 import {FormBuilder, FormGroup, ValidatorFn, AbstractControl, Validators, FormArray} from '@angular/forms';
 import {MemberService} from '../../member.service';
+import {AuthService} from '../../auth/auth.service';
 import {Membership} from '../../Membership';
 import {Member} from '../../Member';
 import {MatStepper, MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material';
@@ -42,7 +43,7 @@ export class MemberProfileComponent implements OnInit {
   memberForm: FormGroup;
   memberDetForm: FormGroup;
   paymentForm: FormGroup;
-  paymentList: string[] = ['Cash', 'Check', 'Square', 'Paypal'];
+  paymentList: string[] = ['Paypal'];
   membershipAmt = '0';
   familyUpdateIndex = -1;
   memberShip: Membership;
@@ -68,7 +69,8 @@ export class MemberProfileComponent implements OnInit {
               private route: ActivatedRoute,
               private breakpointObserver: BreakpointObserver,
               public dialog: MatDialog,
-              private router: Router
+              private router: Router,
+              private authService: AuthService
   ) {
 
     breakpointObserver.observe([
@@ -76,6 +78,17 @@ export class MemberProfileComponent implements OnInit {
       Breakpoints.Small
     ]).subscribe(result => {
       this.smallScreen = result.matches;
+    });
+
+    authService.kaocRoles.subscribe(kaocRoles => {
+      if (kaocRoles && kaocRoles.admin != null) {
+        // Admin user. add opt
+        ['Cash', 'Check', 'Square'].forEach(adminPayment=>{
+          if(this.paymentList.indexOf(adminPayment) == -1) {
+            this.paymentList.push(adminPayment);
+          }
+        })
+      }
     });
 
     this.setDefaults();

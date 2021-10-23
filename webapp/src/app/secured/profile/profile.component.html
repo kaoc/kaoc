@@ -14,11 +14,15 @@
         <!--TODO - Placeholder -->
         <div *ngIf="profileState == 'kaocUserNotFound'">
             We could not locate a user profile with your email.<br><br>
-            <button (click)="createNewProfile()">Click Here</button>to create a new profile<br><br>
-            If your profile is associated with a different email, please enter that email address and click link to
+            <button (click)="createNewProfile()" class="app-button">Click Here</button>&nbsp;&nbsp;&nbsp;to create a new profile<br><br>
+            If your profile is associated with a different email, please enter that email address and click the link profile button to
             associate the current login.<br><br>
-            <input #emailIdInput type="text" (keyup)="setEmailIdToLink(emailIdInput.value)" />
-            <button mat-button-raised color="primary" (click)="linkWithOtherEmail(emailIdToLink)">Link Profile
+            <div class="form-group">
+              <label>Email Associated with KAOC Membership*</label>
+              <input class="form-control" #emailIdInput type="text" (keyup)="setEmailIdToLink(emailIdInput.value)" matInput placeholder="a@gmail.com"/>
+            </div>
+            <br/>
+            <button class="app-button profile-edit__bttn" mat-button-raised color="primary" (click)="linkWithOtherEmail(emailIdToLink)">Link Profile
             </button>
             <br>
             <br>
@@ -36,8 +40,14 @@
             <div class="active-membership" *ngIf="membership && membership.membership">
                 <div>
                     <span>Membership Status: </span>
-                    <span class="membership-state-active">Active</span>
+                    <span class="membership-state-active" *ngIf="membership.membership.paymentStatus == 'Paid'">Active</span>
+                    <span class="membership-state-inactive" *ngIf="membership.membership.paymentStatus != 'Paid'">InActive</span>
                 </div>
+                <div *ngIf="membership.membership.paymentStatus != 'Paid'">
+                    <span>Payment Status: </span>
+                    <span class="payment-state-incomplete" >{{membership.membership.paymentStatus}}</span>
+                </div>
+
                 <div>
                     <span>Membership Type: </span>
                     <span class="membership-type">
@@ -49,7 +59,7 @@
             <div class="inactive-membership" *ngIf="membership && membership.pastMembership">
                 <div>
                     <span>Membership Status: </span>
-                    <span class="membership-state-inactive">In-Active</span>
+                    <span class="membership-state-inactive">InActive</span>
                 </div>
                 <div>
                     <span>Membership Type: </span>
@@ -78,7 +88,7 @@
         <div *ngIf="profileState !== 'kaocUserFound'">
             <mat-card class="user-profile" fxFlex="1 0 auto">
                 <mat-card-header>
-                    Login Profile
+                    <h3>Login Profile</h3>
                 </mat-card-header>
                 <mat-card-content>
                     <div class="name">{{firebaseUser.displayName}}</div>

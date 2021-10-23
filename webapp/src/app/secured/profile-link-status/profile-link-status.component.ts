@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'profile-link-status',
   templateUrl: './profile-link-status.component.html',
-  styleUrls: ['./profile-link-status.component.css']
+  styleUrls: ['./profile-link-status.component.scss']
 })
 export class ProfileLinkStatusComponent implements OnInit {
 
