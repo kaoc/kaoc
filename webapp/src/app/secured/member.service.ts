@@ -7,7 +7,7 @@ import { first } from 'rxjs/operators';
 import { map } from 'rxjs/operators';
 import { AngularFireFunctions } from '@angular/fire/functions';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { Membership } from './Membership';
+import { Membership, MembershipReportDetails } from './Membership';
 import { Router, NavigationExtras } from '@angular/router';
 
 @Injectable({
@@ -85,6 +85,24 @@ export class MemberService {
                         throw e;
                     });
     }
+
+    /**
+     * Fetches and returns the membership report for the given year
+     *
+     * @param year - Membership Year
+     */
+  getMembershipReport(year: number): Promise<Array<MembershipReportDetails>> {
+      return this.ngFireFunctions
+                  .httpsCallable('getMembershipReport')({year})
+                  .toPromise().then(membershipReportData => {
+                      console.log(`Obtained membership report with ${membershipReportData.length} records`);
+                      return membershipReportData;
+                  }).catch(e => {
+                      console.error(`Error fetching membership report for year: ${year}`);
+                      throw e;
+                  });
+  }
+
 
   getAllMembers() {
     return this.members;

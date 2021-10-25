@@ -13,7 +13,8 @@ import {MatDialog, MatTableDataSource} from '@angular/material';
 
 export class ListMemberProfilesComponent implements OnInit {
   columnsToDisplay: string[] = ['firstName'];
-
+  membershipReportYears: string[] = ['2021', '2020'];
+  membershipReportYear: number = 2021;
   members: Member[];
   membersCpy: Member[];
   pageOfItems: Array<any>;
@@ -47,6 +48,48 @@ export class ListMemberProfilesComponent implements OnInit {
   onChangePage(pageOfItems: Array<any>) {
     // update current page of items
     this.pageOfItems = pageOfItems;
+  }
+
+  downloadMembershipReport() {
+    let membershipYear = this.membershipReportYear;
+    this.memberService.getMembershipReport(membershipYear).then(membershipReportRecords=>{
+      let csvReports = [];
+      csvReports.push(['First Name', 'Last Name', 'Email Id','Age Group', 'Membership Type','Membership Id', 'Legacy Membership Id', 'Payment Amount', 'Payment Method', 'Payment Notes','External Payment Ref', 'Payment Time'].join());
+      membershipReportRecords.forEach(memRecord=>{
+        csvReports.push([
+            memRecord.firstName,
+            memRecord.lastName,
+            memRecord.emailId,
+            memRecord.ageGroup,
+            memRecord.membershipType,
+            memRecord.kaocMembershipId,
+            memRecord.legacyMembershipId,
+            memRecord.paymentAmount,
+            memRecord.paymentMethod,
+            memRecord.paymentNotes,
+            memRecord.paymentExternalSystemRef,
+            this.formatDateTime(memRecord.paymentTime)
+        ].join());
+      });
+
+      let csvData = csvReports.join('\n');
+
+      var a = document.createElement('a');
+      var blob = new Blob([csvData], {'type':'text/csv'});
+      a.href = window.URL.createObjectURL(blob);
+      a.download = `KAOC_Membership_Report_${membershipYear}.csv`;
+      a.click();
+    });
+  }
+
+  formatDateTime(epochMillis) {
+    let dateString = '';
+    if(epochMillis) {
+      let date = new Date();
+      date.setTime(epochMillis);
+      dateString = date.toLocaleString();
+    }
+    return dateString;
   }
 
   applyFilter(filterValue: string) {

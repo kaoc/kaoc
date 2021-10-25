@@ -243,6 +243,24 @@ exports.getCurrentMembershipDataByMemberId = functions.https.onCall((data, conte
 });
 
 /**
+ * Returns the details of all membership data using a given year. 
+ * If the year is skipeed, the current year will be used. 
+ */
+ exports.getMembershipReport = functions.https.onCall((data, context) => {
+    const membershipYear = data.year || new Date().getFullYear();
+    return _assertAdminRole(context) 
+    .catch(e=> {
+        throw new functions.https.HttpsError(
+            'permission-denied', 
+            'User does not have the authorization to perform this operation');
+    })
+    .then(authResult => {
+        return _getMembershipReport(membershipYear);
+    })
+});
+
+
+/**
  * Returns current membership data by the given kaoc user id. 
  * NOTE - This method is internal does not do any permission checks.
  * The required permission checks should be performed by the calling functions.
@@ -252,7 +270,7 @@ exports.getCurrentMembershipDataByMemberId = functions.https.onCall((data, conte
 function _getCurrentMembershipDataByKaocUserId(kaocUserId) {
     // look up the current year memebership
     let kaocUserRef = admin.firestore().doc(`/kaocUsers/${kaocUserId}`);
-    const currentTime = admin.firestore.Timestamp.fromMillis(new Date());
+    const currentTime = admin.firestore.Timestamp.fromMillis(new Date().getTime());
     let result = {};
     let kaocMemberRefs = [kaocUserRef];
 
@@ -324,6 +342,92 @@ function _getCurrentMembershipDataByKaocUserId(kaocUserId) {
                 }
             });
             return result;
+        });
+}
+
+function _getMembershipReport(memberShipYear) {
+    // look up the current year memebership
+    // create a dummy date object which falls within the current year.
+    let dateComparison = new Date();
+    dateComparison.setFullYear(memberShipYear);
+
+    const membershipColRef = admin.firestore().collection('/kaocMemberships');
+    return membershipColRef
+        .where('endTime', '>=', dateComparison)
+        .orderBy('endTime')
+        .get()
+        .then(querySnapShots => {
+            var memberships = [];
+            if(!querySnapShots.empty) {
+                console.log(`Membership data exists for year ${memberShipYear}`);
+
+                var paymentAndUserRefPromises = [];
+                querySnapShots.docs.forEach(membershipSnapShot=>{
+                    let membershipRef = membershipSnapShot.ref;
+                    let membershipRecord = membershipSnapShot.data();
+                    let {membershipType, paymentStatus, legacyMembershipId, startTime} = membershipRecord;
+                    
+                    if(startTime.toDate().getFullYear() !== Number(memberShipYear)) {
+                        console.debug(`Ignoring membership for past year  ${startTime.toDate().getFullYear()} `)
+                        return;
+                    }
+
+                    let membership = {membershipType, paymentStatus, legacyMembershipId, kaocMembershipId: membershipRef.id, users:[]};
+                    memberships.push(membership);
+
+                    // fetch the users for the membership.
+                    let kaocUserRefs = membershipRecord.kaocUserRefs || [];
+                    console.debug('Querying users for membership record');
+                    kaocUserRefs.forEach(kaocUserRef=>{
+                        let userFetchPromise = kaocUserRef.get().then(userQuerySnapShot=>{
+                            // console.debug(`User record exists - ${userQuerySnapShot.exists}`)
+                            if(userQuerySnapShot.exists) {
+                                let {firstName, lastName, emailId, ageGroup, phoneNumber} = userQuerySnapShot.data();
+                                membership.users.push({firstName, lastName, emailId, ageGroup, phoneNumber});
+                            }
+                            return null;
+                        });
+
+                        paymentAndUserRefPromises.push(userFetchPromise);
+                    });
+
+                    // find the payment record associated with the membership
+                    console.log('Querying payments for membership record');
+                    let paymentFetchPromise = admin.firestore().collection('/kaocPayments')
+                                .where('paymentTypeRef', '==', membershipRef)
+                                .where('paymentType', '==', 'Membership')
+                                .limit(1)
+                                .get().then(paymentQuerySnapshot=>{
+                                    console.debug(`Payment record exists - ${!paymentQuerySnapshot.empty}`)
+                                    if(!paymentQuerySnapshot.empty) {
+                                        let {paymentMethod, paymentAmount, paymentNotes, paymentStatus, paymentExternalSystemRef, createTime} = paymentQuerySnapshot.docs[0].data();
+                                        let payment = {paymentMethod, paymentAmount, paymentNotes, paymentStatus, paymentExternalSystemRef, kaocPaymentId: paymentQuerySnapshot.docs[0].id, paymentTime: createTime.toMillis()};
+                                        Object.assign(membership, payment);
+                                    }
+                                    return null;
+                                });
+                    paymentAndUserRefPromises.push(paymentFetchPromise); 
+                });
+                return Promise.all(paymentAndUserRefPromises).then(ref=>{
+                    return memberships;
+                });                
+            } else {
+                console.log(`No Memberships for the year ${memberShipYear}`);
+            }
+            return memberships;
+        }).then(memberships => {
+            console.log(`Obtained ${memberships.length} membership records`)
+            let users = [];
+            memberships.forEach(membership=>{
+                membership.users.forEach(user=>{
+                    // create a flat object with the membership details and user details.
+                    let userMemberShipDetails =  Object.assign({}, membership, user);
+                    // remove the users array from this object - otherwise it will create unnecessary recursive data.
+                    delete userMemberShipDetails.users;
+                    users.push(userMemberShipDetails);
+                });
+            });
+            return users;
         });
 }
 

@@ -13,6 +13,24 @@ export interface Membership {
     kaocMembershipId: string;
   }
 
+  export interface MembershipReportDetails {
+    firstName:string;
+    lastName: string;
+    emailId: string;
+    ageGroup: string;
+    phoneNumber: string;
+    membershipType: string;
+    paymentStatus: string;
+    legacyMembershipId: string;
+    kaocMembershipId: string;
+    paymentMethod: string;
+    paymentAmount: string;
+    paymentNotes: string;
+    paymentExternalSystemRef: string;
+    kaocPaymentId: string;
+    paymentTime:number;
+  }
+
   export interface PastMembershipDet {
     membershipType:string;
     paymentStatus: string;
@@ -27,4 +45,3 @@ export interface Membership {
     paymentExternalSystemRef:string;
     kaocPaymentId:string;
   }
- 

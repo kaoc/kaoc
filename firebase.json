@@ -34,6 +34,9 @@
         "source": "api/createNewProfile",
         "function": "createNewProfile"
       }, {
+        "source": "api/getMembershipReport",
+        "function": "getMembershipReport"
+      }, {
         "source": "api/:projectName/us-central1/addOrUpdateMemberAndMembership",
         "function": "addOrUpdateMemberAndMembership"
       }, {
@@ -51,6 +54,9 @@
       }, {
         "source": "api/:projectName/us-central1/createNewProfile",
         "function": "createNewProfile"
+      }, {
+        "source": "api/:projectName/us-central1/getMembershipReport",
+        "function": "getMembershipReport"
       }, {
         "source": "**",
         "destination": "/index.html"

@@ -64,4 +64,14 @@
     display: flex;
     justify-content: space-between;
   }
- }
+
+  .report {
+    display: flex;
+    justify-content: left;
+
+    &_heading {
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+}
