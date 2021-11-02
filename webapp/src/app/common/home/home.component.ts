@@ -41,17 +41,17 @@ export class HomeComponent implements OnInit {
       $('.headr').removeClass('black');
       animate();
     });
-    $(window).on('scroll', () => {
-      if ($(window).scrollTop()) {
-        $('nav').addClass('black');
-        $('.headr').addClass('black');
-        // $('.topsection').addClass('topnone');
-      } else {
-        $('nav').removeClass('black');
-        $('.headr').removeClass('black');
-        // $('.topsection').removeClass('topnone');
-      }
-    });
+    // $(window).on('scroll', () => {
+    //   if ($(window).scrollTop()) {
+    //     $('nav').addClass('black');
+    //     $('.headr').addClass('black');
+    //     // $('.topsection').addClass('topnone');
+    //   } else {
+    //     $('nav').removeClass('black');
+    //     $('.headr').removeClass('black');
+    //     // $('.topsection').removeClass('topnone');
+    //   }
+    // });
 
     function animate() {
       // window and animation items

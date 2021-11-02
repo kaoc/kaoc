@@ -55,7 +55,7 @@
                     </a>
                   </li>
                   -->
-                  <li class="hidden-xs">
+                  <li class="hidden-xs login-bttn" *ngIf="!loggedIn">
                     <a (click)="navigateToLoginPage()" class="app-button">
                       <i class=""><img src="/assets/images/ico_login.png" width="15" height="18" alt="" /></i>
                       Login

@@ -17,7 +17,7 @@ export class AuthGuardService implements CanActivate {
      * Called when a route is activated.
      */
     canActivate(route: ActivatedRouteSnapshot): boolean {
-        //const expectedRole = route.data.expectedRole;
+        // const expectedRole = route.data.expectedRole;
         const firebaseUser = this.authService.getFirebaseUser();
 
         if (firebaseUser != null) {
