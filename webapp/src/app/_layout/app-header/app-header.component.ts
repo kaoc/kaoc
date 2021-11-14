@@ -55,7 +55,7 @@ export class AppHeaderComponent implements OnInit {
 
   ngOnInit() {
     this.router.events.subscribe(event => {
-      if (event instanceof NavigationStart) {
+      if (event instanceof NavigationEnd) {
         this.titleInfo = getHeaderText(event.url);
         console.log(this.titleInfo , event.url);
       }

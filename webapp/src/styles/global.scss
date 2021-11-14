@@ -45,3 +45,25 @@
         margin-right: 10px !important;
     }
 }
+
+.page-title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: $white;
+    position: absolute;
+    top: 0;
+    margin: 15% 0 auto;
+    width: 100%;
+  
+    & > div {
+      display: inherit;
+      flex-direction: inherit;
+      align-items: inherit;
+      border-bottom: 1px solid $white;
+      padding: 0 20px;
+      & > p {
+        font-weight: 100;
+      }
+    }
+  }

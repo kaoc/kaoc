@@ -20,6 +20,7 @@
     top: 0;
     font-size: 14px;
     width: inherit;
+    z-index: 10001;
   }
 
   mat-sidenav-container {
@@ -35,7 +36,7 @@
     & > ul {
       display: flex;
       list-style: none;
-      justify-content: space-evenly;
+      justify-content: flex-end;
       a.link {
         font-size: 14px;
         line-height: 1.2;
@@ -54,31 +55,13 @@
         }
       }
 
-      li:last-child {
+      & > li {
+        margin: 0 15px;
+      }
+
+      li.login-bttn {
         padding-top: 17px;
       }
-    }
-  }
-}
-
-.page-title {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: $white;
-  position: absolute;
-  top: 0;
-  margin: 15% 0 auto;
-  width: 100%;
-
-  & > div {
-    display: inherit;
-    flex-direction: inherit;
-    align-items: inherit;
-    border-bottom: 1px solid $white;
-    padding: 0 20px;
-    & > p {
-      font-weight: 100;
     }
   }
 }
