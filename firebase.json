@@ -46,6 +46,12 @@
         "source": "api/getUpcomingEvents",
         "function": "getUpcomingEvents"
       }, {
+        "source": "api/performMemberEventCheckIn",
+        "function": "performMemberEventCheckIn"
+      }, {
+        "source": "api/getMemberEventCheckinDetails",
+        "function": "getMemberEventCheckinDetails"
+      }, {
         "source": "api/:projectName/us-central1/addOrUpdateMemberAndMembership",
         "function": "addOrUpdateMemberAndMembership"
       }, {
@@ -75,6 +81,12 @@
       }, {
         "source": "api/:projectName/us-central1/getUpcomingEvents",
         "function": "getUpcomingEvents"
+      }, {
+        "source": "api/:projectName/us-central1/performMemberEventCheckIn",
+        "function": "performMemberEventCheckIn"
+      }, {
+        "source": "api/:projectName/us-central1/getMemberEventCheckinDetails",
+        "function": "getMemberEventCheckinDetails"
       }, {
         "source": "**",
         "destination": "/index.html"

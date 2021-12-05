@@ -257,7 +257,7 @@ exports.getCurrentMembershipDataByMemberId = functions.https.onCall((data, conte
     })
     .then(authResult => {
         return _getMembershipReport(membershipYear);
-    })
+    });
 });
 
 
@@ -1336,6 +1336,8 @@ exports.linkEmailProfile = functions.https.onRequest(async (req, res) => {
     });
 });
 
+// Event Services
+
 exports.getUpcomingEvents = functions.https.onCall((data, context) => {
     context = _setUpTestingContext(context);
     if(!_assertAuthenticated(context)) {
@@ -1379,6 +1381,120 @@ exports.getUpcomingEvents = functions.https.onCall((data, context) => {
         });
 });
 
+exports.performMemberEventCheckIn = functions.https.onCall((data, context) => {
+    context = _setUpTestingContext(context);
+
+    let kaocUserId = data.kaocUserId;
+    let kaocEventId = data.kaocEventId;
+    let numAdults   = data.numAdults;
+    let numChildren = data.numChildren;
+
+    return _assertAdminRole(context)    
+                .catch(e=> {
+                    throw new functions.https.HttpsError(
+                        'permission-denied', 
+                        'User does not have the authorization to perform this operation');
+                }).then(authResponse => {
+                    return _getCurrentMembershipDataByKaocUserId(kaocUserId);
+                }).then(membershipData => {
+                    if(membershipData 
+                        && membershipData.membership 
+                        &&  membershipData.membership.kaocMembershipId) {
+
+                            let attendeeRef = admin.firestore().doc(`/kaocMemberships/${membershipData.membership.kaocMembershipId}`);
+                            let attendeeType = 'Membership';
+                            let checkInTime = new Date();
+                            let eventRef = admin.firestore().doc(`/kaocEvents/${kaocEventId}`);
+
+                            let writeBatch = admin.firestore().batch();    
+                            if(numAdults > 0) {
+                                for(let i=0;i<numAdults;i++) {
+                                    writeBatch.set(
+                                            admin.firestore().collection('/kaocEventCheckins').doc(), 
+                                            {attendeeRef, attendeeType, checkInTime, eventRef, 'userType':'Adult'});
+                                }
+                            }
+
+                            if(numChildren > 0) {
+                                for(let i=0;i<numChildren;i++) {
+                                    writeBatch.set(
+                                            admin.firestore().collection('/kaocEventCheckins').doc(), 
+                                            {attendeeRef, attendeeType, checkInTime, eventRef, 'userType':'Child'});
+                                }
+                            }
+
+                            return writeBatch.commit();
+                        } else {
+                            let response = {'msg': "User does not have a valid membership"};
+                            throw response;
+                        }
+                }).then(response=> {
+                    return true;
+                });
+});
+
+exports.getMemberEventCheckinDetails = functions.https.onCall((data, context) => {
+    context = _setUpTestingContext(context);
+
+    // use membership id for looking up event checks from a past membership.
+    // Otherwise just use kaocUserId - this will return checkins using current
+    // membership
+    let kaocMembershipId = data.kaocMembershipId; 
+    let kaocUserId = data.kaocUserId;
+    let kaocEventId = data.kaocEventId;
+
+    return _assertAdminRole(context)    
+                .catch(e=> {
+                    throw new functions.https.HttpsError(
+                        'permission-denied', 
+                        'User does not have the authorization to perform this operation');
+                }).then(authResponse => {
+                    if(kaocMembershipId) {
+                        // just return a fake membership object with the id. 
+                        return {
+                            'membership': {
+                                kaocMembershipId
+                            }
+                        };
+                    } else {
+                        return _getCurrentMembershipDataByKaocUserId(kaocUserId);
+                    }
+                }).then(membershipData => {
+                    if(membershipData 
+                        && membershipData.membership 
+                        &&  membershipData.membership.kaocMembershipId) {
+
+                            let attendeeRef = admin.firestore().doc(`/kaocMemberships/${membershipData.membership.kaocMembershipId}`);
+                            let attendeeType = 'Membership';
+                            let eventRef = admin.firestore().doc(`/kaocEvents/${kaocEventId}`);
+
+                            return admin.firestore()
+                                .collection('/kaocEventCheckins')
+                                .where("attendeeRef", "==", attendeeRef)
+                                .where("eventRef", "==", eventRef)
+                                .where("attendeeType", "==", attendeeType)
+                                .get()
+                        } else {
+                            let response = {'msg': "User does not have a valid membership"};
+                            throw response;
+                        }
+                }).then(kaocEventCheckInsSnapShot=> {
+                    let checkIns = [];
+                    if(!kaocEventCheckInsSnapShot.empty) {
+                        kaocEventCheckInsSnapShot.forEach(kaocEventCheckInDocRef=>{
+                            let checkInData = kaocEventCheckInDocRef.data();
+                            checkIns.push({
+                                'kaocUserId': kaocUserId,
+                                'kaocMembershipId': checkInData.attendeeRef.id,
+                                'kaocEventId': checkInData.eventRef.id,
+                                'userType': checkInData.userType,
+                                'checkInTime': checkInData.checkInTime.toMillis()
+                            });
+                        });
+                    }
+                    return checkIns;
+                });
+});
 
 exports.getMemberQRCode = functions.https.onCall((data, context) => {
     context = _setUpTestingContext(context);
@@ -1412,7 +1528,6 @@ exports.getMembershipQRCode = functions.https.onCall((data, context) => {
     .then(authResult => {
         return _getCurrentMembershipDataByKaocUserId(kaocUserId);
     }).then(membershipData => {
-        console.log(JSON.stringify(membershipData));
         let kaocMembershipId = "N/A";
         if(membershipData) {
             if(membershipData.membership && membershipData.membership.kaocMembershipId) {

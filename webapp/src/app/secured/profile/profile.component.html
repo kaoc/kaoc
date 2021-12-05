@@ -105,7 +105,7 @@
                 <div *ngFor="let event of upcomingEvents">
                     <span>{{event.name}}: {{event.startTime|date:'short'}}</span>
                     <span *ngIf="membership && membership.membership && membership.membership.paymentStatus == 'Paid'">
-                        <button (click)="performUserEventCheckIn(kaocUserId, event.kaocEventId)" class="app-button profile-edit__bttn">Check In</button>
+                        <button (click)="performMemberEventCheckIn(kaocUserId, event.kaocEventId)" class="app-button profile-edit__bttn">Check In</button>
                     </span>
                 </div>
             </div>

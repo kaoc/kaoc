@@ -2,7 +2,7 @@ import { PaymentService } from '../payment/payment.service';
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Event } from './Event';
-import { UserEventCheckIn } from './UserEventCheckIn';
+import { MemberEventCheckIn } from './MemberEventCheckIn';
 import { AngularFireFunctions } from '@angular/fire/functions';
 
 @Injectable({
@@ -27,9 +27,9 @@ export class EventService {
             });
     }
 
-    performUserEventCheckIn(kaocUserId: string, kaocEventId: string, numAdults: number, numChildren: number): Promise<boolean> {
+    performMemberEventCheckIn(kaocUserId: string, kaocEventId: string, numAdults: number, numChildren: number): Promise<boolean> {
         return this.ngFireFunctions
-                    .httpsCallable('performUserEventCheckIn')({kaocUserId, kaocEventId, numAdults, numChildren})
+                    .httpsCallable('performMemberEventCheckIn')({kaocUserId, kaocEventId, numAdults, numChildren})
                     .toPromise().then(upcomingEvents => {
                         console.log('User succesfully checked in for event');
                         return true;
@@ -46,14 +46,14 @@ export class EventService {
      * @param kaocEventId
      * @returns
      */
-    getUserEventCheckinDetails(kaocUserId, kaocEventId): Promise<UserEventCheckIn[]> {
+    getMemberEventCheckinDetails(kaocUserId, kaocEventId): Promise<MemberEventCheckIn[]> {
       return this.ngFireFunctions
-              .httpsCallable('getUserEventCheckinDetails')({kaocUserId, kaocEventId})
+              .httpsCallable('getMemberEventCheckinDetails')({kaocUserId, kaocEventId})
               .toPromise().then(userEventCheckins => {
-                  console.log('Retrieved user event check-ins');
+                  console.log('Retrieved member event check-ins');
                   return userEventCheckins;
               }).catch(e => {
-                  console.error(`Error retrieving user check-ins`);
+                  console.error(`Error retrieving member event check-ins`);
                   throw e;
               });
     }
