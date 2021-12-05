@@ -42,7 +42,7 @@ export class ListMemberProfilesComponent implements OnInit {
   }
 
   getMembershipDetails(member: Member) {
-    this.router.navigate(['secured/admin/memberprofile', member.docId]);
+    this.router.navigate(['secured/admin/viewmemberprofile', member.docId]);
   }
 
   onChangePage(pageOfItems: Array<any>) {

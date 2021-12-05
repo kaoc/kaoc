@@ -1,4 +1,4 @@
-import { PaypalPaymentComponent } from './../../payment/paypal-payment/paypal-payment.component';
+// import { PaypalPaymentComponent } from './../../payment/paypal-payment/paypal-payment.component';
 import { Component, OnInit } from '@angular/core';
 import { AuthService, UserInfoExt } from '../auth/auth.service';
 import { Member } from '../Member';
@@ -6,7 +6,7 @@ import { AngularFireFunctions } from '@angular/fire/functions';
 import { MatSnackBar } from '@angular/material';
 import { MemberService } from '../member.service';
 import { Membership } from '../Membership';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-profile',
@@ -16,8 +16,10 @@ import { Router } from '@angular/router';
 export class ProfileComponent implements OnInit {
     firebaseUser: UserInfoExt;
     kaocUser: Member;
+    kaocMembers: Member[];
+    kaocUserId: string;
     membership: Membership;
-    membershipQRCodeImageData: string;
+    memberQRCodeImageData: string;
     EMAIL_REGEXP = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
 
     // possible values something in lines of - maybe an enum?
@@ -32,42 +34,80 @@ export class ProfileComponent implements OnInit {
 
     constructor(
       private router: Router,
+      private activatedRoute: ActivatedRoute,
       private authService: AuthService,
       private fns: AngularFireFunctions,
       private snackBar: MatSnackBar,
-      private memberServie: MemberService) {
-      authService.firebaseUser.subscribe(firebaseUser => {
-          if (firebaseUser) {
-              this.firebaseUser = firebaseUser;
-          }
-      });
+      private memberService: MemberService) {
 
-      authService.kaocUser.subscribe(kaocUser => {
-          if (kaocUser) {
+      let queryByMemberId = this.activatedRoute.snapshot.paramMap.get('id');
+      if (queryByMemberId) {
+        // Looking for a specific user profile.
+          this.loadMembershipDetails(queryByMemberId).then(membershipData=>{
+            let kaocUser = null;
+
+            if (membershipData
+              && membershipData.members
+              && membershipData.members.length > 0) {
+                kaocUser = membershipData.members.find(member=>member.kaocUserId == queryByMemberId);
+            }
+
+            if (kaocUser) {
               this.profileState = 'kaocUserFound';
               this.kaocUser = kaocUser;
-              this.memberServie
-                    .getMembershipData(kaocUser.kaocUserId)
-                    .then(membership => {
-                        this.membership = membership;
-                        this.membershipDetailsLoaded = true;
-                        return membership;
-                    })
-                    .catch(e => {
-                        this.membership = null;
-                        this.membershipDetailsLoaded = true;
-                    }).then(membershipData => {
-                        if (this.membership && this.membershipDetailsLoaded) {
-                            this.memberServie.getMembershipQRCode(kaocUser.kaocUserId)
-                            .then(qrCodeData => {
-                                this.membershipQRCodeImageData = qrCodeData.qrCodeImage;
-                            })
-                        }
-                    });
+              this.kaocUserId = kaocUser.kaocUserId;
           } else {
               this.profileState = 'kaocUserNotFound';
           }
-      });
+
+          }).catch(e=>{
+              console.error(`Failed to load user profile for kaocUserId: ${this.kaocUserId}`);
+          });
+      } else {
+          // load current logged users profile.
+          authService.firebaseUser.subscribe(firebaseUser => {
+              if (firebaseUser) {
+                  this.firebaseUser = firebaseUser;
+              }
+          });
+
+          authService.kaocUser.subscribe(kaocUser => {
+              if (kaocUser) {
+                  this.profileState = 'kaocUserFound';
+                  this.kaocUser = kaocUser;
+                  this.kaocUserId = kaocUser.kaocUserId;
+                  this.loadMembershipDetails(kaocUser.kaocUserId);
+              } else {
+                  this.profileState = 'kaocUserNotFound';
+              }
+          });
+      }
+    }
+
+    isPrimaryUser(kaocUserId: string): boolean {
+        return kaocUserId == this.kaocUserId;
+    }
+
+    loadMembershipDetails(kaocUserId:string): Promise<Membership> {
+        return this.memberService.getMembershipData(kaocUserId)
+            .then(membership => {
+                this.membership = membership;
+                this.membershipDetailsLoaded = true;
+                return membership;
+            })
+            .catch(e => {
+                this.membership = null;
+                this.membershipDetailsLoaded = true;
+                return null;
+            }).then(membershipData => {
+                if (this.membership && this.membershipDetailsLoaded) {
+                    this.memberService.getMemberQRCode(kaocUserId)
+                    .then(qrCodeData => {
+                        this.memberQRCodeImageData = qrCodeData.qrCodeImage;
+                    })
+                }
+                return membershipData;
+            });
     }
 
     setEmailIdToLink(value) {
@@ -90,8 +130,8 @@ export class ProfileComponent implements OnInit {
     }
 
     editUserProfile() {
-        if (this.kaocUser) {
-            this.router.navigateByUrl('/secured/user/memberprofile/' + this.kaocUser.kaocUserId);
+        if (this.kaocUserId) {
+            this.router.navigateByUrl('/secured/user/memberprofile/' + this.kaocUserId);
         }
     }
 

@@ -6,7 +6,7 @@
 <div class="card">
     <div class="profile">
 
-        <div class="profile-greeting">
+        <div class="profile-greeting" *ngIf="!!firebaseUser">
             <ngx-auth-firebaseui-avatar [links]=""></ngx-auth-firebaseui-avatar>
             Hi, {{firebaseUser.displayName}}
         </div>
@@ -81,8 +81,19 @@
                 </div>
             </div>
 
-            <div class="membership-qr-code" *ngIf="membershipQRCodeImageData">
-              <img [src]="membershipQRCodeImageData" alt="QR Code Loading"/>
+            <div class="active-membership" *ngIf="membership && membership.members && membership.members.length >= 2">
+                <div>
+                    <span>Family Members</span>
+                </div>
+                <div>
+                    <ul *ngFor="let familyMember of  membership.members">
+                        <li *ngIf="familyMember.kaocUserId != kaocUserId">{{familyMember.firstName}} {{familyMember.lastName}}</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="membership-qr-code" *ngIf="memberQRCodeImageData">
+              <img [src]="memberQRCodeImageData" alt="QR Code Loading"/>
             </div>
 
             <button (click)="editUserProfile()" class="app-button profile-edit__bttn">

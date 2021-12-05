@@ -36,7 +36,7 @@
   </div>
   <div class="member-list">
     <div class=" col-md-3 col-xs-12 members" *ngFor="let m of pageOfItems">
-      <a [routerLink]="['/secured/admin/memberprofile', m.docId]">
+      <a [routerLink]="['/secured/admin/viewmemberprofile', m.docId]">
         <div class="memberlist">
           <div class="profile_txt">{{m.firstName.toString().substr(0, 1).toUpperCase()}}</div>
           <h4>{{m.firstName}} {{m.lastName}} </h4>

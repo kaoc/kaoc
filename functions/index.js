@@ -1336,6 +1336,25 @@ exports.linkEmailProfile = functions.https.onRequest(async (req, res) => {
     });
 });
 
+exports.getMemberQRCode = functions.https.onCall((data, context) => {
+    context = _setUpTestingContext(context);
+
+    const kaocUserId = data.memberId || data.kaocUserId;
+    return _assertSelfOrAdminRole(context, [kaocUserId]) 
+    .catch(e => {
+        throw new functions.https.HttpsError(
+            'permission-denied', 
+            'User does not have the authorization to perform this operation');
+    })
+    .then(authResult => {
+        return _generateQRCodeDataURL(`kaocMemberId:${kaocUserId}`);
+    }).then(qrCodeImage=>{
+        console.log(`qrCode obtained for member.`)
+        return {qrCodeImage};
+    });
+});
+
+
 exports.getMembershipQRCode = functions.https.onCall((data, context) => {
     context = _setUpTestingContext(context);
 
@@ -1360,7 +1379,7 @@ exports.getMembershipQRCode = functions.https.onCall((data, context) => {
         } else {
             console.log("QR Code won't have valid data");
         }
-        return _generateQRCodeDataURL(`membership:${kaocMembershipId}`);
+        return _generateQRCodeDataURL(`kaocMembershipId:${kaocMembershipId}`);
     }).then(qrCodeImage=>{
         console.log(`qrCode obtained.`)
         return {qrCodeImage};
