@@ -43,6 +43,9 @@
         "source": "api/getMemberQRCode",
         "function": "getMemberQRCode"
       }, {
+        "source": "api/getUpcomingEvents",
+        "function": "getUpcomingEvents"
+      }, {
         "source": "api/:projectName/us-central1/addOrUpdateMemberAndMembership",
         "function": "addOrUpdateMemberAndMembership"
       }, {
@@ -69,6 +72,9 @@
       }, {
         "source": "api/:projectName/us-central1/getMemberQRCode",
         "function": "getMemberQRCode"
+      }, {
+        "source": "api/:projectName/us-central1/getUpcomingEvents",
+        "function": "getUpcomingEvents"
       }, {
         "source": "**",
         "destination": "/index.html"
