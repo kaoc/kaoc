@@ -1336,6 +1336,50 @@ exports.linkEmailProfile = functions.https.onRequest(async (req, res) => {
     });
 });
 
+exports.getUpcomingEvents = functions.https.onCall((data, context) => {
+    context = _setUpTestingContext(context);
+    if(!_assertAuthenticated(context)) {
+        throw new functions.https.HttpsError(
+            'permission-denied', 
+            'This operation can only be performed by a logged in user');
+    }
+
+    let currTime = new Date();
+    currTime.setHours(0, 0, 0, 0); //this is just to make sure that the upcoming events show up till midnight
+
+    return admin.firestore().collection('/kaocEvents')
+        .where('endTime', '>=', currTime)
+        .orderBy('endTime', 'asc')
+        .get()
+        .then(eventQuerySnapShots => {
+            let upcomingEvents = [];
+            console.log(`Upcoming Events Empty ${eventQuerySnapShots.empty}`)
+            if(!eventQuerySnapShots.empty) {
+                eventQuerySnapShots.forEach(eventQuerySnapShot=>{
+                    let eventData = eventQuerySnapShot.data();
+                    if(eventData.startTime) {
+                        eventData.startTime = eventData.startTime.toMillis();
+                    }
+                    if(eventData.endTime) {
+                        eventData.endTime = eventData.endTime.toMillis();
+                    }
+                    eventData.kaocEventId = eventQuerySnapShot.id;
+
+                    // Delete fields restricted to admins.
+                    delete eventData.capacity;
+                    delete eventData.totalAdultEventTicketCheckins;
+                    delete eventData.totalAdultMemberCheckins;
+                    delete eventData.totalChildMemberCheckins;
+                    delete eventData.totalChildEventTicketChecks;
+                    upcomingEvents.push(eventData);
+                });
+            }
+            console.log(`${upcomingEvents.length} Upcoming Events obtained.`)
+            return upcomingEvents;
+        });
+});
+
+
 exports.getMemberQRCode = functions.https.onCall((data, context) => {
     context = _setUpTestingContext(context);
 

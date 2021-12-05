@@ -2,9 +2,11 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService, UserInfoExt } from '../auth/auth.service';
 import { Member } from '../Member';
+import { Event } from '../Event';
 import { AngularFireFunctions } from '@angular/fire/functions';
 import { MatSnackBar } from '@angular/material';
 import { MemberService } from '../member.service';
+import { EventService } from '../event.service';
 import { Membership } from '../Membership';
 import { Router, ActivatedRoute } from '@angular/router';
 
@@ -19,6 +21,7 @@ export class ProfileComponent implements OnInit {
     kaocMembers: Member[];
     kaocUserId: string;
     membership: Membership;
+    upcomingEvents: Event[]
     memberQRCodeImageData: string;
     EMAIL_REGEXP = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
 
@@ -31,6 +34,7 @@ export class ProfileComponent implements OnInit {
     emailIdToLink: string;
     validEmailIdToLink = false;
     membershipDetailsLoaded = false;
+    isAdminView = false;
 
     constructor(
       private router: Router,
@@ -38,31 +42,41 @@ export class ProfileComponent implements OnInit {
       private authService: AuthService,
       private fns: AngularFireFunctions,
       private snackBar: MatSnackBar,
-      private memberService: MemberService) {
+      private memberService: MemberService,
+      private eventService: EventService) {
 
       let queryByMemberId = this.activatedRoute.snapshot.paramMap.get('id');
       if (queryByMemberId) {
-        // Looking for a specific user profile.
+
+          this.isAdminView = true; // Indicates that an admin is looking at the user profile.
+          // Looking for a specific user profile.
           this.loadMembershipDetails(queryByMemberId).then(membershipData=>{
-            let kaocUser = null;
+              let kaocUser = null;
 
-            if (membershipData
-              && membershipData.members
-              && membershipData.members.length > 0) {
-                kaocUser = membershipData.members.find(member=>member.kaocUserId == queryByMemberId);
-            }
+              if (membershipData
+                  && membershipData.members
+                  && membershipData.members.length > 0) {
+                  kaocUser = membershipData.members.find(member=>member.kaocUserId == queryByMemberId);
+              }
 
-            if (kaocUser) {
-              this.profileState = 'kaocUserFound';
-              this.kaocUser = kaocUser;
-              this.kaocUserId = kaocUser.kaocUserId;
-          } else {
-              this.profileState = 'kaocUserNotFound';
-          }
-
+              if (kaocUser) {
+                this.profileState = 'kaocUserFound';
+                this.kaocUser = kaocUser;
+                this.kaocUserId = kaocUser.kaocUserId;
+              } else {
+                  this.profileState = 'kaocUserNotFound';
+              }
           }).catch(e=>{
               console.error(`Failed to load user profile for kaocUserId: ${this.kaocUserId}`);
           });
+
+          // For user profile loaded by admin. load the upcoming events
+          this.eventService
+              .getUpcomingEvents()
+              .then(events=>this.upcomingEvents =  events)
+              .catch(e=>{
+                  this.upcomingEvents = null;
+              });
       } else {
           // load current logged users profile.
           authService.firebaseUser.subscribe(firebaseUser => {
@@ -84,8 +98,9 @@ export class ProfileComponent implements OnInit {
       }
     }
 
-    isPrimaryUser(kaocUserId: string): boolean {
-        return kaocUserId == this.kaocUserId;
+    performUserEventCheckIn(kaocUserId, kaocEventId) {
+        // TODO - Load Event Check In Page for user;
+        // Show field to select # Adults # Children
     }
 
     loadMembershipDetails(kaocUserId:string): Promise<Membership> {

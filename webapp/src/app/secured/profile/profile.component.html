@@ -81,7 +81,7 @@
                 </div>
             </div>
 
-            <div class="active-membership" *ngIf="membership && membership.members && membership.members.length >= 2">
+            <div class="family-details" *ngIf="membership && membership.members && membership.members.length >= 2">
                 <div>
                     <span>Family Members</span>
                 </div>
@@ -99,9 +99,19 @@
             <button (click)="editUserProfile()" class="app-button profile-edit__bttn">
                 Edit
             </button>
+
+            <div *ngIf="!!upcomingEvents">
+                Event Check-Ins
+                <div *ngFor="let event of upcomingEvents">
+                    <span>{{event.name}}: {{event.startTime|date:'short'}}</span>
+                    <span *ngIf="membership && membership.membership && membership.membership.paymentStatus == 'Paid'">
+                        <button (click)="performUserEventCheckIn(kaocUserId, event.kaocEventId)" class="app-button profile-edit__bttn">Check In</button>
+                    </span>
+                </div>
+            </div>
         </div>
 
-        <div *ngIf="profileState == 'kaocUserLinkEmailSent'">
+        <div *ngIf="profileState == 'kaocUserLinkEmailSent' && !isAdminView">
             If the email you entered is associated with an existing profile, you will
             recieve an email in that address. Please follow the link in that email to link your details.
         </div>

@@ -15,7 +15,7 @@ export const environment = {
         storageBucket     : `${projectId}.appspot.com`,
         messagingSenderId : '828257921598',
         appId             : '1:828257921598:web:8a2f1d304210a0603e7f6f',
-        functionURL       : `https://${hostURl}/api`
+        functionURL       : `http://localhost:5001`
     },
     square: {
       // Application Id in https://developer.squareup.com/apps/
