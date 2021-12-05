@@ -7,7 +7,7 @@ import * as $ from 'jquery';
 @Component({
   selector: 'site-header',
   templateUrl: './site-header.component.html',
-  styleUrls: ['./site-header.component.css']
+  styleUrls: ['./site-header.component.scss']
 })
 export class SiteHeaderComponent implements OnInit {
 
@@ -50,12 +50,5 @@ export class SiteHeaderComponent implements OnInit {
   }
 
   ngOnInit() {
-    $(window).on('scroll', () => {
-      if ($(window).scrollTop()) {
-        $('nav').addClass('black');
-      } else {
-        $('nav').removeClass('black');
-      }
-    });
   }
 }

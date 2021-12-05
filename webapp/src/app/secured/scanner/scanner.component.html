@@ -1,0 +1,11 @@
+<div class="page-title">
+    <div>
+      <h2>QR Scanner</h2>
+    </div>
+</div>
+<div class="card">
+    <zxing-scanner (scanSuccess)="onCodeResult($event)"></zxing-scanner>
+    <p class="info" *ngIf="scanResult">
+        <strong>Member ID :- <a [routerLink]="redirectURL">{{scanResult}}</a></strong>
+    </p>
+</div>

@@ -28,6 +28,8 @@ import {AppHeaderComponent} from '../_layout/app-header/app-header.component';
 import {AppFooterComponent} from '../_layout/app-footer/app-footer.component';
 
 import {JwPaginationModule} from 'jw-angular-pagination';
+import { ScannerComponent } from './scanner/scanner.component';
+import { ZXingScannerModule } from '@zxing/ngx-scanner';
 
 
 @NgModule({
@@ -46,7 +48,8 @@ import {JwPaginationModule} from 'jw-angular-pagination';
     ProfileLinkStatusComponent,
     PaypalPaymentComponent,
     AppHeaderComponent,
-    AppFooterComponent
+    AppFooterComponent,
+    ScannerComponent
   ],
   imports: [
     CommonModule,
@@ -59,7 +62,8 @@ import {JwPaginationModule} from 'jw-angular-pagination';
     NgxSpinnerModule,
     MaterialModule,
     FlexLayoutModule,
-    JwPaginationModule
+    JwPaginationModule,
+    ZXingScannerModule
   ],
   exports: [
     UserTableComponent, DialogWinComponent, ConfirmDelComponent, AppHeaderComponent, AppFooterComponent
