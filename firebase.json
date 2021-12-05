@@ -37,6 +37,9 @@
         "source": "api/getMembershipReport",
         "function": "getMembershipReport"
       }, {
+        "source": "api/getMembershipQRCode",
+        "function": "getMembershipQRCode"
+      }, {
         "source": "api/:projectName/us-central1/addOrUpdateMemberAndMembership",
         "function": "addOrUpdateMemberAndMembership"
       }, {
@@ -57,6 +60,9 @@
       }, {
         "source": "api/:projectName/us-central1/getMembershipReport",
         "function": "getMembershipReport"
+      }, {
+        "source": "api/:projectName/us-central1/getMembershipQRCode",
+        "function": "getMembershipQRCode"
       }, {
         "source": "**",
         "destination": "/index.html"

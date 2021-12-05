@@ -86,6 +86,18 @@ export class MemberService {
                     });
     }
 
+    getMembershipQRCode(kaocUserId: string): Promise<any> {
+        return this.ngFireFunctions
+        .httpsCallable('getMembershipQRCode')({kaocUserId})
+        .toPromise().then(membershipQRCodeData => {
+            console.log('Obtained membership qr code data');
+            return membershipQRCodeData;
+        }).catch(e => {
+            console.error(`Error fetching membership qr code data for ${kaocUserId}`);
+            throw e;
+        });
+    }
+
     /**
      * Fetches and returns the membership report for the given year
      *

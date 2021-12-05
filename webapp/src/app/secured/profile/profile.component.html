@@ -80,6 +80,11 @@
                     <span class="membership-state-inactive">No Membership</span>
                 </div>
             </div>
+
+            <div class="membership-qr-code" *ngIf="membershipQRCodeImageData">
+              <img [src]="membershipQRCodeImageData" alt="QR Code Loading"/>
+            </div>
+
             <button (click)="editUserProfile()" class="app-button profile-edit__bttn">
                 Edit
             </button>

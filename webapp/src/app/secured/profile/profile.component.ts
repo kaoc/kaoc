@@ -17,6 +17,7 @@ export class ProfileComponent implements OnInit {
     firebaseUser: UserInfoExt;
     kaocUser: Member;
     membership: Membership;
+    membershipQRCodeImageData: string;
     EMAIL_REGEXP = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
 
     // possible values something in lines of - maybe an enum?
@@ -50,10 +51,18 @@ export class ProfileComponent implements OnInit {
                     .then(membership => {
                         this.membership = membership;
                         this.membershipDetailsLoaded = true;
+                        return membership;
                     })
                     .catch(e => {
                         this.membership = null;
                         this.membershipDetailsLoaded = true;
+                    }).then(membershipData => {
+                        if (this.membership && this.membershipDetailsLoaded) {
+                            this.memberServie.getMembershipQRCode(kaocUser.kaocUserId)
+                            .then(qrCodeData => {
+                                this.membershipQRCodeImageData = qrCodeData.qrCodeImage;
+                            })
+                        }
                     });
           } else {
               this.profileState = 'kaocUserNotFound';
