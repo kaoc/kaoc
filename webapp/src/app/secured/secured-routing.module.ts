@@ -1,4 +1,11 @@
-import { ADMIN_LIST_MEMBERS, ADMIN_VIEW_MEMBER_PROFILE, ADMIN_MEMBER_PROFILE, ADMIN_SEARCH, PROFILE, USER_MEMBER_PROFILE } from './../URLConstants';
+import {
+    ADMIN_LIST_MEMBERS,
+    ADMIN_VIEW_MEMBER_PROFILE,
+    ADMIN_MEMBER_PROFILE,
+    ADMIN_SEARCH, PROFILE,
+    USER_MEMBER_PROFILE,
+    ADMIN_SCANNER
+} from './../URLConstants';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { LoginComponent } from './login/login.component';
@@ -11,6 +18,7 @@ import { MemberProfileComponent } from './admin/member-profile/member-profile.co
 import { ListMemberProfilesComponent } from './admin/list-member-profiles/list-member-profiles.component';
 import { ProfileLinkStatusComponent } from './profile-link-status/profile-link-status.component';
 import { LOGIN, PROFILE_LINK_STATUS, SECURED_CONTEXT, VERIFY } from '../URLConstants';
+import { ScannerComponent } from './scanner/scanner.component';
 
 
 const routes: Routes = [{
@@ -75,6 +83,13 @@ const routes: Routes = [{
     }, {
         path: ADMIN_LIST_MEMBERS,
         component: ListMemberProfilesComponent,
+        canActivate: [AuthGuardService],
+        data: {
+            expectedRole: 'admin'
+        }
+    }, {
+        path: ADMIN_SCANNER,
+        component: ScannerComponent,
         canActivate: [AuthGuardService],
         data: {
             expectedRole: 'admin'

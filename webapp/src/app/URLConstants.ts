@@ -15,3 +15,4 @@ export const ADMIN_SEARCH = 'admin/search';
 export const ADMIN_MEMBER_PROFILE = 'admin/memberprofile';
 export const ADMIN_VIEW_MEMBER_PROFILE = 'admin/viewmemberprofile/:id';
 export const ADMIN_LIST_MEMBERS = 'admin/listmembers';
+export const ADMIN_SCANNER = 'admin/scanner';

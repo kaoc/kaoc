@@ -111,6 +111,11 @@
       <mat-icon>search</mat-icon> View/Edit Member
     </button>
     <mat-divider></mat-divider>
+    <button *ngIf="isAdmin===true" mat-menu-item routerLink="/secured/admin/scanner"
+      (click)="sidenav.close()">
+      <mat-icon>visibility</mat-icon> QR Scan
+    </button>
+    <mat-divider></mat-divider>
     <button mat-menu-item routerLink="/kaochistory" (click)="sidenav.close()">
       <mat-icon>history</mat-icon>KAOC History
     </button>
