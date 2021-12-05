@@ -61,3 +61,5 @@ functions/.runtimeconfig.json
 functions/package-lock.json
 functions/package-lock.json
 functions/ui-debug.log
+
+.vscode/

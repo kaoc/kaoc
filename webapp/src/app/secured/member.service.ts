@@ -86,6 +86,30 @@ export class MemberService {
                     });
     }
 
+    getMembershipQRCode(kaocUserId: string): Promise<any> {
+        return this.ngFireFunctions
+        .httpsCallable('getMembershipQRCode')({kaocUserId})
+        .toPromise().then(membershipQRCodeData => {
+            console.log('Obtained membership qr code data');
+            return membershipQRCodeData;
+        }).catch(e => {
+            console.error(`Error fetching membership qr code data for ${kaocUserId}`);
+            throw e;
+        });
+    }
+
+    getMemberQRCode(kaocUserId: string): Promise<any> {
+      return this.ngFireFunctions
+      .httpsCallable('getMemberQRCode')({kaocUserId})
+      .toPromise().then(memberQRCodeData => {
+          console.log('Obtained member qr code data');
+          return memberQRCodeData;
+      }).catch(e => {
+          console.error(`Error fetching member qr code data for ${kaocUserId}`);
+          throw e;
+      });
+  }
+
     /**
      * Fetches and returns the membership report for the given year
      *

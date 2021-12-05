@@ -56,5 +56,19 @@ service cloud.firestore {
       allow  read, write: if (request.auth.uid == loginId && request.auth.token.email_verified == true) || isAdmin();
     }
 
+		// KAOC Events
+	match /kaocEvents/{eventId} {
+      allow  read, write: if isAdmin();
+    }
+
+		// KAOC Event Checkins
+	match /kaocEventCheckins/{checkInId} {
+      allow  read, write: if isAdmin();
+    }
+
+		// KAOC Event Tickets
+	match /kaocEventTickets/{ticketId} {
+      allow  read, write: if isAdmin();
+    }
 }
 }

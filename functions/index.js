@@ -1,6 +1,7 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const nodemailer = require('nodemailer');
+var QRCode = require('qrcode');
 
 const emailUser = functions.config().smtp.username;
 const emailPassword = functions.config().smtp.password;
@@ -486,7 +487,7 @@ function _assertSelfOrAdminRole(context, kaocUserIds) {
                 // if so return true 
                 return Promise.resolve(true)
             } else {
-                console.debug('Permission not granted as self. Checking admin  permissions');
+                console.debug('Permission not granted as self. Checking admin permissions');
                 return _assertAdminRole(context);
             }
         } else {
@@ -503,6 +504,7 @@ function _assertSelfOrAdminRole(context, kaocUserIds) {
  */
 function _assertAdminRole(context) {
     if(testing) {
+        console.log('Allowing Admin permissions for testing.');
         return Promise.resolve(true);
     }
     // Checking that the user is authenticated.
@@ -1333,6 +1335,71 @@ exports.linkEmailProfile = functions.https.onRequest(async (req, res) => {
         return null;
     });
 });
+
+exports.getMemberQRCode = functions.https.onCall((data, context) => {
+    context = _setUpTestingContext(context);
+
+    const kaocUserId = data.memberId || data.kaocUserId;
+    return _assertSelfOrAdminRole(context, [kaocUserId]) 
+    .catch(e => {
+        throw new functions.https.HttpsError(
+            'permission-denied', 
+            'User does not have the authorization to perform this operation');
+    })
+    .then(authResult => {
+        return _generateQRCodeDataURL(`kaocMemberId:${kaocUserId}`);
+    }).then(qrCodeImage=>{
+        console.log(`qrCode obtained for member.`)
+        return {qrCodeImage};
+    });
+});
+
+
+exports.getMembershipQRCode = functions.https.onCall((data, context) => {
+    context = _setUpTestingContext(context);
+
+    const kaocUserId = data.memberId || data.kaocUserId;
+    return _assertSelfOrAdminRole(context, [kaocUserId]) 
+    .catch(e => {
+        throw new functions.https.HttpsError(
+            'permission-denied', 
+            'User does not have the authorization to perform this operation');
+    })
+    .then(authResult => {
+        return _getCurrentMembershipDataByKaocUserId(kaocUserId);
+    }).then(membershipData => {
+        console.log(JSON.stringify(membershipData));
+        let kaocMembershipId = "N/A";
+        if(membershipData) {
+            if(membershipData.membership && membershipData.membership.kaocMembershipId) {
+                kaocMembershipId = membershipData.membership.kaocMembershipId;
+            } else if(membershipData.pastMembership && membershipData.pastMembership.kaocMembershipId) {
+                kaocMembershipId = membershipData.pastMembership.kaocMembershipId;
+            }
+        } else {
+            console.log("QR Code won't have valid data");
+        }
+        return _generateQRCodeDataURL(`kaocMembershipId:${kaocMembershipId}`);
+    }).then(qrCodeImage=>{
+        console.log(`qrCode obtained.`)
+        return {qrCodeImage};
+    });
+});
+
+/**
+ * Generates a QR Code URL from the 
+ * @param {String} dataString 
+ * @returns 
+ */
+function _generateQRCodeDataURL(dataString) {
+    return QRCode
+        .toDataURL(dataString)
+        .then(url => {
+            console.log(`QR Code generated for ${dataString} - ${url}`);
+            return url;
+        })
+        .catch(e=>console.error(`Error generating QR Code for ${dataString}`, e));
+}
 
 /**
  * Returns the encoded message string.

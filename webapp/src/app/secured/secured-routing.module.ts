@@ -1,4 +1,4 @@
-import { ADMIN_LIST_MEMBERS, ADMIN_MEMBER_PROFILE, ADMIN_SEARCH, PROFILE, USER_MEMBER_PROFILE } from './../URLConstants';
+import { ADMIN_LIST_MEMBERS, ADMIN_VIEW_MEMBER_PROFILE, ADMIN_MEMBER_PROFILE, ADMIN_SEARCH, PROFILE, USER_MEMBER_PROFILE } from './../URLConstants';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { LoginComponent } from './login/login.component';
@@ -61,6 +61,13 @@ const routes: Routes = [{
     }, {
         path: `${ADMIN_MEMBER_PROFILE}/:id`,
         component: MemberProfileComponent,
+        canActivate: [AuthGuardService],
+        data: {
+            expectedRole: 'admin'
+        }
+    }, {
+        path: ADMIN_VIEW_MEMBER_PROFILE,
+        component: ProfileComponent,
         canActivate: [AuthGuardService],
         data: {
             expectedRole: 'admin'
