@@ -26,10 +26,10 @@ export class MemberService {
   public memberEmail: string;
 
   constructor(public db: AngularFirestore,
-    private ngFireFunctions: AngularFireFunctions,
-    private spinner: NgxSpinnerService,
-    private paymentService: PaymentService,
-    private router: Router) {
+              private ngFireFunctions: AngularFireFunctions,
+              private spinner: NgxSpinnerService,
+              private paymentService: PaymentService,
+              private router: Router) {
     this.message = '';
     this.routedFrom = 'memberprofile';
     this.membersCollection = this.db.collection<Member>('kaocUsers', ref => ref.orderBy('lastName', 'asc'));
@@ -48,7 +48,7 @@ export class MemberService {
   /**
    * TODO - Refactor this service to simply return a promise with the value.
    *
-   * @param docId
+   * @param docId Doc Id
    */
   async getMemberById(docId): Promise<any> {
     this.spinner.show();
@@ -59,7 +59,7 @@ export class MemberService {
         this.membershipDetails = resp;
         this.routedFrom = 'listmembers';
         this.spinner.hide();
-        //console.log("got result" + JSON.stringify(resp));
+        // console.log("got result" + JSON.stringify(resp));
       })
       .catch(err => {
         this.spinner.hide();
@@ -120,14 +120,14 @@ export class MemberService {
         console.log('got result' + JSON.stringify(result));
         console.log('PaymentService.processPayment.paymentMode = ' + payment.paymentMethod);
 
-        this.kaocUserDocId = result['userIds'][0];
-        this.membershipId = result['membershipId'];
-        this.memberEmail  = members[0]['emailId'];
+        this.kaocUserDocId = result.userIds[0];
+        this.membershipId = result.membershipId;
+        this.memberEmail  = members[0].emailId;
 
         const notes = 'FOR KAOC MEMBERSHIP. ID: ' + this.membershipId + '. emailId: ' + this.memberEmail;
         console.log('notes: ' + notes);
 
-        this.paymentDocumentRefNo = result['paymentId'];
+        this.paymentDocumentRefNo = result.paymentId;
         console.log('paymentDocumentRefNo=' + this.paymentDocumentRefNo);
 
         // No spinner required for Paypal
@@ -151,7 +151,7 @@ export class MemberService {
       });
   }
 
-  getProcessMsg (memberStatus , paymentMethod) {
+  getProcessMsg(memberStatus , paymentMethod) {
     if (this.isNullField(memberStatus) || memberStatus === 'Active' ) {
       return 'Member details saved successfully';
     }

@@ -93,7 +93,7 @@ export class AuthService {
 
   /**
    * Loads the KAOC User corresponding to the login id.
-   * @param loginId
+   * @param loginId Login Id
    */
   private loadKaocUser(loginId: string): void {
     this.fireStoreDB.firestore
