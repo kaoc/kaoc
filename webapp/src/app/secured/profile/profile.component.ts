@@ -49,6 +49,9 @@ export class ProfileComponent implements OnInit {
       if (queryByMemberId) {
 
           this.isAdminView = true; // Indicates that an admin is looking at the user profile.
+          this.firebaseUser = null; // An admin user viewing other users profile. So don't set the firebaseUser
+                                    // Firebase user is effectively the logged in user.
+
           // Looking for a specific user profile.
           this.loadMembershipDetails(queryByMemberId).then(membershipData => {
               let kaocUser = null;
