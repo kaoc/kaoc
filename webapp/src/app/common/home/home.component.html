@@ -90,7 +90,7 @@
 <!--          </div>-->
 
           <div class="item" *ngFor="let ev of events; let isFirst = first" [class.active]="isFirst">
-            <img class="" src="{{ev.path}}" alt="Kerala Association of Colorado">
+            <img class="" src="{{ev.eventImageUrl}}" alt="Kerala Association of Colorado">
             <div class="carousel-caption eventcaption">
               <div class="captionnew eventslide">
                 <div class="event_details">
@@ -98,7 +98,7 @@
                     {{ev.name}}
                   </div>
                   <div class="col-md-4	 col-xs-12 txtright">
-                    {{ev.date}}     |      {{ev.time}}
+                    {{ev.startTime|date:'short'}}
                   </div>
                 </div>
               </div>

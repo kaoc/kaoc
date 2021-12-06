@@ -430,7 +430,7 @@ function _getMembershipReport(memberShipYear) {
         });
 }
 
-var testing = true;
+var testing = false;
 function _setUpTestingContext(context) {
     if(testing) {
         context = {
@@ -1342,12 +1342,14 @@ exports.linkEmailProfile = functions.https.onRequest(async (req, res) => {
 // Event Services
 
 exports.getUpcomingEvents = functions.https.onCall((data, context) => {
-    context = _setUpTestingContext(context);
-    if(!_assertAuthenticated(context)) {
-        throw new functions.https.HttpsError(
-            'permission-denied', 
-            'This operation can only be performed by a logged in user');
-    }
+    // Upcoming Events are also displayed on the app home page - which shows up
+    // even without the user loggin in. So don't enforce any auth for this method
+    //context = _setUpTestingContext(context);
+    //if(!_assertAuthenticated(context)) {
+    //    throw new functions.https.HttpsError(
+    //        'permission-denied', 
+    //        'This operation can only be performed by a logged in user');
+    //}
 
     let currTime = new Date();
     currTime.setHours(0, 0, 0, 0); //this is just to make sure that the upcoming events show up till midnight

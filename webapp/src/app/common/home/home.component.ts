@@ -1,22 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import * as $ from 'jquery';
-import eventsData from '../events.json';
 import {AuthService} from '../../secured/auth/auth.service';
 import {Router} from '@angular/router';
-
-interface Event {
-
-  id: number;
-
-  name: string;
-
-  path: string;
-
-  date: string;
-
-  time: string;
-
-}
+import { EventService } from 'src/app/secured/event.service';
+import { Event } from 'src/app/secured/Event';
 
 
 @Component({
@@ -25,13 +12,16 @@ interface Event {
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
-  events: Event[] = eventsData;
+  events: Event[];
   loggedIn = false;
-  constructor(private authService: AuthService, private router: Router) {
+  constructor(private authService: AuthService, private router: Router, private eventService: EventService) {
     authService.firebaseUser.subscribe(firebaseUser => {
       if (typeof firebaseUser !== 'undefined') {
         this.loggedIn = (firebaseUser != null);
       }
+    });
+    eventService.getUpcomingEvents().then(upComingEvents=>{
+      this.events = upComingEvents;
     });
   }
 

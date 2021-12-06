@@ -9,14 +9,12 @@ import { AngularFireFunctions } from '@angular/fire/functions';
   providedIn: 'root'
 })
 export class EventService {
+    upcomingEventsPromise: Promise<Event[]>;
 
     constructor(public db: AngularFirestore,
       private ngFireFunctions: AngularFireFunctions,
       private paymentService: PaymentService) {
-    }
-
-    getUpcomingEvents(): Promise<Event[]> {
-        return this.ngFireFunctions
+        this.upcomingEventsPromise = this.ngFireFunctions
             .httpsCallable('getUpcomingEvents')({})
             .toPromise().then(upcomingEvents => {
                 console.log('Obtained upcoming events');
@@ -25,6 +23,10 @@ export class EventService {
                 console.error(`Error fetching upcoming events`);
                 throw e;
             });
+    }
+
+    getUpcomingEvents(): Promise<Event[]> {
+      return this.upcomingEventsPromise;
     }
 
     performMemberEventCheckIn(kaocUserId: string, kaocEventId: string, numAdults: number, numChildren: number): Promise<boolean> {
