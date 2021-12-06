@@ -127,6 +127,23 @@ export class MemberService {
                   });
   }
 
+  /**
+   * Sends event emails to all members
+   *
+   * @returns
+   */
+   sendMemberDetailsEmailToAllMembers(): Promise<boolean> {
+    return this.ngFireFunctions
+          .httpsCallable('sendMemberDetailsEmailToAllMembers')({})
+          .toPromise().then(status => {
+              console.log('Sent Membership verification email to all members');
+              return true;
+          }).catch(e => {
+              console.error(`Error sending member verification email to all members`);
+              throw e;
+          });
+}
+
 
   getAllMembers() {
     return this.members;

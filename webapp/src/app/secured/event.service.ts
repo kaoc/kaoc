@@ -57,4 +57,22 @@ export class EventService {
                   throw e;
               });
     }
+
+    /**
+     * Sends event emails to all active members
+     *
+     * @param kaocEventId
+     * @returns
+     */
+     sendMemberEventPassEmailToAllActiveMemberships(kaocEventId): Promise<boolean> {
+        return this.ngFireFunctions
+              .httpsCallable('sendMemberEventPassEmailToAllActiveMemberships')({kaocEventId})
+              .toPromise().then(status => {
+                  console.log('Sent Event Email to all active members');
+                  return true;
+              }).catch(e => {
+                  console.error(`Error sending event email to all active members`);
+                  throw e;
+              });
+    }
 }
