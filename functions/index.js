@@ -1629,7 +1629,7 @@ function _sendMemberEventPassEmail(kaocUserId, kaocEventId, userDetails, members
                                 <p>${eventDetails.description}</p>
                                 <p>Location: ${eventDetails.location}</p>
                                 <p>
-                                    Please use the QR below to check-in at the event venue. <br>
+                                    Please use the attached QR Code to check-in at the event venue. <br>
                                     <img src="${qrCodeImageData}" alt="Membership Check In Details">
                                 </p>
                             Thanks,<br>
@@ -1649,7 +1649,11 @@ function _sendMemberEventPassEmail(kaocUserId, kaocEventId, userDetails, members
 
                             Thanks,
                             KAOC Committe    
-                            `
+                            `,
+                    attachments: [{
+                        filename: 'KAOC_EventCheckIn_QRCode.png',
+                        path: qrCodeImageData
+                    }]
                 });
             });
 }
@@ -1744,7 +1748,7 @@ function _sendMemberDetailsEmail(memberDetails) {
                                         Membership Type: ${membershipType}    
                                     </p>
                                     <p>
-                                        Please use the QR below to look up your member information at event locations. <br>
+                                        Please use the attached QR Code to look up your member information at event locations. <br>
                                         <img src="${qrCodeImageData}" alt="Member Id">
                                     </p>
                                 Thanks,
@@ -1765,8 +1769,12 @@ function _sendMemberDetailsEmail(memberDetails) {
     
                                 Thanks,
                                 KAOC Committe    
-                                `
-                        });    
+                                `,
+                        attachments: [{
+                            filename: 'KAOC_MemberID_QRCode.png',
+                            path: qrCodeImageData
+                        }]
+                    });    
                 })
             );
         });
@@ -1894,6 +1902,7 @@ exports.getMemberEventCheckInQRCode = functions.https.onCall((data, context) => 
 
     const kaocUserId = data.memberId || data.kaocUserId;
     const koacEventId = data.kaocEventId;
+    const useSVG = data.useSVG;
 
     return _assertSelfOrAdminRole(context, [kaocUserId]) 
     .catch(e => {
@@ -1914,7 +1923,7 @@ exports.getMemberEventCheckInQRCode = functions.https.onCall((data, context) => 
     }).then(eventDetails => {
         if(eventDetails && eventDetails.membershipAccessIncluded) {
             let memberEventCheckInCode = `kaocEventCheckIn:kaocMemberId:${kaocUserId}:kaocEventId:${koacEventId}`;
-            return _generateQRCodeDataURL(memberEventCheckInCode);
+            return _generateQRCodeDataURL(memberEventCheckInCode, useSVG);
         } else {
             let errorResponse = {"msg": `Invalid Event Reference ${koacEventId}. Event does not exist or does not support membership event access`};
             throw errorResponse;
@@ -1931,14 +1940,25 @@ exports.getMemberEventCheckInQRCode = functions.https.onCall((data, context) => 
  * @param {String} dataString 
  * @returns 
  */
-function _generateQRCodeDataURL(dataString) {
-    return QRCode
-        .toDataURL(dataString)
-        .then(url => {
-            console.log(`QR Code generated for ${dataString}`);
-            return url;
-        })
-        .catch(e=>console.error(`Error generating QR Code for ${dataString}`, e));
+function _generateQRCodeDataURL(dataString, useSVG) {
+    var opts = null;
+    if(useSVG) {
+        opts = {type: 'SVG'};
+    }
+
+    let qrCodePromise = null;
+    if(opts) {
+        qrCodePromise = QRCode.toString(dataString, opts);
+    } else {
+        qrCodePromise = QRCode.toDataURL(dataString);
+    }
+
+    return qrCodePromise
+            .then(url => {
+                console.log(`QR Code generated for ${dataString}`);
+                return url;
+            })
+            .catch(e=>console.error(`Error generating QR Code for ${dataString}`, e));
 }
 
 
