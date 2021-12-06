@@ -17,3 +17,4 @@ export const ADMIN_VIEW_MEMBER_PROFILE_PREFIX = 'admin/viewmemberprofile';
 export const ADMIN_VIEW_MEMBER_PROFILE = `${ADMIN_VIEW_MEMBER_PROFILE_PREFIX}/:id`;
 export const ADMIN_LIST_MEMBERS = 'admin/listmembers';
 export const ADMIN_SCANNER = 'admin/scanner';
+export const ADMIN_MEMBER_CHECKIN = 'admin/member/checkin/:memberId/:eventId';

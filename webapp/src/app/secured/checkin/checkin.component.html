@@ -1,0 +1,95 @@
+<div class="page-title">
+    <div>
+      <h2>Check In</h2>
+    </div>
+  </div>
+<div class="card">
+    <div>
+        <div *ngIf="profileState == 'kaocUserFound'" class="profile-details">
+            <div class="name">{{kaocUser.firstName}} {{kaocUser.lastName}}</div>
+            <div class="email">{{kaocUser.emailId}}</div>
+            <div class="phone">{{kaocUser.phoneNumber}}</div>
+            <div class="active-membership" *ngIf="!membershipDetailsLoaded">
+                Loading Membership Details...
+            </div>
+
+            <div class="active-membership" *ngIf="membership && membership.membership">
+                <div>
+                    <span>Membership Status: </span>
+                    <span class="membership-state-active" *ngIf="membership.membership.paymentStatus == 'Paid'">Active</span>
+                    <span class="membership-state-inactive" *ngIf="membership.membership.paymentStatus != 'Paid'">InActive</span>
+                </div>
+                <div *ngIf="membership.membership.paymentStatus != 'Paid'">
+                    <span>Payment Status: </span>
+                    <span class="payment-state-incomplete" >{{membership.membership.paymentStatus}}</span>
+                </div>
+
+                <div>
+                    <span>Membership Type: </span>
+                    <span class="membership-type">
+                        {{membership?.membership?.membershipType}}
+                    </span>
+                </div>
+            </div>
+
+            <div class="inactive-membership" *ngIf="membership && membership.pastMembership">
+                <div>
+                    <span>Membership Status: </span>
+                    <span class="membership-state-inactive">InActive</span>
+                </div>
+                <div>
+                    <span>Membership Type: </span>
+                    <span class="membership-type">
+                        {{membership?.pastMembership?.membershipType}}
+                    </span>
+                </div>
+            </div>
+
+            <div class="inactive-membership" *ngIf="!membership && membershipDetailsLoaded">
+                <div>
+                    <span>Membership Status: </span>
+                    <span class="membership-state-inactive">No Membership</span>
+                </div>
+            </div>
+
+            <div class="family-details" *ngIf="membership && membership.members && membership.members.length >= 2">
+                <div>
+                    <span>Family Members</span>
+                </div>
+                <div>
+                    <ul *ngFor="let familyMember of  membership.members">
+                        <li *ngIf="familyMember.kaocUserId != kaocUserId">{{familyMember.firstName}} {{familyMember.lastName}}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="!memberEventCheckIn">
+            Member or his/her family members checked in at the following date and time.
+            <div *ngFor="let event of memberEventCheckIn">
+                <div>{{event.userType}} at {{event.checkInTime|date:'short'}}</div>
+            </div>
+        </div>
+        <div class="checkin-info">
+            <div>Check In</div>
+            <div>
+                <span class="checkin-info-item">
+                    <span>Adults</span>
+                    <input type="number" #adults/>
+                </span>
+                <span class="checkin-info-item">
+                    <span>Kids</span>
+                    <input type="number" #kids/>
+                </span>
+            </div>
+            <div class="checkin-info-item">
+                <button (click)="performUserEventCheckIn(adults.value, kids.value)" class="app-button">Check In</button>
+            </div>
+            <div *ngIf="checkInAPIProgress">
+                Checking in the memeber...
+            </div>
+            <div *ngIf="isCheckInSuccess">
+                Successfully checked In.
+            </div>
+        </div>
+    </div>
+</div>
