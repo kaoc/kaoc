@@ -16,12 +16,12 @@ import { Router, ActivatedRoute } from '@angular/router';
   styleUrls: ['./profile.component.scss']
 })
 export class ProfileComponent implements OnInit {
-    firebaseUser: UserInfoExt;
+    firebaseUser: UserInfoExt = {} as UserInfoExt;
     kaocUser: Member;
     kaocMembers: Member[];
     kaocUserId: string;
     membership: Membership;
-    upcomingEvents: Event[]
+    upcomingEvents: Event[];
     memberQRCodeImageData: string;
     EMAIL_REGEXP = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
 
@@ -45,18 +45,18 @@ export class ProfileComponent implements OnInit {
       private memberService: MemberService,
       private eventService: EventService) {
 
-      let queryByMemberId = this.activatedRoute.snapshot.paramMap.get('id');
+      const queryByMemberId = this.activatedRoute.snapshot.paramMap.get('id');
       if (queryByMemberId) {
 
           this.isAdminView = true; // Indicates that an admin is looking at the user profile.
           // Looking for a specific user profile.
-          this.loadMembershipDetails(queryByMemberId).then(membershipData=>{
+          this.loadMembershipDetails(queryByMemberId).then(membershipData => {
               let kaocUser = null;
 
               if (membershipData
                   && membershipData.members
                   && membershipData.members.length > 0) {
-                  kaocUser = membershipData.members.find(member=>member.kaocUserId == queryByMemberId);
+                  kaocUser = membershipData.members.find(member => member.kaocUserId === queryByMemberId);
               }
 
               if (kaocUser) {
@@ -66,15 +66,15 @@ export class ProfileComponent implements OnInit {
               } else {
                   this.profileState = 'kaocUserNotFound';
               }
-          }).catch(e=>{
+          }).catch(e => {
               console.error(`Failed to load user profile for kaocUserId: ${this.kaocUserId}`);
           });
 
           // For user profile loaded by admin. load the upcoming events
           this.eventService
               .getUpcomingEvents()
-              .then(events=>this.upcomingEvents =  events)
-              .catch(e=>{
+              .then(events => this.upcomingEvents =  events)
+              .catch(e => {
                   this.upcomingEvents = null;
               });
       } else {
@@ -103,7 +103,7 @@ export class ProfileComponent implements OnInit {
         // Show field to select # Adults # Children
     }
 
-    loadMembershipDetails(kaocUserId:string): Promise<Membership> {
+    loadMembershipDetails(kaocUserId: string): Promise<Membership> {
         return this.memberService.getMembershipData(kaocUserId)
             .then(membership => {
                 this.membership = membership;
@@ -119,7 +119,7 @@ export class ProfileComponent implements OnInit {
                     this.memberService.getMemberQRCode(kaocUserId)
                     .then(qrCodeData => {
                         this.memberQRCodeImageData = qrCodeData.qrCodeImage;
-                    })
+                    });
                 }
                 return membershipData;
             });
