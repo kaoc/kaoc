@@ -52,6 +52,12 @@
         "source": "api/getMemberEventCheckinDetails",
         "function": "getMemberEventCheckinDetails"
       }, {
+        "source": "api/sendMemberDetailsEmailToAllMembers",
+        "function": "sendMemberDetailsEmailToAllMembers"
+      }, {
+        "source": "api/sendMemberEventPassEmail",
+        "function": "sendMemberEventPassEmail"
+      }, {
         "source": "api/:projectName/us-central1/addOrUpdateMemberAndMembership",
         "function": "addOrUpdateMemberAndMembership"
       }, {
@@ -87,6 +93,12 @@
       }, {
         "source": "api/:projectName/us-central1/getMemberEventCheckinDetails",
         "function": "getMemberEventCheckinDetails"
+      }, {
+        "source": "api/:projectName/us-central1/sendMemberDetailsEmailToAllMembers",
+        "function": "sendMemberDetailsEmailToAllMembers"
+      }, {
+        "source": "api/:projectName/us-central1/sendMemberEventPassEmail",
+        "function": "sendMemberEventPassEmail"
       }, {
         "source": "**",
         "destination": "/index.html"
