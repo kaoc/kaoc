@@ -55,8 +55,8 @@
         "source": "api/sendMemberDetailsEmailToAllMembers",
         "function": "sendMemberDetailsEmailToAllMembers"
       }, {
-        "source": "api/sendMemberEventPassEmail",
-        "function": "sendMemberEventPassEmail"
+        "source": "api/sendMemberEventPassEmailToAllActiveMemberships",
+        "function": "sendMemberEventPassEmailToAllActiveMemberships"
       }, {
         "source": "api/:projectName/us-central1/addOrUpdateMemberAndMembership",
         "function": "addOrUpdateMemberAndMembership"
@@ -97,8 +97,8 @@
         "source": "api/:projectName/us-central1/sendMemberDetailsEmailToAllMembers",
         "function": "sendMemberDetailsEmailToAllMembers"
       }, {
-        "source": "api/:projectName/us-central1/sendMemberEventPassEmail",
-        "function": "sendMemberEventPassEmail"
+        "source": "api/:projectName/us-central1/sendMemberEventPassEmailToAllActiveMemberships",
+        "function": "sendMemberEventPassEmailToAllActiveMemberships"
       }, {
         "source": "**",
         "destination": "/index.html"

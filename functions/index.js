@@ -1099,7 +1099,7 @@ exports.sendPaymentEmail = functions.https.onCall((data, context) => {
  */
 function queueEmail(email) {
     email.status = email.status || 'New';
-    console.log(`Add Email Request for ${email.to} about ${email.subject}`);
+    console.log(`Adding Email Request about ${email.subject}`);
     return admin.firestore().collection('kaocEmails').add(email).then(emailDoc=>{
         return emailDoc.id;
     });
@@ -1476,126 +1476,92 @@ exports.performMemberEventCheckIn = functions.https.onCall((data, context) => {
                 });
 });
 
-exports.sendMemberEventPassEmail = functions.https.onCall((data, context) => {
+exports.sendMemberEventPassEmailToAllActiveMemberships = functions.https.onCall((data, context) => {
     context = _setUpTestingContext(context);
+
     let kaocUserId = data.kaocUserId;
     let kaocEventId = data.kaocEventId;
 
-    return _assertSelfOrAdminRole(context, [kaocUserId]).then(authDetails=>{
-        return _sendMemberEventPassEmail(kaocUserId, kaocEventId);
-    });
-});
-
-/**
- * Sends email to all members with member verification code and membership status
- */
-exports.sendMemberDetailsEmailToAllMembers = functions.https.onCall((data, context) => {
-    context = _setUpTestingContext(context);
-    let kaocUserId = data.kaocUserId;
+    let membershipDetailsArray = [];
+    let eventDetails = null;
+    let currDate = new Date();
+    let membershipYear = currDate.getFullYear();
 
     return _assertAdminRole(context)
-            .then(authDetails => {
-                let kaocUsersQuery = admin.firestore().collection('/kaocUsers');
+            .then(authDetails=> {
+                return _getEventDetailsById(kaocEventId);
+            })
+            .then(eventDtls => {
+                eventDetails = eventDtls;
+                // Retrieve all valid memberships. 
+                let membershipQuery = admin.firestore()
+                                            .collection('/kaocMemberships')
+                                            .where('endTime', '>=', currDate) // end time > current time
+                                            .orderBy('endTime', 'desc');
                 if(kaocUserId) {
-                    console.log(`Sending Email to ${kaocUserId}`);
-                    kaocUsersQuery = kaocUsersQuery.where(admin.firestore.FieldPath.documentId(), '==', admin.firestore().doc(`/kaocUsers/${kaocUserId}`))
+                    membershipQuery = membershipQuery.where('kaocUserRefs', 'array-contains', admin.firestore().doc(`/kaocUsers/${kaocUserId}`));
                 }
-                return kaocUsersQuery.get();
-            }).then(usersCollectionQuerySnapshot=> {
-                if (!usersCollectionQuerySnapshot.empty) {
-                    let membershipDetailsPromises = [];
-                    usersCollectionQuerySnapshot.forEach(userDocSnapshot=>{
-                        membershipDetailsPromises.push(_getCurrentMembershipDataByKaocUserId(userDocSnapshot.id));
-                    });
-                    return Promise.all(membershipDetailsPromises);
-                } else {
-                    return [];
-                }
-            }).then(membershipDetailsArray=>{
-                let userIdsHandled = {};
-                let emailPromises = [];
-                membershipDetailsArray.forEach(membershipDetails=> {
-                    // Emails will be send to all members in a membership at once. 
-                    // So if any of the user is handled, then the other user will e handled as well.
-                    let userIdsInMembership = membershipDetails.members.map(member=>member.kaocUserId);
-                    let handled = false;
-                    for(let index in userIdsInMembership) {
-                        if(userIdsHandled[userIdsInMembership[index]]) {
-                            handled = true;
-                            break;
-                        } else {
-                            // this is just to keep the loops simple.
-                            // Ideally the set should happen after emails are sent.
-                            userIdsHandled[userIdsInMembership[index]] = true;
-                        }
-                    }
-                    if(!handled) {
-                        emailPromises.push(_sendMemberDetailsEmail(membershipDetails));
-                    }
-                });
-                return Promise.all(emailPromises);
-            });
+                return membershipQuery
+                        .get()
+                        .then(querySnapShots => {
+
+                            var userFetchPromises = [];
+                            if(!querySnapShots.empty) {
+
+                                querySnapShots.docs.forEach(membershipSnapShot => {
+
+                                    let membershipRef = membershipSnapShot.ref;
+                                    let membershipRecord = membershipSnapShot.data();
+                                    let {membershipType, paymentStatus, legacyMembershipId, startTime} = membershipRecord;
+                                    
+                                    if (startTime.toDate().getFullYear() !== membershipYear) {
+                                        console.debug(`Ignoring membership for past year  ${startTime.toDate().getFullYear()} `)
+                                        return;
+                                    }
+                                    
+                                    let membershipDetails = {};
+                                    membershipDetails.membership = {membershipType, paymentStatus, legacyMembershipId, kaocMembershipId: membershipRef.id};
+                                    membershipDetails.members = [];
+                                    membershipDetailsArray.push(membershipDetails);
+
+                
+                                    // fetch the users for the membership.
+                                    let kaocUserRefs = membershipRecord.kaocUserRefs || [];
+                                    console.debug('Querying users for membership record');
+                                    kaocUserRefs.forEach(kaocUserRef => {
+                                        let userFetchPromise = kaocUserRef.get().then(userQuerySnapShot=>{
+                                            // console.debug(`User record exists - ${userQuerySnapShot.exists}`)
+                                            if(userQuerySnapShot.exists) {
+                                                let {firstName, lastName, emailId, ageGroup, phoneNumber} = userQuerySnapShot.data();
+                                                membershipDetails.members.push({firstName, lastName, emailId, ageGroup, phoneNumber, kaocUserId: userQuerySnapShot.id});
+                                            }
+                                            return null;
+                                        });
+                                        userFetchPromises.push(userFetchPromise);
+                                    });
+                
+                                });
+                            }
+                            return Promise.all(userFetchPromises);
+                        })
+                        .then(userFetchResults => {
+                            let emailPromises = [];
+                            membershipDetailsArray.forEach(membershipDetails => {
+                                let membershipData = membershipDetails.membership;
+                                membershipDetails.members.forEach(member=> {
+                                    let emailPromise = _sendMemberEventPassEmail(
+                                                            member.kaocUserId, 
+                                                            kaocEventId, 
+                                                            member, 
+                                                            membershipDetails, 
+                                                            eventDetails);
+                                    emailPromises.push(emailPromise);                        
+                                });
+                            });
+                            return Promise.all(emailPromises);
+                        });
+    });
 });
-
-function _sendMemberDetailsEmail(memberDetails) {
-    let emailPromises = [];
-    if(memberDetails && memberDetails.members) {
-        let membershipStatus = 'InActive';
-        if(memberDetails.membership && memberDetails.membership.paymentStatus === PAYMENT_STATUS_PAID) {
-            membershipStatus = 'Active';
-        }
-
-        memberDetails.members.forEach(member=>{
-            console.log(`Sending Member Email to ${member.firstName} ${member.lastName}`);
-
-            // Queue email 
-            emailPromises.push(
-                _generateQRCodeDataURL(`kaocMemberId:${member.kaocUserId}`)
-                .then(qrCodeImageData => {
-                    return queueEmail({
-                        to: member.emailId,
-                        subject: `KAOC Member Information`,
-                        html: `Hello ${member.firstName} ${member.lastName}, 
-                                    <p>
-                                        Below is your member information with KAOC.<br>
-                                        Name: ${member.firstName} ${member.lastName}<br>
-                                        Phone Number: ${member.phoneNumber}<br>
-                                        Email: ${member.emailId}
-                                    </p>
-                                    <p>
-                                        Membership Status: ${membershipStatus}    
-                                    </p>
-                                    <p>
-                                        Please use the QR below to look up your member information at event locations. <br>
-                                        <img src="${qrCodeImageData}" alt="Member Id">
-                                    </p>
-                                Thanks,
-                                KAOC Committe    
-                                `,
-                        text: `Hello ${member.firstName} ${member.lastName}, 
-                                
-                                Below is your member information with KAOC.
-                                Name: ${member.firstName} ${member.lastName}
-                                Phone Number: ${member.phoneNumber}
-                                Email: ${member.emailId}
-    
-                                Membership Status: ${membershipStatus}    
-    
-                                We recommend creating an account at https://kaoc.app using the email ${member.emailId}.
-                                Once logged in, you can view your membership details and QR code that can be used to check-in 
-                                at the event. 
-    
-                                Thanks,
-                                KAOC Committe    
-                                `
-                        });    
-                })
-            );
-        });
-    }
-    return Promise.all(emailPromises);
-}
-
 
 function _sendMemberEventPassEmail(kaocUserId, kaocEventId, userDetails, membershipDetails, eventDetails) {
 
@@ -1686,6 +1652,117 @@ function _sendMemberEventPassEmail(kaocUserId, kaocEventId, userDetails, members
                             `
                 });
             });
+}
+
+/**
+ * Sends email to all members with member verification code and membership status
+ */
+exports.sendMemberDetailsEmailToAllMembers = functions.https.onCall((data, context) => {
+    context = _setUpTestingContext(context);
+    let kaocUserId = data.kaocUserId;
+
+    return _assertAdminRole(context)
+            .then(authDetails => {
+                let kaocUsersQuery = admin.firestore().collection('/kaocUsers');
+                if(kaocUserId) {
+                    console.log(`Sending Email to ${kaocUserId}`);
+                    kaocUsersQuery = kaocUsersQuery.where(admin.firestore.FieldPath.documentId(), '==', admin.firestore().doc(`/kaocUsers/${kaocUserId}`))
+                }
+                return kaocUsersQuery.get();
+            }).then(usersCollectionQuerySnapshot=> {
+                if (!usersCollectionQuerySnapshot.empty) {
+                    let membershipDetailsPromises = [];
+                    usersCollectionQuerySnapshot.forEach(userDocSnapshot=>{
+                        membershipDetailsPromises.push(_getCurrentMembershipDataByKaocUserId(userDocSnapshot.id));
+                    });
+                    return Promise.all(membershipDetailsPromises);
+                } else {
+                    return [];
+                }
+            }).then(membershipDetailsArray=>{
+                let userIdsHandled = {};
+                let emailPromises = [];
+                membershipDetailsArray.forEach(membershipDetails=> {
+                    // Emails will be send to all members in a membership at once. 
+                    // So if any of the user is handled, then the other user will e handled as well.
+                    let userIdsInMembership = membershipDetails.members.map(member=>member.kaocUserId);
+                    let handled = false;
+                    for(let index in userIdsInMembership) {
+                        if(userIdsHandled[userIdsInMembership[index]]) {
+                            handled = true;
+                            break;
+                        } else {
+                            // this is just to keep the loops simple.
+                            // Ideally the set should happen after emails are sent.
+                            userIdsHandled[userIdsInMembership[index]] = true;
+                        }
+                    }
+                    if(!handled) {
+                        emailPromises.push(_sendMemberDetailsEmail(membershipDetails));
+                    }
+                });
+                return Promise.all(emailPromises);
+            });
+});
+
+
+function _sendMemberDetailsEmail(memberDetails) {
+    let emailPromises = [];
+    if(memberDetails && memberDetails.members) {
+        let membershipStatus = 'InActive';
+        if(memberDetails.membership && memberDetails.membership.paymentStatus === PAYMENT_STATUS_PAID) {
+            membershipStatus = 'Active';
+        }
+
+        memberDetails.members.forEach(member=>{
+            console.log(`Sending Member Email to ${member.firstName} ${member.lastName}`);
+
+            // Queue email 
+            emailPromises.push(
+                _generateQRCodeDataURL(`kaocMemberId:${member.kaocUserId}`)
+                .then(qrCodeImageData => {
+                    return queueEmail({
+                        to: member.emailId,
+                        subject: `KAOC Member Information`,
+                        html: `Hello ${member.firstName} ${member.lastName}, 
+                                    <p>
+                                        Below is your member information with KAOC.<br>
+                                        Name: ${member.firstName} ${member.lastName}<br>
+                                        Phone Number: ${member.phoneNumber}<br>
+                                        Email: ${member.emailId}
+                                    </p>
+                                    <p>
+                                        Membership Status: ${membershipStatus}    
+                                    </p>
+                                    <p>
+                                        Please use the QR below to look up your member information at event locations. <br>
+                                        <img src="${qrCodeImageData}" alt="Member Id">
+                                    </p>
+                                Thanks,
+                                KAOC Committe    
+                                `,
+                        text: `Hello ${member.firstName} ${member.lastName}, 
+                                
+                                Below is your member information with KAOC.
+                                Name: ${member.firstName} ${member.lastName}
+                                Phone Number: ${member.phoneNumber}
+                                Email: ${member.emailId}
+    
+                                Membership Status: ${membershipStatus}    
+    
+                                We recommend creating an account at https://kaoc.app using the email ${member.emailId}.
+                                Once logged in, you can view your membership details and QR code that can be used to check-in 
+                                at the event. 
+    
+                                Thanks,
+                                KAOC Committe    
+                                `
+                        });    
+                })
+            );
+        });
+    }
+    return Promise.all(emailPromises);
 }
 
 exports.getMemberEventCheckinDetails = functions.https.onCall((data, context) => {
