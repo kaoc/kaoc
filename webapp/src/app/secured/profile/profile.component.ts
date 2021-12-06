@@ -98,7 +98,7 @@ export class ProfileComponent implements OnInit {
       }
     }
 
-    performUserEventCheckIn(kaocUserId, kaocEventId) {
+    performMemberEventCheckIn(kaocUserId, kaocEventId) {
         // TODO - Load Event Check In Page for user;
         // Show field to select # Adults # Children
     }

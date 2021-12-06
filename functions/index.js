@@ -2,16 +2,14 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const nodemailer = require('nodemailer');
 var QRCode = require('qrcode');
+const { auth } = require('firebase-admin');
 
-const emailUser = functions.config().smtp.username;
-const emailPassword = functions.config().smtp.password;
-const mailTransportOptions = {
-    "service" : "gmail",
-    "auth":{
-        "user": emailUser,
-        "pass": emailPassword
-    }
-};
+const PAYMENT_STATUS_PAID = 'Paid';
+const PAYMENT_STATUS_UNPAID = 'UnPaid';
+const PAYMENT_STATUS_PENDING = 'Pending';
+const PAYMENT_STATUS_DECLINED = 'Declined';
+
+var mailTransportOptions = functions.config().smtp;
 
 const hostUrl = functions.config().host.url || 'https://kaoc.app';
 
@@ -432,7 +430,7 @@ function _getMembershipReport(memberShipYear) {
         });
 }
 
-var testing = false;
+var testing = true;
 function _setUpTestingContext(context) {
     if(testing) {
         context = {
@@ -766,7 +764,7 @@ function _addOrUpdateMembership(membership, auth) {
     let {kaocUserIds, membershipYear, membershipType, legacyMembershipId, paymentStatus, kaocMembershipId} = membership || {};
 
     membershipYear = membershipYear || (new Date()).getFullYear();
-    paymentStatus = paymentStatus || 'Paid';
+    paymentStatus = paymentStatus || PAYMENT_STATUS_PAID;
     membershipType = (membershipType || 'INDIVIDUAL').toUpperCase();
 
     console.log(`Adding membership for ${kaocUserIds}, ${membershipYear}, ${membershipType}, ${legacyMembershipId}`);
@@ -807,7 +805,7 @@ function _addOrUpdateMembership(membership, auth) {
             'startTime' : membershipStartTime,
             'endTime' : membershipEndTime,
             'membershipType': membershipType,
-            'paymentStatus': paymentStatus || 'Paid',
+            'paymentStatus': paymentStatus || PAYMENT_STATUS_PAID,
         };
 
         if (legacyMembershipId) {
@@ -873,9 +871,9 @@ function _addOrUpdatePayment(paymentObject, auth) {
         // If payment status is not defined, use default based on the payment method.
         if(!paymentStatus) {
             if(paymentMethod === 'Square') {
-                paymentStatus = 'Pending';
+                paymentStatus = PAYMENT_STATUS_PENDING;
             } else {
-                paymentStatus = 'Paid';
+                paymentStatus = PAYMENT_STATUS_PAID;
             }
         }
         const kaocUserRef = admin.firestore().doc(`/kaocUsers/${kaocUserId}`); 
@@ -1007,7 +1005,7 @@ exports.sendPaymentEmail = functions.https.onCall((data, context) => {
   */
  function _sendPaymentEmail(paymentDoc) {
     if(paymentDoc 
-            && paymentDoc.paymentStatus === 'Paid' 
+            && paymentDoc.paymentStatus === PAYMENT_STATUS_PAID
             && paymentDoc.paymentTypeRef
             && paymentDoc.kaocUserRef) {
 
@@ -1100,6 +1098,7 @@ exports.sendPaymentEmail = functions.https.onCall((data, context) => {
  *          html or text 
  */
 function queueEmail(email) {
+    email.status = email.status || 'New';
     console.log(`Add Email Request for ${JSON.stringify(email)}`);
     return admin.firestore().collection('kaocEmails').add(email).then(emailDoc=>{
         return emailDoc.id;
@@ -1112,12 +1111,16 @@ function queueEmail(email) {
 exports.deliverEmail = functions.firestore.document('kaocEmails/{emailId}').onCreate((emailSnapShot, context) => {
     const mailTransport = nodemailer.createTransport(mailTransportOptions);
     var email = emailSnapShot.data();
-    email.from = email.from || emailUser;
+    email.from = email.from || mailTransportOptions.auth.user;
     console.log(`Sending Email ${JSON.stringify(email)}`);
     return mailTransport.sendMail(email)
     .then(result =>{
         console.log(`Email sent. Removing email record`, result);
         return emailSnapShot.ref.delete();
+    }).catch(e=>{
+        console.error(`Error Sending Email.`, e);
+        console.log('Updating Status as failed');
+        return emailSnapShot.ref.update({'status': 'Failed'});
     });
 });
 
@@ -1358,21 +1361,7 @@ exports.getUpcomingEvents = functions.https.onCall((data, context) => {
             console.log(`Upcoming Events Empty ${eventQuerySnapShots.empty}`)
             if(!eventQuerySnapShots.empty) {
                 eventQuerySnapShots.forEach(eventQuerySnapShot=>{
-                    let eventData = eventQuerySnapShot.data();
-                    if(eventData.startTime) {
-                        eventData.startTime = eventData.startTime.toMillis();
-                    }
-                    if(eventData.endTime) {
-                        eventData.endTime = eventData.endTime.toMillis();
-                    }
-                    eventData.kaocEventId = eventQuerySnapShot.id;
-
-                    // Delete fields restricted to admins.
-                    delete eventData.capacity;
-                    delete eventData.totalAdultEventTicketCheckins;
-                    delete eventData.totalAdultMemberCheckins;
-                    delete eventData.totalChildMemberCheckins;
-                    delete eventData.totalChildEventTicketChecks;
+                    let eventData = _marshalEventDataFromSnapshot(eventQuerySnapShot);
                     upcomingEvents.push(eventData);
                 });
             }
@@ -1380,6 +1369,49 @@ exports.getUpcomingEvents = functions.https.onCall((data, context) => {
             return upcomingEvents;
         });
 });
+
+function _getEventDetailsById(eventId) {
+    return admin.firestore()
+            .doc(`/kaocEvents/${eventId}`).get()
+            .then(eventSnapShot=>{
+                if(eventSnapShot.exists) {
+                    return _marshalEventDataFromSnapshot(eventSnapShot);
+                } else {
+                    let errorResponse = {"msg": `Invalid Event Reference ${eventId}`};
+                    throw errorResponse;
+                }
+            });
+}
+
+/**
+ * 
+ * 
+ * @param {DocumentSnapshot} eventQuerySnapShot 
+ * @returns 
+ */
+function _marshalEventDataFromSnapshot(eventQuerySnapShot) {
+    if(!eventQuerySnapShot || !eventQuerySnapShot.exists) {
+        return null;
+    }
+
+    let eventData =  eventQuerySnapShot.data();
+    if(eventData.startTime) {
+        eventData.startTime = eventData.startTime.toMillis();
+    }
+    if(eventData.endTime) {
+        eventData.endTime = eventData.endTime.toMillis();
+    }
+    eventData.kaocEventId = eventQuerySnapShot.id;
+
+    // Delete fields restricted to admins.
+    delete eventData.capacity;
+    delete eventData.totalAdultEventTicketCheckins;
+    delete eventData.totalAdultMemberCheckins;
+    delete eventData.totalChildMemberCheckins;
+    delete eventData.totalChildEventTicketChecks;
+    return eventData;
+}
+
 
 exports.performMemberEventCheckIn = functions.https.onCall((data, context) => {
     context = _setUpTestingContext(context);
@@ -1399,6 +1431,7 @@ exports.performMemberEventCheckIn = functions.https.onCall((data, context) => {
                 }).then(membershipData => {
                     if(membershipData 
                         && membershipData.membership 
+                        && membershipData.membership.paymentStatus === PAYMENT_STATUS_PAID
                         &&  membershipData.membership.kaocMembershipId) {
 
                             let attendeeRef = admin.firestore().doc(`/kaocMemberships/${membershipData.membership.kaocMembershipId}`);
@@ -1410,17 +1443,27 @@ exports.performMemberEventCheckIn = functions.https.onCall((data, context) => {
                             if(numAdults > 0) {
                                 for(let i=0;i<numAdults;i++) {
                                     writeBatch.set(
-                                            admin.firestore().collection('/kaocEventCheckins').doc(), 
+                                            admin.firestore().collection('/kaocEventCheckIns').doc(), 
                                             {attendeeRef, attendeeType, checkInTime, eventRef, 'userType':'Adult'});
                                 }
+                                // update the check in count for the event. 
+                                writeBatch.update(
+                                                eventRef, 
+                                                {'totalAdultMemberCheckins': admin.firestore.FieldValue.increment(numAdults)}
+                                            );
                             }
 
                             if(numChildren > 0) {
                                 for(let i=0;i<numChildren;i++) {
                                     writeBatch.set(
-                                            admin.firestore().collection('/kaocEventCheckins').doc(), 
+                                            admin.firestore().collection('/kaocEventCheckIns').doc(), 
                                             {attendeeRef, attendeeType, checkInTime, eventRef, 'userType':'Child'});
                                 }
+                                // update the check in count for the event. 
+                                writeBatch.update(
+                                                eventRef, 
+                                                {'totalChildMemberCheckins': admin.firestore.FieldValue.increment(numChildren)}
+                                            );
                             }
 
                             return writeBatch.commit();
@@ -1433,6 +1476,117 @@ exports.performMemberEventCheckIn = functions.https.onCall((data, context) => {
                 });
 });
 
+exports.sendMemberEventPassEmail = functions.https.onCall((data, context) => {
+    context = _setUpTestingContext(context);
+    let kaocUserId = data.kaocUserId;
+    let kaocEventId = data.kaocEventId;
+
+    return _assertSelfOrAdminRole(context, [kaocUserId]).then(authDetails=>{
+        return _sendMemberEventPassEmail(kaocUserId, kaocEventId);
+    });
+});
+
+exports.sendEventPassEmail = functions.https.onCall((data, context) => {
+    context = _setUpTestingContext(context);
+    let kaocEventId = data.kaocEventId;
+
+    return _assertSelfOrAdminRole(context, [kaocUserId]).then(authDetails=>{
+        return _sendMemberEventPassEmail(kaocUserId, kaocEventId);
+    });
+});
+
+
+function _sendMemberEventPassEmail(kaocUserId, kaocEventId, userDetails, membershipDetails, eventDetails) {
+
+    let getUserDetailsPromise = null;
+    if(userDetails) {
+        getUserDetailsPromise = Promise.resolve(userDetails);
+    } else {
+        getUserDetailsPromise = admin.firestore()
+                                    .doc(`/kaocUsers/${kaocUserId}`)
+                                    .get()
+                                    .then(
+                                        userSnapShot => {
+                                            if(userSnapShot.exists) {
+                                                return userSnapShot.data();
+                                            } else {
+                                                let message = {"msg": `Invalid user reference ${kaocUserId}`};
+                                                throw message;
+                                            }
+                                        });
+    }
+
+    return getUserDetailsPromise.then(kaocUserDetails => {
+                // set User details 
+                userDetails = kaocUserDetails;
+                // Return membership details. 
+                if(membershipDetails) {
+                    return membershipDetails;
+                } else {
+                    return _getCurrentMembershipDataByKaocUserId(kaocUserId);
+                }
+            }).then(memDetails => {
+                // set membership details. 
+                membershipDetails = memDetails;
+                if(membershipDetails 
+                    && membershipDetails.membership 
+                    && membershipDetails.membership.paymentStatus === PAYMENT_STATUS_PAID) {
+                    // Return event details. 
+                    if(eventDetails) {
+                        return eventDetails;
+                    } else {
+                        return _getEventDetailsById(kaocEventId);
+                    }
+                } else {
+                    let errorReason = {"msg": `No valid membership for user id ${kaocUserId}`};
+                    throw errorReason;
+                }
+            }).then(kaocEventDetails=>{
+                eventDetails = kaocEventDetails;
+                // Generate QR Code now
+                return _generateQRCodeDataURL(`kaocEventCheckIn:kaocMemberId:${userDetails.kaocUserId}:kaocEventId:${eventDetails.kaocEventId}`);
+            }).then(qrCodeImageData => {
+                
+                // Queue email 
+                return queueEmail({
+                    to: userDetails.emailId,
+                    subject: `KAOC Membership Event Pass for ${eventDetails.name}`,
+                    html: `Hello ${userDetails.firstName} ${userDetails.lastName}, 
+                                <br>
+                                <br>
+                                <p>
+                                Thank you for your KAOC Membership.
+                                Your membership includes pass for the following event conducted by Kerala Association of Colorado.
+                                </p>
+                                <h2>${eventDetails.name}</h2>
+                                <p>${eventDetails.description}</p>
+                                <p>Location: ${eventDetails.location}</p>
+                                <p>
+                                    Please use the QR below to check-in at the event venue. <br>
+                                    <img src="${qrCodeImageData}" alt="Membership Check In Details">
+                                </p>
+                            Thanks,
+                            KAOC Committe    
+                            `,
+                    text: `Hello ${userDetails.firstName} ${userDetails.lastName}, 
+                            
+                            Thank you for your KAOC Membership.
+                            Your membership includes paas for the following event conducted by Kerala Association of Colorado.
+                            ${eventDetails.name}
+                            ${eventDetails.description}
+                            Location: ${eventDetails.location}
+
+                            We recommend creating an account at https://kaoc.app using the email ${userDetails.emailId}.
+                            Once logged in, you can view your membership details and QR code that can be used to check-in 
+                            at the event. 
+
+                            Thanks,
+                            KAOC Committe    
+                            `
+                });
+            });
+}
+
 exports.getMemberEventCheckinDetails = functions.https.onCall((data, context) => {
     context = _setUpTestingContext(context);
 
@@ -1443,7 +1597,7 @@ exports.getMemberEventCheckinDetails = functions.https.onCall((data, context) =>
     let kaocUserId = data.kaocUserId;
     let kaocEventId = data.kaocEventId;
 
-    return _assertAdminRole(context)    
+    return _assertSelfOrAdminRole(context, [kaocUserId])    
                 .catch(e=> {
                     throw new functions.https.HttpsError(
                         'permission-denied', 
@@ -1469,7 +1623,7 @@ exports.getMemberEventCheckinDetails = functions.https.onCall((data, context) =>
                             let eventRef = admin.firestore().doc(`/kaocEvents/${kaocEventId}`);
 
                             return admin.firestore()
-                                .collection('/kaocEventCheckins')
+                                .collection('/kaocEventCheckIns')
                                 .where("attendeeRef", "==", attendeeRef)
                                 .where("eventRef", "==", eventRef)
                                 .where("attendeeType", "==", attendeeType)
@@ -1546,6 +1700,46 @@ exports.getMembershipQRCode = functions.https.onCall((data, context) => {
 });
 
 /**
+ * Returns a QR Code to be used to check in to an event using membership.
+ */
+exports.getMemberEventCheckInQRCode = functions.https.onCall((data, context) => {
+    context = _setUpTestingContext(context);
+
+    const kaocUserId = data.memberId || data.kaocUserId;
+    const koacEventId = data.kaocEventId;
+
+    return _assertSelfOrAdminRole(context, [kaocUserId]) 
+    .catch(e => {
+        throw new functions.https.HttpsError(
+            'permission-denied', 
+            'User does not have the authorization to perform this operation');
+    })
+    .then(authResult => {
+        return _getCurrentMembershipDataByKaocUserId(kaocUserId);
+    }).then(membershipData => {
+        // validate membership before issuing QR Code. 
+        if(membershipData && membershipData.membership && membershipData.membership.paymentStatus === PAYMENT_STATUS_PAID) {
+            return _getEventDetailsById(koacEventId);
+        } else {
+            let errorResponse = {"msg": `User does not have an active membership ${kaocUserId}`};
+            throw errorResponse;
+        }
+    }).then(eventDetails => {
+        if(eventDetails && eventDetails.membershipAccessIncluded) {
+            let memberEventCheckInCode = `kaocEventCheckIn:kaocMemberId:${kaocUserId}:kaocEventId:${koacEventId}`;
+            return _generateQRCodeDataURL(memberEventCheckInCode);
+        } else {
+            let errorResponse = {"msg": `Invalid Event Reference ${koacEventId}. Event does not exist or does not support membership event access`};
+            throw errorResponse;
+        }
+    }).then(qrCodeImage=>{
+        console.log(`qrCode obtained.`)
+        return {qrCodeImage};
+    });
+});
+
+
+/**
  * Generates a QR Code URL from the 
  * @param {String} dataString 
  * @returns 
@@ -1554,11 +1748,12 @@ function _generateQRCodeDataURL(dataString) {
     return QRCode
         .toDataURL(dataString)
         .then(url => {
-            console.log(`QR Code generated for ${dataString} - ${url}`);
+            console.log(`QR Code generated for ${dataString}`);
             return url;
         })
         .catch(e=>console.error(`Error generating QR Code for ${dataString}`, e));
 }
+
 
 /**
  * Returns the encoded message string.
