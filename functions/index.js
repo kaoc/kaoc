@@ -1710,9 +1710,17 @@ function _sendMemberDetailsEmail(memberDetails) {
     let emailPromises = [];
     if(memberDetails && memberDetails.members) {
         let membershipStatus = 'InActive';
-        if(memberDetails.membership && memberDetails.membership.paymentStatus === PAYMENT_STATUS_PAID) {
-            membershipStatus = 'Active';
+        let membershipType = 'N/A';
+        if(memberDetails.membership) {
+            if(memberDetails.membership.paymentStatus === PAYMENT_STATUS_PAID) {
+                membershipStatus = 'Active';
+            }
+            if(memberDetails.membership.membershipType) {
+                membershipType = memberDetails.membership.membershipType;
+            }
         }
+
+        
 
         memberDetails.members.forEach(member=>{
             console.log(`Sending Member Email to ${member.firstName} ${member.lastName}`);
@@ -1732,7 +1740,8 @@ function _sendMemberDetailsEmail(memberDetails) {
                                         Email: ${member.emailId}
                                     </p>
                                     <p>
-                                        Membership Status: ${membershipStatus}    
+                                        Membership Status: ${membershipStatus}<br>    
+                                        Membership Type: ${membershipType}    
                                     </p>
                                     <p>
                                         Please use the QR below to look up your member information at event locations. <br>
