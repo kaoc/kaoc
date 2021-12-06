@@ -30,6 +30,7 @@ import {AppFooterComponent} from '../_layout/app-footer/app-footer.component';
 import {JwPaginationModule} from 'jw-angular-pagination';
 import { ScannerComponent } from './scanner/scanner.component';
 import { ZXingScannerModule } from '@zxing/ngx-scanner';
+import { CheckinComponent } from './checkin/checkin.component';
 
 
 @NgModule({
@@ -49,7 +50,8 @@ import { ZXingScannerModule } from '@zxing/ngx-scanner';
     PaypalPaymentComponent,
     AppHeaderComponent,
     AppFooterComponent,
-    ScannerComponent
+    ScannerComponent,
+    CheckinComponent
   ],
   imports: [
     CommonModule,

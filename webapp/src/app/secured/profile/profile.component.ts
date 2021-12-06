@@ -9,6 +9,7 @@ import { MemberService } from '../member.service';
 import { EventService } from '../event.service';
 import { Membership } from '../Membership';
 import { Router, ActivatedRoute } from '@angular/router';
+import { ADMIN_MEMBER_CHECKIN, SECURED_CONTEXT } from 'src/app/URLConstants';
 
 @Component({
   selector: 'app-profile',
@@ -102,8 +103,10 @@ export class ProfileComponent implements OnInit {
     }
 
     performMemberEventCheckIn(kaocUserId, kaocEventId) {
-        // TODO - Load Event Check In Page for user;
-        // Show field to select # Adults # Children
+        const redirectURL = `/${SECURED_CONTEXT}/${ADMIN_MEMBER_CHECKIN}`
+            .replace(':memberId', kaocUserId)
+            .replace(':eventId', kaocEventId);
+        this.router.navigateByUrl(redirectURL);
     }
 
     loadMembershipDetails(kaocUserId: string): Promise<Membership> {

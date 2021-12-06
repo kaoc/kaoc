@@ -1,10 +1,12 @@
+import { CheckinComponent } from './checkin/checkin.component';
 import {
     ADMIN_LIST_MEMBERS,
     ADMIN_VIEW_MEMBER_PROFILE,
     ADMIN_MEMBER_PROFILE,
     ADMIN_SEARCH, PROFILE,
     USER_MEMBER_PROFILE,
-    ADMIN_SCANNER
+    ADMIN_SCANNER,
+    ADMIN_MEMBER_CHECKIN
 } from './../URLConstants';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
@@ -90,6 +92,13 @@ const routes: Routes = [{
     }, {
         path: ADMIN_SCANNER,
         component: ScannerComponent,
+        canActivate: [AuthGuardService],
+        data: {
+            expectedRole: 'admin'
+        }
+    }, {
+        path: ADMIN_MEMBER_CHECKIN,
+        component: CheckinComponent,
         canActivate: [AuthGuardService],
         data: {
             expectedRole: 'admin'
