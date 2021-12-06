@@ -22,6 +22,11 @@ export class HomeComponent implements OnInit {
     });
     eventService.getUpcomingEvents().then(upComingEvents=>{
       this.events = upComingEvents;
+      this.events.forEach(event=>{
+        if(event.geoLocation) {
+          event.mapsLink = `https://www.google.com/maps/search/?api=1&query=${event.geoLocation._latitude},${event.geoLocation._longitude}`;
+        }
+      });
     });
   }
 

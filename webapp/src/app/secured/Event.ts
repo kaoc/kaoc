@@ -11,9 +11,10 @@ export class Event {
     totalAdultMemberCheckins: number;
     totalChildEventTicketChecks: number;
     totalChildMemberCheckins: number;
+    mapsLink:string;
 }
 
 export class GeoPoint {
-    _latititude: number;
+    _latitude: number;
     _longitude: number;
 }

@@ -73,25 +73,15 @@
       <div id="myCarousel2" class="carousel slide eventcarosel" data-ride="carousel">
         <!-- Wrapper for slides -->
         <div class="carousel-inner eventslider">
-<!--          <div class="item active">-->
-<!--            <img class="" src="/assets/images/banner01.jpg" alt="Kerala Association of Colorado">-->
-<!--            <div class="carousel-caption eventcaption">-->
-<!--              <div class="captionnew eventslide">-->
-<!--                <div class="event_details">-->
-<!--                  <div class="col-md-8 col-xs-12 txtleft">-->
-<!--                    Music Night 2017-->
-<!--                  </div>-->
-<!--                  <div class="col-md-4	 col-xs-12 txtright">-->
-<!--                    July5, 2017     |      10.PM-->
-<!--                  </div>-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--          </div>-->
-
           <div class="item" *ngFor="let ev of events; let isFirst = first" [class.active]="isFirst">
             <img class="" src="{{ev.eventImageUrl}}" alt="Kerala Association of Colorado">
             <div class="carousel-caption eventcaption">
+              <p>
+                {{ev.description}}<br>
+                <a [href]="ev.mapsLink" target="_blank">
+                {{ev.location}}
+                </a>
+              </p>
               <div class="captionnew eventslide">
                 <div class="event_details">
                   <div class="col-md-8 col-xs-12 txtleft">
