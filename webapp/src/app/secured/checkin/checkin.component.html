@@ -74,15 +74,21 @@
             <div>
                 <span class="checkin-info-item">
                     <span>Adults</span>
-                    <input type="number" />
+                    <input type="number" #adults/>
                 </span>
                 <span class="checkin-info-item">
                     <span>Kids</span>
-                    <input type="number" />
+                    <input type="number" #kids/>
                 </span>
             </div>
             <div class="checkin-info-item">
-                <button (click)="performUserEventCheckIn()" class="app-button">Check In</button>
+                <button (click)="performUserEventCheckIn(adults.value, kids.value)" class="app-button">Check In</button>
+            </div>
+            <div *ngIf="checkInAPIProgress">
+                Checking in the memeber...
+            </div>
+            <div *ngIf="isCheckInSuccess">
+                Successfully checked In.
             </div>
         </div>
     </div>

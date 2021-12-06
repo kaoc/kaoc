@@ -21,21 +21,25 @@ export class CheckinComponent implements OnInit {
   profileState = '';
   membershipDetailsLoaded = false;
   memberEventCheckIn: MemberEventCheckIn[];
+  queryByMemberId = '';
+  eventId = '';
+  isCheckInSuccess = false;
+  checkInAPIProgress = false;
 
   constructor(
     private memberService: MemberService,
     private eventService: EventService,
     private activatedRoute: ActivatedRoute
   ) {
-    const queryByMemberId = this.activatedRoute.snapshot.paramMap.get('memberId');
-    const eventId = this.activatedRoute.snapshot.paramMap.get('eventId');
-    this.loadMembershipDetails(queryByMemberId).then(membershipData => {
+    this.queryByMemberId = this.activatedRoute.snapshot.paramMap.get('memberId');
+    this.eventId = this.activatedRoute.snapshot.paramMap.get('eventId');
+    this.loadMembershipDetails(this.queryByMemberId).then(membershipData => {
       let kaocUser = null;
 
       if (membershipData
           && membershipData.members
           && membershipData.members.length > 0) {
-          kaocUser = membershipData.members.find(member => member.kaocUserId === queryByMemberId);
+          kaocUser = membershipData.members.find(member => member.kaocUserId === this.queryByMemberId);
           console.log(kaocUser);
       }
 
@@ -52,7 +56,7 @@ export class CheckinComponent implements OnInit {
 
   // For user profile loaded by admin. load the upcoming events
     this.eventService
-      .getMemberEventCheckinDetails(queryByMemberId, eventId)
+      .getMemberEventCheckinDetails(this.queryByMemberId, this.eventId)
       .then(memberEventCheckIn => this.memberEventCheckIn = memberEventCheckIn)
       .catch(e => {
         this.memberEventCheckIn = null;
@@ -73,8 +77,20 @@ export class CheckinComponent implements OnInit {
         });
   }
 
-  performUserEventCheckIn() {
-    // Add API here for check in
+  performUserEventCheckIn(noOfAdults: number, noOfKids: number) {
+    this.checkInAPIProgress = true;
+    this.eventService.performMemberEventCheckIn(
+      this.queryByMemberId,
+      this.eventId,
+      noOfAdults,
+      noOfKids
+    ).then(() => {
+      this.isCheckInSuccess = true;
+      this.checkInAPIProgress = false;
+    }).catch(e => {
+      this.checkInAPIProgress = false;
+      this.isCheckInSuccess = false;
+    });
   }
 
 
