@@ -5,6 +5,7 @@ import { MemberService } from './../member.service';
 import { Component, OnInit } from '@angular/core';
 import { Member } from '../Member';
 import { Event } from '../Event';
+import { MatSlider, MatSliderChange } from '@angular/material';
 import { MemberEventCheckIn } from '../MemberEventCheckIn';
 
 @Component({
@@ -15,24 +16,32 @@ import { MemberEventCheckIn } from '../MemberEventCheckIn';
 export class CheckinComponent implements OnInit {
 
   kaocUser: Member;
+  kaocEvent: Event;
   kaocUserId: string;
   membership: Membership;
-  upcomingEvents: Event[];
   profileState = '';
   membershipDetailsLoaded = false;
-  memberEventCheckIn: MemberEventCheckIn[];
+  memberEventCheckIns: MemberEventCheckIn[];
   queryByMemberId = '';
   eventId = '';
   isCheckInSuccess = false;
   checkInAPIProgress = false;
+  isCheckInFailure = false;
+  checkInNumAdults: number = 0;
+  checkInNumKids: number = 0;
+  validCheckIn: boolean = false;
 
   constructor(
     private memberService: MemberService,
     private eventService: EventService,
     private activatedRoute: ActivatedRoute
   ) {
+
     this.queryByMemberId = this.activatedRoute.snapshot.paramMap.get('memberId');
     this.eventId = this.activatedRoute.snapshot.paramMap.get('eventId');
+
+    // Load Member & Membership Details
+    this.profileState = 'loading';
     this.loadMembershipDetails(this.queryByMemberId).then(membershipData => {
       let kaocUser = null;
 
@@ -41,6 +50,18 @@ export class CheckinComponent implements OnInit {
           && membershipData.members.length > 0) {
           kaocUser = membershipData.members.find(member => member.kaocUserId === this.queryByMemberId);
           console.log(kaocUser);
+
+          if(membershipData.membership) {
+            let membershipType = membershipData.membership.membershipType || 'FAMILY';
+            if(membershipType.toLowerCase() == 'individual') {
+              this.checkInNumAdults = 1;
+              this.checkInNumKids = 0;
+            } else {
+              this.checkInNumAdults = 2;
+              this.checkInNumKids = 2;
+            }
+            this.reEvaluateCheckInButton();
+          }
       }
 
       if (kaocUser) {
@@ -50,16 +71,28 @@ export class CheckinComponent implements OnInit {
       } else {
           this.profileState = 'kaocUserNotFound';
       }
-  }).catch(e => {
-      console.error(`Failed to load user profile for kaocUserId: ${this.kaocUserId}`);
-  });
+    }).catch(e => {
+        console.error(`Failed to load user profile for kaocUserId: ${this.kaocUserId}`);
+    });
 
-  // For user profile loaded by admin. load the upcoming events
+    this.fetchPriorMemberCheckIns();
+
+    // Get Event Details.
+    this.eventService.getUpcomingEventsById(this.eventId).then(event=>this.kaocEvent = event);
+
+  }
+
+  fetchPriorMemberCheckIns() {
     this.eventService
       .getMemberEventCheckinDetails(this.queryByMemberId, this.eventId)
-      .then(memberEventCheckIn => this.memberEventCheckIn = memberEventCheckIn)
+      .then(memberEventCheckIns => {
+        if(memberEventCheckIns) {
+          memberEventCheckIns.sort((c1, c2)=>c1.checkInTime - c2.checkInTime);
+          this.memberEventCheckIns = memberEventCheckIns;
+        }
+      })
       .catch(e => {
-        this.memberEventCheckIn = null;
+        this.memberEventCheckIns = null;
       });
   }
 
@@ -77,19 +110,44 @@ export class CheckinComponent implements OnInit {
         });
   }
 
-  performUserEventCheckIn(noOfAdults: number, noOfKids: number) {
+  reEvaluateCheckInButton() {
+    this.validCheckIn = (this.checkInNumAdults + this.checkInNumKids) > 0;
+  }
+
+  updateAdultCheckIn(event:MatSliderChange) {
+    this.checkInNumAdults = event.value;
+    this.reEvaluateCheckInButton()
+  }
+
+  updateKidCheckIn(event:MatSliderChange) {
+    this.checkInNumKids = event.value;
+    this.reEvaluateCheckInButton()
+  }
+
+
+  performUserEventCheckIn() {
+    if(!this.validCheckIn) {
+      return;
+    }
     this.checkInAPIProgress = true;
     this.eventService.performMemberEventCheckIn(
       this.queryByMemberId,
       this.eventId,
-      noOfAdults,
-      noOfKids
+      this.checkInNumAdults,
+      this.checkInNumKids
     ).then(() => {
       this.isCheckInSuccess = true;
       this.checkInAPIProgress = false;
+      this.isCheckInFailure = false;
     }).catch(e => {
       this.checkInAPIProgress = false;
       this.isCheckInSuccess = false;
+      this.isCheckInFailure = true;
+    }).then(x => {
+      if(this.isCheckInSuccess) {
+        // Reload prior member check-ins
+        this.fetchPriorMemberCheckIns();
+      }
     });
   }
 

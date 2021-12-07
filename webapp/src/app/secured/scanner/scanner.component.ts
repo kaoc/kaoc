@@ -27,15 +27,23 @@ export class ScannerComponent implements OnInit {
           const memberId = memberIdMatch.groups.memberId;
           this.router.navigate([`${SECURED_CONTEXT}/${ADMIN_VIEW_MEMBER_PROFILE_PREFIX}`, memberId]);
       } else {
+
         const memberEventCheckInMatch = KAOC_MEMBER_EVENT_CHECKIN_REGEX.exec(result);
+
         if (memberEventCheckInMatch) {
+          this.scanResult = `Code Match Found for Event Check-In`;
+          //alert(`Code Match Found for Event Check-In`);
           const memberId = memberEventCheckInMatch.groups.memberId;
           const eventId = memberEventCheckInMatch.groups.eventId;
-          const redirectURL = `${SECURED_CONTEXT}/${ADMIN_MEMBER_CHECKIN}`
-            .replace(':memberId', memberId)
-            .replace(':eventId', eventId);
-          this.router.navigateByUrl(redirectURL);
+          this.router.navigate([`${SECURED_CONTEXT}/${ADMIN_MEMBER_CHECKIN}`, {memberId, eventId}]).then(status=>{
+            if(!status) {
+              this.scanResult = `Navigation Failed`;
+              //alert(`Navigation Failed`);
+            }
+          });
         } else {
+          this.scanResult = `NO Match Found`;
+          //alert(`NOT MATCH for Event Check-In`);
           console.error(`Unsupported QR Code ${result}`);
         }
       }

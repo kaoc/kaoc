@@ -132,9 +132,9 @@ export class MemberService {
    *
    * @returns
    */
-   sendMemberDetailsEmailToAllMembers(): Promise<boolean> {
+   sendMemberDetailsEmailToMembers(): Promise<boolean> {
     return this.ngFireFunctions
-          .httpsCallable('sendMemberDetailsEmailToAllMembers')({})
+          .httpsCallable('sendMemberDetailsEmailToMembers')({})
           .toPromise().then(status => {
               console.log('Sent Membership verification email to all members');
               return true;
@@ -142,7 +142,26 @@ export class MemberService {
               console.error(`Error sending member verification email to all members`);
               throw e;
           });
-}
+  }
+
+  /**
+   * Sends event emails to all members
+   *
+   * @param {number} limit - Limit sending x number of emails at once
+   * @returns
+   */
+   retryFailedEmails(limit): Promise<boolean> {
+    let data = limit ? {limit} : {};
+    return this.ngFireFunctions
+          .httpsCallable('retryFailedEmails')(data)
+          .toPromise().then(status => {
+              console.log('Succesfully re-attempted failed emails');
+              return true;
+          }).catch(e => {
+              console.error(`Failed to send retry emails.`);
+              throw e;
+          });
+  }
 
 
   getAllMembers() {

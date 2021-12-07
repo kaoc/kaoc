@@ -29,6 +29,21 @@ export class EventService {
       return this.upcomingEventsPromise;
     }
 
+    /**
+     * Returns the event by the given id.
+     *
+     * @param kaocEventId
+     * @returns
+     */
+    getUpcomingEventsById(kaocEventId): Promise<Event> {
+      return this.upcomingEventsPromise.then(events=>{
+        if(events) {
+          return events.find(event=>event.kaocEventId == kaocEventId);
+        }
+        return null;
+      });
+    }
+
     performMemberEventCheckIn(kaocUserId: string, kaocEventId: string, numAdults: number, numChildren: number): Promise<boolean> {
         return this.ngFireFunctions
                     .httpsCallable('performMemberEventCheckIn')({kaocUserId, kaocEventId, numAdults, numChildren})
@@ -66,9 +81,9 @@ export class EventService {
      * @param kaocEventId
      * @returns
      */
-     sendMemberEventPassEmailToAllActiveMemberships(kaocEventId): Promise<boolean> {
+     sendMemberEventPassEmailToActiveMemberships(kaocEventId): Promise<boolean> {
         return this.ngFireFunctions
-              .httpsCallable('sendMemberEventPassEmailToAllActiveMemberships')({kaocEventId})
+              .httpsCallable('sendMemberEventPassEmailToActiveMemberships')({kaocEventId})
               .toPromise().then(status => {
                   console.log('Sent Event Email to all active members');
                   return true;

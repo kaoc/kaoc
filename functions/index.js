@@ -430,7 +430,7 @@ function _getMembershipReport(memberShipYear) {
         });
 }
 
-var testing = false;
+var testing = true;
 function _setUpTestingContext(context) {
     if(testing) {
         context = {
@@ -1109,19 +1109,49 @@ function queueEmail(email) {
  * Deliver Email 
  */
 exports.deliverEmail = functions.firestore.document('kaocEmails/{emailId}').onCreate((emailSnapShot, context) => {
-    const mailTransport = nodemailer.createTransport(mailTransportOptions);
+    return _deliverEmailImpl(emailSnapShot);
+});
+
+function _deliverEmailImpl(emailSnapShot) {
     var email = emailSnapShot.data();
+    const mailTransport = nodemailer.createTransport(mailTransportOptions);
     email.from = email.from || mailTransportOptions.auth.user;
-    console.log(`Sending Email ${JSON.stringify(email)}`);
-    return mailTransport.sendMail(email)
-    .then(result =>{
-        console.log(`Email sent. Removing email record`, result);
-        return emailSnapShot.ref.delete();
-    }).catch(e=>{
-        console.error(`Error Sending Email.`, e);
-        console.log('Updating Status as failed');
-        return emailSnapShot.ref.update({'status': 'Failed'});
-    });
+    console.log(`Sending Email with subject ${email.subject}`);
+    return mailTransport
+            .sendMail(email)
+            .then(result =>{
+                console.log(`Email sent. Removing email record`, result);
+                return emailSnapShot.ref.delete();
+            }).catch(e=>{
+                console.error(`Error Sending Email.`, e);
+                console.log('Updating Status as failed');
+                return emailSnapShot.ref.update({'status': 'Failed'});
+            });
+}
+
+exports.retryFailedEmails = functions.https.onCall((data, context) => {
+    context = _setUpTestingContext(context);
+    return _assertAdminRole(context)
+            .then(authResult => {
+                let limit = data.limit;
+                let failedEmailCollectionQuery = admin
+                        .firestore()
+                        .collection('/kaocEmails')
+                        .where('status', '==', 'Failed');
+                if(limit) {
+                    failedEmailCollectionQuery = failedEmailCollectionQuery.limit(limit);
+                }
+                return failedEmailCollectionQuery.get();
+            })
+            .then(emailQuerySnapShot => {
+                let emailPromises = []
+                if(!emailQuerySnapShot.empty) {
+                    emailQuerySnapShot.forEach(emailDoc=>{
+                        emailPromises.push(_deliverEmailImpl(emailDoc));
+                    });    
+                }
+                return Promise.all(emailPromises);
+            });
 });
 
 /**
@@ -1288,6 +1318,8 @@ exports.requestEmailProfileLinking = functions.https.onCall((data, context) => {
                                     and update your communication preferences.<br> 
                                     Click this link to associate with the new email <a href="${linkProfileUrl}">${linkProfileUrl}</a>
                                     <br><br>
+
+                                    <b>NOTE:</b> Once the link is clicked, please logout and login back to see the updated information.
                                 Thanks,<br>
                                 KAOC Committe    
                                 `,
@@ -1420,8 +1452,8 @@ exports.performMemberEventCheckIn = functions.https.onCall((data, context) => {
 
     let kaocUserId = data.kaocUserId;
     let kaocEventId = data.kaocEventId;
-    let numAdults   = data.numAdults;
-    let numChildren = data.numChildren;
+    let numAdults   = Number(data.numAdults);
+    let numChildren = Number(data.numChildren);
 
     return _assertAdminRole(context)    
                 .catch(e=> {
@@ -1449,6 +1481,7 @@ exports.performMemberEventCheckIn = functions.https.onCall((data, context) => {
                                             {attendeeRef, attendeeType, checkInTime, eventRef, 'userType':'Adult'});
                                 }
                                 // update the check in count for the event. 
+                                console.log(`Incrementing adult member checks by ${numAdults} of type ${typeof numAdults}`);
                                 writeBatch.update(
                                                 eventRef, 
                                                 {'totalAdultMemberCheckins': admin.firestore.FieldValue.increment(numAdults)}
@@ -1478,7 +1511,7 @@ exports.performMemberEventCheckIn = functions.https.onCall((data, context) => {
                 });
 });
 
-exports.sendMemberEventPassEmailToAllActiveMemberships = functions.https.onCall((data, context) => {
+exports.sendMemberEventPassEmailToActiveMemberships = functions.https.onCall((data, context) => {
     context = _setUpTestingContext(context);
 
     let kaocUserId = data.kaocUserId;
@@ -1634,7 +1667,12 @@ function _sendMemberEventPassEmail(kaocUserId, kaocEventId, userDetails, members
                                     Please use the attached QR Code to check-in at the event venue. <br>
                                     <img src="${qrCodeImageData}" alt="Membership Check In Details">
                                 </p>
-                            Thanks,<br>
+                                <p>
+                                    Visit <a href="https://kaoc.app">https://kaoc.app</a> and sign-up using the email ${member.emailId} to auto-associate and manage your current membership account.<br>
+                                    <b>NOTE:</b> Google and Facebook login is also available. If the email id used to login does not match your current membership email,
+                                    you will get an option to link your profile using email verification.  
+                                </p>                                    
+                    Thanks,<br>
                             KAOC Committe    
                             `,
                     text: `Hello ${userDetails.firstName} ${userDetails.lastName}, 
@@ -1663,7 +1701,7 @@ function _sendMemberEventPassEmail(kaocUserId, kaocEventId, userDetails, members
 /**
  * Sends email to all members with member verification code and membership status
  */
-exports.sendMemberDetailsEmailToAllMembers = functions.https.onCall((data, context) => {
+exports.sendMemberDetailsEmailToMembers = functions.https.onCall((data, context) => {
     context = _setUpTestingContext(context);
     let kaocUserId = data.kaocUserId;
 
@@ -1717,6 +1755,7 @@ function _sendMemberDetailsEmail(memberDetails) {
     if(memberDetails && memberDetails.members) {
         let membershipStatus = 'InActive';
         let membershipType = 'N/A';
+        let membershipYear = (new Date()).getFullYear(); // Membership Email is always for the current year
         if(memberDetails.membership) {
             if(memberDetails.membership.paymentStatus === PAYMENT_STATUS_PAID) {
                 membershipStatus = 'Active';
@@ -1737,7 +1776,7 @@ function _sendMemberDetailsEmail(memberDetails) {
                 .then(qrCodeImageData => {
                     return queueEmail({
                         to: member.emailId,
-                        subject: `KAOC Member Information`,
+                        subject: `${membershipYear} KAOC Member Information`,
                         html: `Hello ${member.firstName} ${member.lastName}, 
                                     <p>
                                         Below is your member information with KAOC.<br>
@@ -1747,12 +1786,17 @@ function _sendMemberDetailsEmail(memberDetails) {
                                     </p>
                                     <p>
                                         Membership Status: ${membershipStatus}<br>    
-                                        Membership Type: ${membershipType}    
+                                        Membership Type: ${membershipType} 
                                     </p>
                                     <p>
                                         Please use the attached QR Code to look up your member information at event locations. <br>
                                         <img src="${qrCodeImageData}" alt="Member Id">
                                     </p>
+                                    <p>
+                                        Visit <a href="https://kaoc.app">https://kaoc.app</a> and sign-up using the email ${member.emailId} to auto-associate and manage your current membership account.<br>
+                                        <b>NOTE:</b> Google and Facebook login is also available. If the email id used to login does not match your current membership email,
+                                        you will get an option to link your profile using email verification.  
+                                    </p>                                    
                                 Thanks,
                                 KAOC Committe    
                                 `,

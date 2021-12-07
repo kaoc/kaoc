@@ -1,10 +1,18 @@
 <div class="page-title">
     <div>
-      <h2>Check In</h2>
+      <h2>Event Check-In</h2>
     </div>
   </div>
 <div class="card">
-    <div>
+    <div class="profile">
+        <div *ngIf="profileState == 'loading'">
+          Loading User Profile...
+        </div>
+
+        <div *ngIf="profileState == 'kaocUserNotFound'">
+            Failed to locate user
+        </div>
+
         <div *ngIf="profileState == 'kaocUserFound'" class="profile-details">
             <div class="name">{{kaocUser.firstName}} {{kaocUser.lastName}}</div>
             <div class="email">{{kaocUser.emailId}}</div>
@@ -56,39 +64,49 @@
                 <div>
                     <span>Family Members</span>
                 </div>
-                <div>
+                <div class="check-in-time">
                     <ul *ngFor="let familyMember of  membership.members">
                         <li *ngIf="familyMember.kaocUserId != kaocUserId">{{familyMember.firstName}} {{familyMember.lastName}}</li>
                     </ul>
                 </div>
             </div>
-        </div>
-        <div *ngIf="!memberEventCheckIn">
-            Member or his/her family members checked in at the following date and time.
-            <div *ngFor="let event of memberEventCheckIn">
-                <div>{{event.userType}} at {{event.checkInTime|date:'short'}}</div>
+
+            <div *ngIf="memberEventCheckIns && memberEventCheckIns.length > 0">
+              <h4>Prior Check-Ins for {{kaocEvent.name}}.</h4>
+              <ul *ngFor="let event of memberEventCheckIns">
+                  <li>{{event.userType}} at {{event.checkInTime|date:'short'}}</li>
+              </ul>
             </div>
-        </div>
-        <div class="checkin-info">
-            <div>Check In</div>
-            <div>
-                <span class="checkin-info-item">
-                    <span>Adults</span>
-                    <input type="number" #adults/>
-                </span>
-                <span class="checkin-info-item">
-                    <span>Kids</span>
-                    <input type="number" #kids/>
-                </span>
-            </div>
-            <div class="checkin-info-item">
-                <button (click)="performUserEventCheckIn(adults.value, kids.value)" class="app-button">Check In</button>
-            </div>
-            <div *ngIf="checkInAPIProgress">
-                Checking in the memeber...
-            </div>
-            <div *ngIf="isCheckInSuccess">
-                Successfully checked In.
+
+            <div class="checkin-info" *ngIf="membership && membership.membership">
+                <div class="event-title">{{kaocEvent.name}} Check-In</div>
+                <div id="checkInForm" *ngIf="!isCheckInSuccess && !checkInAPIProgress">
+                    <div>
+                        <div class="checkin-info-item">
+                            <div>Adults</div>
+                            <mat-slider thumbLabel min="0" max="10" step="1" [value]="checkInNumAdults" (input)="updateAdultCheckIn($event)"></mat-slider>
+                            <span class="check-in-count">{{checkInNumAdults}}</span>
+                        </div>
+                        <div class="checkin-info-item">
+                            <div>Kids</div>
+                            <mat-slider thumbLabel min="0" max="10" step="1" [value]="checkInNumKids" (input)="updateKidCheckIn($event)"></mat-slider>
+                            <span class="check-in-count">{{checkInNumKids}}</span>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="checkin-info-item">
+                        <button (click)="performUserEventCheckIn()" class="app-button" [disabled]="!validCheckIn">Check In</button>
+                    </div>
+                </div>
+                <div *ngIf="checkInAPIProgress">
+                    Checking in the memeber...
+                </div>
+                <div *ngIf="isCheckInSuccess">
+                    Successfully checked In.
+                </div>
+                <div *ngIf="isCheckInFailure">
+                    Failed to Check-In User. Please retry.
+                </div>
             </div>
         </div>
     </div>

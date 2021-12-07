@@ -23,6 +23,29 @@
     & > div {
       margin-bottom: 10px;
     }
+
+    .event-title,
+    .name {
+      font-weight: bold;
+      font-size: large;
+    }
+    .checkin-info-item {
+      text-align: center;
+    }
+
+    .check-in-count {
+      font-size: large;
+    }
+
+    button:disabled,
+    button[disabled] {
+      background-image: none;
+      color: darkgray;
+    }
+
+    ul {
+      padding-left: 10px;
+    }
   }
 
   &-edit__bttn {
