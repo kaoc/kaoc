@@ -430,7 +430,7 @@ function _getMembershipReport(memberShipYear) {
         });
 }
 
-var testing = true;
+var testing = false;
 function _setUpTestingContext(context) {
     if(testing) {
         context = {
