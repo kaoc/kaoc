@@ -348,6 +348,7 @@ function _getMembershipReport(memberShipYear) {
     // look up the current year memebership
     // create a dummy date object which falls within the current year.
     let dateComparison = new Date();
+    dateComparison.setMonth(6); // keep a date comparison in the middle of the year
     dateComparison.setFullYear(memberShipYear);
 
     const membershipColRef = admin.firestore().collection('/kaocMemberships');
@@ -364,10 +365,10 @@ function _getMembershipReport(memberShipYear) {
                 querySnapShots.docs.forEach(membershipSnapShot=>{
                     let membershipRef = membershipSnapShot.ref;
                     let membershipRecord = membershipSnapShot.data();
-                    let {membershipType, paymentStatus, legacyMembershipId, startTime} = membershipRecord;
+                    let {membershipType, paymentStatus, legacyMembershipId, startTime, endTime} = membershipRecord;
                     
-                    if(startTime.toDate().getFullYear() !== Number(memberShipYear)) {
-                        console.debug(`Ignoring membership for past year  ${startTime.toDate().getFullYear()} `)
+                    if (!(startTime.toDate() <= dateComparison && dateComparison <= endTime.toDate())) {
+                        console.debug(`Ignoring membership for non-membership year  ${endTime.toDate().getFullYear()} `)
                         return;
                     }
 
@@ -430,7 +431,7 @@ function _getMembershipReport(memberShipYear) {
         });
 }
 
-var testing = false;
+var testing = true;
 function _setUpTestingContext(context) {
     if(testing) {
         context = {
@@ -1519,8 +1520,10 @@ exports.sendMemberEventPassEmailToActiveMemberships = functions.https.onCall((da
 
     let membershipDetailsArray = [];
     let eventDetails = null;
-    let currDate = new Date();
-    let membershipYear = currDate.getFullYear();
+    let dateComparison = new Date();
+    dateComparison.setMonth(6); // Setting a month in middle to ensure date comparison is safe
+                                // Membership End dates are always at year end    
+    console.log(`Date used for comparison ${dateComparison}`);                                
 
     return _assertAdminRole(context)
             .then(authDetails=> {
@@ -1531,7 +1534,7 @@ exports.sendMemberEventPassEmailToActiveMemberships = functions.https.onCall((da
                 // Retrieve all valid memberships. 
                 let membershipQuery = admin.firestore()
                                             .collection('/kaocMemberships')
-                                            .where('endTime', '>=', currDate) // end time > current time
+                                            .where('endTime', '>=', dateComparison) // end time > current time
                                             .orderBy('endTime', 'desc');
                 if(kaocUserId) {
                     membershipQuery = membershipQuery.where('kaocUserRefs', 'array-contains', admin.firestore().doc(`/kaocUsers/${kaocUserId}`));
@@ -1542,39 +1545,39 @@ exports.sendMemberEventPassEmailToActiveMemberships = functions.https.onCall((da
 
                             var userFetchPromises = [];
                             if(!querySnapShots.empty) {
+                                console.log(`Obtained ${querySnapShots.size} membership records`)
 
                                 querySnapShots.docs.forEach(membershipSnapShot => {
 
                                     let membershipRef = membershipSnapShot.ref;
                                     let membershipRecord = membershipSnapShot.data();
-                                    let {membershipType, paymentStatus, legacyMembershipId, startTime} = membershipRecord;
+                                    let {membershipType, paymentStatus, legacyMembershipId, startTime, endTime} = membershipRecord;
                                     
-                                    if (startTime.toDate().getFullYear() !== membershipYear) {
-                                        console.debug(`Ignoring membership for past year  ${startTime.toDate().getFullYear()} `)
-                                        return;
-                                    }
-                                    
-                                    let membershipDetails = {};
-                                    membershipDetails.membership = {membershipType, paymentStatus, legacyMembershipId, kaocMembershipId: membershipRef.id};
-                                    membershipDetails.members = [];
-                                    membershipDetailsArray.push(membershipDetails);
-
-                
-                                    // fetch the users for the membership.
-                                    let kaocUserRefs = membershipRecord.kaocUserRefs || [];
-                                    console.debug('Querying users for membership record');
-                                    kaocUserRefs.forEach(kaocUserRef => {
-                                        let userFetchPromise = kaocUserRef.get().then(userQuerySnapShot=>{
-                                            // console.debug(`User record exists - ${userQuerySnapShot.exists}`)
-                                            if(userQuerySnapShot.exists) {
-                                                let {firstName, lastName, emailId, ageGroup, phoneNumber} = userQuerySnapShot.data();
-                                                membershipDetails.members.push({firstName, lastName, emailId, ageGroup, phoneNumber, kaocUserId: userQuerySnapShot.id});
-                                            }
-                                            return null;
+                                    if (startTime.toDate() <= dateComparison && dateComparison <= endTime.toDate()) {
+                                        console.debug(`Obtained membership for year  ${dateComparison.getFullYear()} `)
+                                        let membershipDetails = {};
+                                        membershipDetails.membership = {membershipType, paymentStatus, legacyMembershipId, kaocMembershipId: membershipRef.id};
+                                        membershipDetails.members = [];
+                                        membershipDetailsArray.push(membershipDetails);
+    
+                    
+                                        // fetch the users for the membership.
+                                        let kaocUserRefs = membershipRecord.kaocUserRefs || [];
+                                        console.debug('Querying users for membership record');
+                                        kaocUserRefs.forEach(kaocUserRef => {
+                                            let userFetchPromise = kaocUserRef.get().then(userQuerySnapShot=>{
+                                                // console.debug(`User record exists - ${userQuerySnapShot.exists}`)
+                                                if(userQuerySnapShot.exists) {
+                                                    let {firstName, lastName, emailId, ageGroup, phoneNumber} = userQuerySnapShot.data();
+                                                    membershipDetails.members.push({firstName, lastName, emailId, ageGroup, phoneNumber, kaocUserId: userQuerySnapShot.id});
+                                                }
+                                                return null;
+                                            });
+                                            userFetchPromises.push(userFetchPromise);
                                         });
-                                        userFetchPromises.push(userFetchPromise);
-                                    });
-                
+                                    } else {
+                                        console.debug(`Ignoring membership for past year ${startTime.toDate().getFullYear()} `)
+                                    }
                                 });
                             }
                             return Promise.all(userFetchPromises);
@@ -1668,7 +1671,7 @@ function _sendMemberEventPassEmail(kaocUserId, kaocEventId, userDetails, members
                                     <img src="${qrCodeImageData}" alt="Membership Check In Details">
                                 </p>
                                 <p>
-                                    Visit <a href="https://kaoc.app">https://kaoc.app</a> and sign-up using the email ${member.emailId} to auto-associate and manage your current membership account.<br>
+                                    Visit <a href="${hostUrl}">${hostUrl}</a> and sign-up using the email ${userDetails.emailId} to auto-associate and manage your current membership account.<br>
                                     <b>NOTE:</b> Google and Facebook login is also available. If the email id used to login does not match your current membership email,
                                     you will get an option to link your profile using email verification.  
                                 </p>                                    
@@ -1683,7 +1686,7 @@ function _sendMemberEventPassEmail(kaocUserId, kaocEventId, userDetails, members
                             ${eventDetails.description}
                             Location: ${eventDetails.location}
 
-                            We recommend creating an account at https://kaoc.app using the email ${userDetails.emailId}.
+                            We recommend creating an account at ${hostUrl} using the email ${userDetails.emailId}.
                             Once logged in, you can view your membership details and QR code that can be used to check-in 
                             at the event. 
 
@@ -1786,14 +1789,15 @@ function _sendMemberDetailsEmail(memberDetails) {
                                     </p>
                                     <p>
                                         Membership Status: ${membershipStatus}<br>    
-                                        Membership Type: ${membershipType} 
+                                        Membership Type: ${membershipType}<br>
+                                        Membership Year: ${membershipYear}
                                     </p>
                                     <p>
                                         Please use the attached QR Code to look up your member information at event locations. <br>
                                         <img src="${qrCodeImageData}" alt="Member Id">
                                     </p>
                                     <p>
-                                        Visit <a href="https://kaoc.app">https://kaoc.app</a> and sign-up using the email ${member.emailId} to auto-associate and manage your current membership account.<br>
+                                        Visit <a href="${hostUrl}">${hostUrl}</a> and sign-up using the email ${member.emailId} to auto-associate and manage your current membership account.<br>
                                         <b>NOTE:</b> Google and Facebook login is also available. If the email id used to login does not match your current membership email,
                                         you will get an option to link your profile using email verification.  
                                     </p>                                    
@@ -1809,7 +1813,7 @@ function _sendMemberDetailsEmail(memberDetails) {
     
                                 Membership Status: ${membershipStatus}    
     
-                                We recommend creating an account at https://kaoc.app using the email ${member.emailId}.
+                                We recommend creating an account at ${hostUrl} using the email ${member.emailId}.
                                 Once logged in, you can view your membership details and QR code that can be used to check-in 
                                 at the event. 
     
