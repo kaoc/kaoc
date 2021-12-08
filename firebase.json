@@ -43,6 +43,9 @@
         "source": "api/getMemberQRCode",
         "function": "getMemberQRCode"
       }, {
+        "source": "api/getMemberEventCheckInQRCode",
+        "function": "getMemberEventCheckInQRCode"
+      }, {
         "source": "api/getUpcomingEvents",
         "function": "getUpcomingEvents"
       }, {
@@ -88,6 +91,9 @@
         "source": "api/:projectName/us-central1/getMemberQRCode",
         "function": "getMemberQRCode"
       }, {
+        "source": "api/:projectName/us-central1/getMemberEventCheckInQRCode",
+        "function": "getMemberEventCheckInQRCode"
+      },  {
         "source": "api/:projectName/us-central1/getUpcomingEvents",
         "function": "getUpcomingEvents"
       }, {

@@ -6,6 +6,7 @@ export class Event {
     geoLocation: GeoPoint;
     location: string;
     name: string;
+    description:string;
     startTime: number;
     totalAdultEventTicketCheckins: number;
     totalAdultMemberCheckins: number;

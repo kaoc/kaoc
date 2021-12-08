@@ -31,6 +31,7 @@ import {JwPaginationModule} from 'jw-angular-pagination';
 import { ScannerComponent } from './scanner/scanner.component';
 import { ZXingScannerModule } from '@zxing/ngx-scanner';
 import { CheckinComponent } from './checkin/checkin.component';
+import { EventTicketsComponent } from './event-tickets/event-tickets.component';
 
 
 @NgModule({
@@ -51,7 +52,8 @@ import { CheckinComponent } from './checkin/checkin.component';
     AppHeaderComponent,
     AppFooterComponent,
     ScannerComponent,
-    CheckinComponent
+    CheckinComponent,
+    EventTicketsComponent
   ],
   imports: [
     CommonModule,

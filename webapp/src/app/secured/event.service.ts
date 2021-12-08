@@ -18,6 +18,13 @@ export class EventService {
             .httpsCallable('getUpcomingEvents')({})
             .toPromise().then(upcomingEvents => {
                 console.log('Obtained upcoming events');
+                if(upcomingEvents) {
+                    upcomingEvents.forEach(event=>{
+                        if(event.geoLocation) {
+                            event.mapsLink = `https://www.google.com/maps/search/?api=1&query=${event.geoLocation._latitude},${event.geoLocation._longitude}`;
+                        }
+                    });
+                }
                 return upcomingEvents;
             }).catch(e => {
                 console.error(`Error fetching upcoming events`);
@@ -54,6 +61,25 @@ export class EventService {
                         console.error(`Error checking in user for event`);
                         throw e;
                     });
+    }
+
+    /**
+     * Returns the check in details for the given user for a given event.
+     *
+     * @param kaocUserId
+     * @param kaocEventId
+     * @returns
+     */
+     getMemberEventCheckInQRCode(kaocUserId, kaocEventId): Promise<any> {
+        return this.ngFireFunctions
+            .httpsCallable('getMemberEventCheckInQRCode')({kaocUserId, kaocEventId})
+            .toPromise().then(eventCheckInQRCodeData => {
+                console.log('Obtained member event checkin qr code data');
+                return eventCheckInQRCodeData;
+            }).catch(e => {
+                console.error(`Error fetching member event checkin qr code data for ${kaocUserId} and event ${kaocEventId}`);
+                throw e;
+            });
     }
 
     /**

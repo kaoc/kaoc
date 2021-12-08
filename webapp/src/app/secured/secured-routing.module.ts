@@ -19,8 +19,9 @@ import { SearchUsersComponent } from './admin/search-users/search-users.componen
 import { MemberProfileComponent } from './admin/member-profile/member-profile.component';
 import { ListMemberProfilesComponent } from './admin/list-member-profiles/list-member-profiles.component';
 import { ProfileLinkStatusComponent } from './profile-link-status/profile-link-status.component';
-import { LOGIN, PROFILE_LINK_STATUS, SECURED_CONTEXT, VERIFY } from '../URLConstants';
+import { LOGIN, PROFILE_LINK_STATUS, SECURED_CONTEXT, VERIFY, EVENT_TICKETS } from '../URLConstants';
 import { ScannerComponent } from './scanner/scanner.component';
+import { EventTicketsComponent } from './event-tickets/event-tickets.component';
 
 
 const routes: Routes = [{
@@ -49,6 +50,13 @@ const routes: Routes = [{
     }, {
       path: USER_MEMBER_PROFILE,
       component: MemberProfileComponent,
+      canActivate: [AuthGuardService],
+      data: {
+          expectedRole: 'member'
+      }
+    }, {
+      path: EVENT_TICKETS,
+      component: EventTicketsComponent,
       canActivate: [AuthGuardService],
       data: {
           expectedRole: 'member'

@@ -81,6 +81,9 @@
       <mat-icon>account_circle</mat-icon>
       Profile
     </button>
+    <button *ngIf="loggedIn===true" mat-menu-item routerLink="/secured/eventtickets" (click)="sidenav.close()">
+      <mat-icon>event</mat-icon> Events & Tickets
+    </button>
     <mat-divider></mat-divider>
     <!--<h4 *ngIf="isAdmin===true" class="section-label">Admin</h4>-->
     <button *ngIf="isAdmin===true" mat-menu-item routerLink="/secured/admin/memberprofile"
