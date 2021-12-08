@@ -8,6 +8,7 @@ import {Member} from '../../Member';
 import {MatStepper, MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material';
 import {ActivatedRoute, Router, NavigationEnd, NavigationStart} from '@angular/router';
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
+import {ADMIN_VIEW_MEMBER_PROFILE_PREFIX, SECURED_CONTEXT} from '../../../URLConstants';
 
 import {DialogWinComponent} from '../dialog-win/dialog-win.component';
 import {ConfirmDelComponent} from './confirm-del.component';
@@ -510,7 +511,8 @@ export class MemberProfileComponent implements OnInit {
 
   viewMember(docId) {
     this.hideModal();
-    this.stepper.selectedIndex = 0;
+    //this.stepper.selectedIndex = 0;
+    this.router.navigate([`${SECURED_CONTEXT}/${ADMIN_VIEW_MEMBER_PROFILE_PREFIX}`, docId]);
     // this.router.navigate(['secured/admin/memberprofile', docId]);
   }
 

@@ -377,7 +377,7 @@ function _getMembershipReport(memberShipYear) {
 
                     // fetch the users for the membership.
                     let kaocUserRefs = membershipRecord.kaocUserRefs || [];
-                    console.debug('Querying users for membership record');
+                    //console.debug('Querying users for membership record');
                     kaocUserRefs.forEach(kaocUserRef=>{
                         let userFetchPromise = kaocUserRef.get().then(userQuerySnapShot=>{
                             // console.debug(`User record exists - ${userQuerySnapShot.exists}`)
@@ -397,10 +397,13 @@ function _getMembershipReport(memberShipYear) {
                                 .where('paymentTypeRef', '==', membershipRef)
                                 .where('paymentType', '==', 'Membership')
                                 .limit(1)
-                                .get().then(paymentQuerySnapshot=>{
-                                    console.debug(`Payment record exists - ${!paymentQuerySnapshot.empty}`)
+                                .get().then(paymentQuerySnapshot=>{ 
+                                    //console.debug(`Payment record exists - ${!paymentQuerySnapshot.empty}`)
                                     if(!paymentQuerySnapshot.empty) {
                                         let {paymentMethod, paymentAmount, paymentNotes, paymentStatus, paymentExternalSystemRef, createTime} = paymentQuerySnapshot.docs[0].data();
+                                        if(paymentNotes && (paymentNotes.indexOf(',') >= 0 || paymentNotes.indexOf('\n') >= 0) && typeof paymentNotes === 'string') {
+                                            //paymentNotes = paymentNotes.replaceAll(',', ' ').replaceAll('\n', '  ');
+                                        }
                                         let payment = {paymentMethod, paymentAmount, paymentNotes, paymentStatus, paymentExternalSystemRef, kaocPaymentId: paymentQuerySnapshot.docs[0].id, paymentTime: createTime.toMillis()};
                                         Object.assign(membership, payment);
                                     }
@@ -431,7 +434,7 @@ function _getMembershipReport(memberShipYear) {
         });
 }
 
-var testing = true;
+var testing = false;
 function _setUpTestingContext(context) {
     if(testing) {
         context = {
@@ -1057,14 +1060,14 @@ exports.sendPaymentEmail = functions.https.onCall((data, context) => {
                                                     Membership Type: <b>${membershipType}</b><br>
                                                     Year: <b>${membershipYear}</b> <br>
                                                 Thanks,<br>
-                                                KAOC Committe    
+                                                KAOC Committee    
                                                 `,
                                         text: `Hello ${userName}, 
                                                     You have succesfully completed a payment of ${paymentDoc.paymentAmount} towards KAOC membership.
                                                     Membership Type: ${membershipType}
                                                     Year: ${membershipYear}.
                                                 Thanks,
-                                                KAOC Committe    
+                                                KAOC Committee    
                                                 `
                                     });
                                 }
@@ -1322,7 +1325,7 @@ exports.requestEmailProfileLinking = functions.https.onCall((data, context) => {
 
                                     <b>NOTE:</b> Once the link is clicked, please logout and login back to see the updated information.
                                 Thanks,<br>
-                                KAOC Committe    
+                                KAOC Committee    
                                 `,
                     });
                 } else {
@@ -1675,8 +1678,8 @@ function _sendMemberEventPassEmail(kaocUserId, kaocEventId, userDetails, members
                                     <b>NOTE:</b> Google and Facebook login is also available. If the email id used to login does not match your current membership email,
                                     you will get an option to link your profile using email verification.  
                                 </p>                                    
-                    Thanks,<br>
-                            KAOC Committe    
+                            Thanks,<br>
+                            KAOC Committee    
                             `,
                     text: `Hello ${userDetails.firstName} ${userDetails.lastName}, 
                             
@@ -1691,7 +1694,7 @@ function _sendMemberEventPassEmail(kaocUserId, kaocEventId, userDetails, members
                             at the event. 
 
                             Thanks,
-                            KAOC Committe    
+                            KAOC Committee    
                             `,
                     attachments: [{
                         filename: 'KAOC_EventCheckIn_QRCode.png',
@@ -1801,8 +1804,8 @@ function _sendMemberDetailsEmail(memberDetails) {
                                         <b>NOTE:</b> Google and Facebook login is also available. If the email id used to login does not match your current membership email,
                                         you will get an option to link your profile using email verification.  
                                     </p>                                    
-                                Thanks,
-                                KAOC Committe    
+                                Thanks,<br>
+                                KAOC Committee    
                                 `,
                         text: `Hello ${member.firstName} ${member.lastName}, 
                                 
@@ -1818,7 +1821,7 @@ function _sendMemberDetailsEmail(memberDetails) {
                                 at the event. 
     
                                 Thanks,
-                                KAOC Committe    
+                                KAOC Committee    
                                 `,
                         attachments: [{
                             filename: 'KAOC_MemberID_QRCode.png',

@@ -14,7 +14,7 @@
             <span *ngIf="memberStatus==='InActive'"
                 style="color:red; font-weight:bold">{{memberStatus}}</span>
           </div>
-          
+
           <div class="tab-content" id="main_form">
             <div class="tab-pane active" role="tabpanel" id="step1">
               <!--                        <h4 class="text-center">Member Details</h4>-->
@@ -278,14 +278,14 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h4 class="modal-title col-lg-8 col-md-8">Edit Member</h4>
+        <h4 class="modal-title col-lg-8 col-md-8">View Profile</h4>
         <button type="button" class="close" (click)="hideModal()">&times;</button>
       </div>
       <div class="modal-body">
         {{memberService.message}}
       </div>
       <div class="modal-footer">
-        <button (click)="viewMember(memberService.kaocUserDocId)" matTooltip="Edit" class="btn MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary">Edit</button> &nbsp;
+        <button (click)="viewMember(memberService.kaocUserDocId)" matTooltip="Edit" class="btn MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary">View</button> &nbsp;
         <button type="button" class="btn MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary" (click)="hideModal()">Close</button>
         <button type="button" id="close-modal" data-dismiss="modal" style="display: none">Close</button>
       </div>
