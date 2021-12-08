@@ -25,7 +25,7 @@
         <mat-card-content>
           {{event.description}}
           <br>
-          <div *ngIf="hasValidMembership" >
+          <div *ngIf="hasValidMembership && event.membershipAccessIncluded" >
               <span class="membership-state-active">*Included with Membership&nbsp;</span>
               <span *ngIf="eventMemberCheckInQRCodeMap[event.kaocEventId]">Present the QR Code above to check-in at the event</span>
           </div>

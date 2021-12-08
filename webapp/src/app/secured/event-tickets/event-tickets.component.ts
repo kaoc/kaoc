@@ -46,7 +46,9 @@ export class EventTicketsComponent implements OnInit {
             if(validMembership && this.upcomingEvents && this.upcomingEvents.length > 0) {
                 var promises = [];
                 this.upcomingEvents.forEach(upcomingEvent => {
-                    promises.push(this.loadMemberEventCheckIn(kaocUserId, upcomingEvent.kaocEventId));
+                    if(upcomingEvent.membershipAccessIncluded) {
+                        promises.push(this.loadMemberEventCheckIn(kaocUserId, upcomingEvent.kaocEventId));
+                    }
                 });
                 return Promise.all(promises);
             }
