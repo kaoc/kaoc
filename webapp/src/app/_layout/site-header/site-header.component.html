@@ -29,21 +29,6 @@
                       <li class="hidden-xs"><a routerLink="/kaochistory">
                         <i class=""><img src="/assets/images/ico_about.png" width="21" height="20" alt=""/></i><br>
                         About Us</a></li>
-                      <!--
-                      <li class="hidden-xs"><a href="">
-                        <i class=""><img src="/assets/images/ico_event.png" width="21" height="20" alt=""/></i><br>
-                        Events </a></li>
-                      <li class="hidden-xs"><a href="">
-                        <i class=""><img src="/assets/images/ico_sponors.png" width="21" height="20" alt=""/></i><br>
-                        Sponsors </a></li>
-                      <li class="hidden-xs"><a href="">
-                        <i class=""><img src="/assets/images/ico_magazine.png" width="21" height="20" alt=""/></i><br>
-                        Magazine </a></li>
-                      <li class="hidden-xs">
-                        <a href="">
-                          <i class=""><img src="/assets/images/ico_contact.png" width="21" height="20" alt=""/></i><br>
-                          Contact Us </a></li>
-                          -->
                     </ul>
                   </nav>
                 </div>
@@ -108,7 +93,6 @@
       <mat-icon>search</mat-icon>
       View/Edit Member
     </button>
-    <mat-divider></mat-divider>
     <button *ngIf="isAdmin===true" mat-menu-item routerLink="/secured/admin/scanner"
             (click)="sidenav.close()">
       <mat-icon>visibility</mat-icon>
@@ -116,17 +100,12 @@
     </button>
     <mat-divider></mat-divider>
     <button mat-menu-item routerLink="/kaochistory" (click)="sidenav.close()">
-      <mat-icon>history</mat-icon>
-      KAOC History
+      <i class=""><img class="mr-r-13" src="/assets/images/ico_about_black.png" width="24" height="24" style="margin-right:16px" alt=""/></i>
+      About Us
     </button>
     <button mat-menu-item routerLink="/kaocbylaw" (click)="sidenav.close()">
       <mat-icon>policy</mat-icon>
       Bylaws
-    </button>
-    <mat-divider></mat-divider>
-    <button mat-menu-item routerLink="/kaochistory" (click)="sidenav.close()" class="hidden-lg hidden-md">
-      <i class=""><img class="mr-r-13" src="/assets/images/ico_about_black.png" width="21" height="20" alt=""/></i>
-      About Us
     </button>
   </div>
 </mat-sidenav>
