@@ -78,7 +78,7 @@
               </ul>
             </div>
 
-            <div class="checkin-info" *ngIf="membership && membership.membership">
+            <div class="checkin-info" *ngIf="membership && membership.membership && kaocEvent && kaocEvent.membershipAccessIncluded">
                 <div class="event-title">{{kaocEvent.name}} Check-In</div>
                 <div id="checkInForm" *ngIf="!isCheckInSuccess && !checkInAPIProgress">
                     <div>

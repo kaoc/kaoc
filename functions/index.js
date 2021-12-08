@@ -1476,7 +1476,7 @@ exports.performMemberEventCheckIn = functions.https.onCall((data, context) => {
                             let attendeeType = 'Membership';
                             let checkInTime = new Date();
                             let eventRef = admin.firestore().doc(`/kaocEvents/${kaocEventId}`);
-
+                            // TODO - Add check for event validity and if event supports membershipAccess    
                             let writeBatch = admin.firestore().batch();    
                             if(numAdults > 0) {
                                 for(let i=0;i<numAdults;i++) {
@@ -1534,6 +1534,12 @@ exports.sendMemberEventPassEmailToActiveMemberships = functions.https.onCall((da
             })
             .then(eventDtls => {
                 eventDetails = eventDtls;
+                if(!eventDetails.membershipAccessIncluded) {
+                    console.log(`Event ${eventDetails.name} does not include membership access. Not sending email.`);
+                    return;
+                } else {
+                    console.log(`Event ${eventDetails.name} includes membership access. Sending email to members with valid memberships.`);
+                }
                 // Retrieve all valid memberships. 
                 let membershipQuery = admin.firestore()
                                             .collection('/kaocMemberships')
@@ -1669,6 +1675,7 @@ function _sendMemberEventPassEmail(kaocUserId, kaocEventId, userDetails, members
                                 <h2>${eventDetails.name}</h2>
                                 <p>${eventDetails.description}</p>
                                 <p>Location: ${eventDetails.location}</p>
+                                <p>Time: ${new Date(eventDetails.startTime).toLocaleString('en-US', { timeZone: 'America/Denver' })}</p>
                                 <p>
                                     Please use the attached QR Code to check-in at the event venue. <br>
                                     <img src="${qrCodeImageData}" alt="Membership Check In Details">

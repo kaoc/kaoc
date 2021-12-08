@@ -18,6 +18,7 @@
                   {{event.location}}
               </a>
               <span *ngIf="!event.mapsLink">{{event.location}}</span>
+              <div>{{event.startTime|date:"short"}}</div>
           </mat-card-subtitle>
           <img mat-card-md-image [src]="event.eventThumbnailUrl" [alt]="event.name" *ngIf="!eventMemberCheckInQRCodeMap[event.kaocEventId]">
           <img mat-card-md-image [src]="eventMemberCheckInQRCodeMap[event.kaocEventId]" [alt]="EventCheckIn" *ngIf="eventMemberCheckInQRCodeMap[event.kaocEventId]">
