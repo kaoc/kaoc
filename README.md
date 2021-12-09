@@ -33,13 +33,19 @@ Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protrac
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
 
-# Steps to deploy to Firebase (Get Project Id from firebase console)
-## firebase use <PROJECT_ID>
-## firebase deploy --only hosting,functions
+## Setting Configs for Functions (Switch to the right project before executing this step)
 
-# Configs (Switch to the right project before executing this step)
-## firebase use <PROJECT_ID>
-## firebase firebase functions:config:set smtp.host="<Email Domain>" smtp.port=465/567 smtp.secure=<true/false>  smtp.auth.user=<Email User> smtp.auth.pass="<Email Password>"
+firebase use <PROJECT_ID>
+
+firebase firebase functions:config:set smtp.host="<Email Domain>" smtp.port=465/567 smtp.secure=<true/false>  smtp.auth.user=<Email User> smtp.auth.pass="<Email Password>"
+
+
+## Steps to deploy to Firebase (Get Project Id from firebase console)
+
+firebase use <PROJECT_ID>
+
+firebase deploy --only hosting,functions
+
 
 
 
