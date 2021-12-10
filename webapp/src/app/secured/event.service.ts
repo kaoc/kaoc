@@ -9,15 +9,42 @@ import { AngularFireFunctions } from '@angular/fire/functions';
   providedIn: 'root'
 })
 export class EventService {
-    upcomingEventsPromise: Promise<Event[]>;
+    upcomingEventsPromise: Promise<Event[]> = null;
+    pastEventsPromise: Promise<Event[]> = null;
 
     constructor(public db: AngularFirestore,
       private ngFireFunctions: AngularFireFunctions,
       private paymentService: PaymentService) {
-        this.upcomingEventsPromise = this.ngFireFunctions
-            .httpsCallable('getUpcomingEvents')({})
+    }
+
+    getUpcomingEvents(): Promise<Event[]> {
+      if(this.upcomingEventsPromise == null) {
+          this.upcomingEventsPromise = this.ngFireFunctions
+              .httpsCallable('getUpcomingEvents')({})
+              .toPromise().then(upcomingEvents => {
+                  console.log('Obtained upcoming events');
+                  if(upcomingEvents) {
+                      upcomingEvents.forEach(event=>{
+                          if(event.geoLocation) {
+                              event.mapsLink = `https://www.google.com/maps/search/?api=1&query=${event.geoLocation._latitude},${event.geoLocation._longitude}`;
+                          }
+                      });
+                  }
+                  return upcomingEvents;
+              }).catch(e => {
+                  console.error(`Error fetching upcoming events`);
+                  throw e;
+              });
+      }
+      return this.upcomingEventsPromise;
+    }
+
+    getPastEvents(): Promise<Event[]> {
+      if(this.pastEventsPromise == null) {
+        this.pastEventsPromise = this.ngFireFunctions
+            .httpsCallable('getPastEvents')({})
             .toPromise().then(upcomingEvents => {
-                console.log('Obtained upcoming events');
+                console.log('Obtained past events');
                 if(upcomingEvents) {
                     upcomingEvents.forEach(event=>{
                         if(event.geoLocation) {
@@ -30,10 +57,8 @@ export class EventService {
                 console.error(`Error fetching upcoming events`);
                 throw e;
             });
-    }
-
-    getUpcomingEvents(): Promise<Event[]> {
-      return this.upcomingEventsPromise;
+      }
+      return this.pastEventsPromise;
     }
 
     /**

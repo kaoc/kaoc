@@ -49,6 +49,9 @@
         "source": "api/getUpcomingEvents",
         "function": "getUpcomingEvents"
       }, {
+        "source": "api/getPastEvents",
+        "function": "getPastEvents"
+      }, {
         "source": "api/performMemberEventCheckIn",
         "function": "performMemberEventCheckIn"
       }, {
@@ -96,6 +99,9 @@
       },  {
         "source": "api/:projectName/us-central1/getUpcomingEvents",
         "function": "getUpcomingEvents"
+      },  {
+        "source": "api/:projectName/us-central1/getPastEvents",
+        "function": "getPastEvents"
       }, {
         "source": "api/:projectName/us-central1/performMemberEventCheckIn",
         "function": "performMemberEventCheckIn"

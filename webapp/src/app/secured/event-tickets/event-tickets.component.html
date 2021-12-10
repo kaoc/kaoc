@@ -9,6 +9,7 @@
       <h4>Upcoming Events</h4>
 
       <div *ngIf="!eventsLoaded">Loading..</div>
+      <div *ngIf="eventsLoaded && (upcomingEvents == null || upcomingEvents.length == 0)">No Upcoming Events.</div>
 
       <mat-card class="example-card" *ngFor="let event of upcomingEvents">
         <mat-card-title-group>
@@ -35,8 +36,30 @@
           </div>
         </mat-card-content>
       </mat-card>
-
       <br>
+
+      <h4>Past Events</h4>
+      <div *ngIf="!pastEventsLoaded">Loading..</div>
+      <div *ngIf="pastEventsLoaded && (pastEvents == null || pastEvents.length == 0)">No Past Events.</div>
+
+      <mat-card class="example-card" *ngFor="let event of pastEvents">
+        <mat-card-title-group>
+          <mat-card-title>{{event.name}}</mat-card-title>
+          <mat-card-subtitle>
+              <a *ngIf="event.mapsLink" [href]="event.mapsLink" target="_blank">
+                  {{event.location}}
+              </a>
+              <span *ngIf="!event.mapsLink">{{event.location}}</span>
+              <div>{{event.startTime|date:"short"}}</div>
+          </mat-card-subtitle>
+          <img mat-card-md-image [src]="event.eventThumbnailUrl" [alt]="event.name">
+        </mat-card-title-group>
+        <mat-card-content>
+          {{event.description}}
+        </mat-card-content>
+      </mat-card>
+      <br>
+
       <h4>Purchased Tickets</h4>
       <div>Coming Soon..</div>
   </div>

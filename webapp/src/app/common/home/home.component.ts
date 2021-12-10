@@ -13,6 +13,8 @@ import { Event } from 'src/app/secured/Event';
 })
 export class HomeComponent implements OnInit {
   events: Event[];
+  pastEvents: Event[];
+  eventsLoaded: boolean = false;
   loggedIn = false;
   constructor(private authService: AuthService, private router: Router, private eventService: EventService) {
     authService.firebaseUser.subscribe(firebaseUser => {
@@ -20,8 +22,19 @@ export class HomeComponent implements OnInit {
         this.loggedIn = (firebaseUser != null);
       }
     });
-    eventService.getUpcomingEvents().then(upComingEvents => {
-      this.events = upComingEvents;
+    eventService.getUpcomingEvents()
+    .then(upComingEvents => {
+        this.events = upComingEvents;
+        this.eventsLoaded = true;
+
+        if( this.events == null || this.events.length == 0) {
+            // no upcoming events. load past events.
+            return eventService.getPastEvents();
+        }
+        return null;
+    })
+    .then(pastEvents=> {
+        this.pastEvents = pastEvents;
     });
   }
 

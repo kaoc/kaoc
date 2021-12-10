@@ -1392,7 +1392,7 @@ exports.getUpcomingEvents = functions.https.onCall((data, context) => {
 
     return admin.firestore().collection('/kaocEvents')
         .where('endTime', '>=', currTime)
-        .orderBy('endTime', 'asc')
+        .orderBy('endTime', 'desc')
         .get()
         .then(eventQuerySnapShots => {
             let upcomingEvents = [];
@@ -1404,6 +1404,38 @@ exports.getUpcomingEvents = functions.https.onCall((data, context) => {
                 });
             }
             console.log(`${upcomingEvents.length} Upcoming Events obtained.`)
+            return upcomingEvents;
+        });
+});
+
+exports.getPastEvents = functions.https.onCall((data, context) => {
+    // Past Events are only displayed for all users. 
+    // So don't enforce security.
+    //context = _setUpTestingContext(context);
+    //if(!_assertAuthenticated(context)) {
+    //    throw new functions.https.HttpsError(
+    //        'permission-denied', 
+    //        'This operation can only be performed by a logged in user');
+    //}
+
+    let currTime = new Date();
+    currTime.setHours(0, 0, 0, 0); //this is just to make sure that the upcoming events show up till midnight
+
+    return admin.firestore().collection('/kaocEvents')
+        .where('endTime', '<', currTime)
+        .orderBy('endTime', 'desc')
+        .limit(5)
+        .get()
+        .then(eventQuerySnapShots => {
+            let upcomingEvents = [];
+            console.log(`Upcoming Events Empty ${eventQuerySnapShots.empty}`)
+            if(!eventQuerySnapShots.empty) {
+                eventQuerySnapShots.forEach(eventQuerySnapShot=>{
+                    let eventData = _marshalEventDataFromSnapshot(eventQuerySnapShot);
+                    upcomingEvents.push(eventData);
+                });
+            }
+            console.log(`${upcomingEvents.length} Past Events obtained.`)
             return upcomingEvents;
         });
 });

@@ -24,7 +24,11 @@
             </h2>
 
             <div *ngIf="loggedIn===false">
-            <a routerLink="/secured/login" class="ordernow_new visible-lg visible-md">login</a></div>
+              <a routerLink="/secured/login" class="ordernow_new visible-lg visible-md">login</a>
+            </div>
+            <div *ngIf="loggedIn===true">
+              <a routerLink="/secured/profile" class="ordernow_new visible-lg visible-md">View Profile</a>
+            </div>
           </div>
         </div>
       </div>
@@ -39,8 +43,13 @@
               Fresh ideas with traditional values
             </h2>
 
+            <div *ngIf="loggedIn===false">
+              <a routerLink="/secured/login" class="ordernow_new visible-lg visible-md">login</a>
+            </div>
+            <div *ngIf="loggedIn===true">
+              <a routerLink="/secured/profile" class="ordernow_new visible-lg visible-md">View Profile</a>
+            </div>
 
-            <a routerLink="/secured/login" class="ordernow_new visible-lg visible-md"  >login</a>
           </div>
         </div>
       </div>
@@ -68,11 +77,13 @@
       <a href="/kaochistory">View More...</a>
     </div></div>
   <div class="abtimage col-lg-6 col-md-6 col-sm-12 col-xs-12 animation-element slide-left dots2">
-    <div class="eventhead">upcoming events</div>
+    <div class="eventhead" *ngIf="!eventsLoaded || (events != null && events.length > 0)">upcoming events</div>
+    <div class="eventhead" *ngIf="eventsLoaded && (events == null || events.length == 0)">past events</div>
     <div>
       <div id="myCarousel2" class="carousel slide eventcarosel" data-ride="carousel">
         <!-- Wrapper for slides -->
         <div class="carousel-inner eventslider">
+          <!-- Current Events-->
           <div class="item" *ngFor="let ev of events; let isFirst = first" [class.active]="isFirst">
             <img class="" src="{{ev.eventImageUrl}}" alt="Kerala Association of Colorado">
             <div class="carousel-caption eventcaption">
@@ -94,9 +105,29 @@
               </div>
             </div>
           </div>
+
+          <!-- Past Events-->
+          <div class="item" *ngFor="let ev of pastEvents; let isFirst = first" [class.active]="isFirst">
+            <img class="" src="{{ev.eventImageUrl}}" alt="Kerala Association of Colorado">
+            <div class="carousel-caption eventcaption">
+              <p>
+                {{ev.description}}<br>
+                {{ev.location}}
+              </p>
+              <div class="captionnew eventslide">
+                <div class="event_details">
+                  <div class="col-md-8 col-xs-12 txtleft">
+                    {{ev.name}}
+                  </div>
+                  <div class="col-md-4	 col-xs-12 txtright">
+                    {{ev.startTime|date:'short'}}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
-
-
       </div>
 
       <!-- Left and right controls -->
