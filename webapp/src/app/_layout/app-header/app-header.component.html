@@ -87,6 +87,14 @@
       (click)="sidenav.close()">
       <mat-icon>search</mat-icon> View/Edit Member
     </button>
+    <button *ngIf="isAdmin===true" mat-menu-item routerLink="/secured/admin/manageevents"
+      (click)="sidenav.close()">
+      <mat-icon>date_range</mat-icon> Manage Events
+    </button>
+    <button *ngIf="isAdmin===true" mat-menu-item routerLink="/secured/admin/functions"
+      (click)="sidenav.close()">
+      <mat-icon>admin_panel_settings</mat-icon> Admin
+    </button>
     <button *ngIf="isAdmin===true" mat-menu-item routerLink="/secured/admin/scanner"
       (click)="sidenav.close()">
       <mat-icon>visibility</mat-icon> QR Scan

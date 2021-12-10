@@ -19,6 +19,6 @@ export const environment = {
       appId               : 'sq0idp-rxLCkb-nVjOpavuyGGxqzg'
     },
     paypal: {
-      clientId : ''
+      clientId : 'AXNx87c7_asRg8eCoeS35Vobt1XHIVt09D4jpaZI5n51Am1TRdkrnyhcqvUSirVG3NQXVfHUbr_YBuDk'
     }
 };

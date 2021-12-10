@@ -103,6 +103,9 @@
                 </div>
                 <div *ngIf="isCheckInSuccess">
                     Successfully checked In.
+                    <a routerLink="/secured/admin/listmembers">
+                        View/Edit Members
+                    </a>
                 </div>
                 <div *ngIf="isCheckInFailure">
                     Failed to Check-In User. Please retry.

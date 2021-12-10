@@ -89,6 +89,24 @@ export class EventService {
     }
 
     /**
+     * Returns the event by the given id.
+     *
+     * @param kaocEventId
+     * @returns
+     */
+    getFullEventDetails(kaocEventId): Promise<Event> {
+          return this.ngFireFunctions
+          .httpsCallable('getFullEventDetails')({kaocEventId})
+          .toPromise().then(fullEventDetails => {
+              console.log('Retreived full event details');
+              return fullEventDetails;
+          }).catch(e => {
+              console.error(`Error gettting full event details`);
+              throw e;
+          });
+     }
+
+    /**
      * Returns the check in details for the given user for a given event.
      *
      * @param kaocUserId

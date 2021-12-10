@@ -52,6 +52,9 @@
         "source": "api/getPastEvents",
         "function": "getPastEvents"
       }, {
+        "source": "api/getFullEventDetails",
+        "function": "getFullEventDetails"
+      }, {
         "source": "api/performMemberEventCheckIn",
         "function": "performMemberEventCheckIn"
       }, {
@@ -66,6 +69,9 @@
       }, {
         "source": "api/retryFailedEmails",
         "function": "retryFailedEmails"
+      }, {
+        "source": "api/getNumberOfFailedEmails",
+        "function": "getNumberOfFailedEmails"
       }, {
         "source": "api/:projectName/us-central1/addOrUpdateMemberAndMembership",
         "function": "addOrUpdateMemberAndMembership"
@@ -102,6 +108,12 @@
       },  {
         "source": "api/:projectName/us-central1/getPastEvents",
         "function": "getPastEvents"
+      }, {
+        "source": "api/:projectName/us-central1/getFullEventDetails",
+        "function": "getFullEventDetails"
+      }, {
+        "source": "api/:projectName/us-central1/getNumberOfFailedEmails",
+        "function": "getNumberOfFailedEmails"
       }, {
         "source": "api/:projectName/us-central1/performMemberEventCheckIn",
         "function": "performMemberEventCheckIn"

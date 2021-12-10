@@ -1,0 +1,33 @@
+<div class="page-title">
+  <div>
+    <h2>Admin Functions</h2>
+  </div>
+</div>
+<div class="card">
+  <div class="admin-functions">
+      <h4>Admin Functions</h4>
+
+      <br>
+      <div>Member Status Email</div>
+      <div class="checkin-info-item">
+          <button (click)="confirmAndSendMemberInfoEmail()" class="app-button">Send Member-Info Email</button>
+      </div>
+      <br>
+      <div>
+          <div>Failed Emails</div>
+          <div>Number of Failed Emails : {{numFailedEmails}}</div>
+          <button (click)="loadFailedEmailsCount()" class="app-button">Refresh</button>
+          <br>
+          <br>
+
+          <div *ngIf="numFailedEmails > 0">
+              <div>Retry Failed Emails</div>
+              Limit
+              <mat-slider thumbLabel min="1" max="100" step="5" #retryCount ></mat-slider>{{retryCount.value}}
+              <button (click)="retryFailedEmails(retryCount.value)" class="app-button">Retry Failed Emails</button>
+          </div>
+
+      </div>
+
+  </div>
+</div>

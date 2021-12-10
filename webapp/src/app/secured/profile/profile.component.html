@@ -31,6 +31,7 @@
             </button>
             <br>
             <br>
+            <div>NOTE: If you just completed your email verification and is having trouble creating the profile or to link profile, please try logging out and login in again.</div>
         </div>
 
         <!--TODO - Placeholder -->
@@ -100,14 +101,23 @@
                 Edit
             </button>
 
-            <div *ngIf="!!upcomingEvents">
-                Event Check-Ins
-                <div *ngFor="let event of upcomingEvents">
-                    <span>{{event.name}}: {{event.startTime|date:'short'}}</span>
-                    <span *ngIf="membership && membership.membership && membership.membership.paymentStatus == 'Paid'">
+            <br>
+            <br>
+            <div *ngIf="!!upcomingEvents && membership && membership.membership && membership.membership.paymentStatus == 'Paid'" >
+                <div class="event-checkin">Event Check-Ins</div>
+                <div *ngFor="let event of upcomingEvents" class="event-checkin">
+                    <div>{{event.name}}: {{event.startTime|date:'short'}}</div>
+                    <div>
                         <button (click)="performMemberEventCheckIn(kaocUserId, event.kaocEventId)" class="app-button profile-edit__bttn">Check In</button>
-                    </span>
+                    </div>
                 </div>
+            </div>
+            <br>
+            <br>
+            <div *ngIf="isAdminView">
+                <a routerLink="/secured/admin/listmembers">
+                  View/Edit Members
+                </a>
             </div>
         </div>
 

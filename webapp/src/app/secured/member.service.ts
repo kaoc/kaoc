@@ -163,6 +163,23 @@ export class MemberService {
           });
   }
 
+    /**
+     * Sends event emails to all members
+     *
+     * @param {number} limit - Limit sending x number of emails at once
+     * @returns
+     */
+     getNumberOfFailedEmails(): Promise<number> {
+        return this.ngFireFunctions
+            .httpsCallable('getNumberOfFailedEmails')({})
+            .toPromise().then(num=>{
+              return num;
+            }).catch(e=>{
+              console.error(`Failed to retry failed email count.`);
+              throw e;
+            });
+    }
+
 
   getAllMembers() {
     return this.members;

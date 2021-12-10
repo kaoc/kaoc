@@ -1440,12 +1440,40 @@ exports.getPastEvents = functions.https.onCall((data, context) => {
         });
 });
 
-function _getEventDetailsById(eventId) {
+exports.getFullEventDetails = functions.https.onCall((data, context) => {
+    let kaocEventId = data.kaocEventId;
+    context = _setUpTestingContext(context);
+    _assertAdminRole(context).catch(e=>{
+        throw new functions.https.HttpsError(
+            'permission-denied', 
+            'This operation can only be performed by an admin');
+    });
+    return _getEventDetailsById(kaocEventId, true);
+});
+
+exports.getNumberOfFailedEmails = functions.https.onCall((data, context) => {
+    context = _setUpTestingContext(context);
+    _assertAdminRole(context).catch(e=>{
+        throw new functions.https.HttpsError(
+            'permission-denied', 
+            'This operation can only be performed by an admin');
+    });
+
+    return admin.firestore()
+            .collection(`/kaocEmails/`).where('status', '==', 'Failed')
+            .get()
+            .then(querySnapShot=>{
+                return querySnapShot.size;
+            });
+});
+
+
+function _getEventDetailsById(eventId, includeFullDetails) {
     return admin.firestore()
             .doc(`/kaocEvents/${eventId}`).get()
             .then(eventSnapShot=>{
                 if(eventSnapShot.exists) {
-                    return _marshalEventDataFromSnapshot(eventSnapShot);
+                    return _marshalEventDataFromSnapshot(eventSnapShot, includeFullDetails);
                 } else {
                     let errorResponse = {"msg": `Invalid Event Reference ${eventId}`};
                     throw errorResponse;
@@ -1459,7 +1487,7 @@ function _getEventDetailsById(eventId) {
  * @param {DocumentSnapshot} eventQuerySnapShot 
  * @returns 
  */
-function _marshalEventDataFromSnapshot(eventQuerySnapShot) {
+function _marshalEventDataFromSnapshot(eventQuerySnapShot, includeFullDetails) {
     if(!eventQuerySnapShot || !eventQuerySnapShot.exists) {
         return null;
     }
@@ -1473,12 +1501,14 @@ function _marshalEventDataFromSnapshot(eventQuerySnapShot) {
     }
     eventData.kaocEventId = eventQuerySnapShot.id;
 
-    // Delete fields restricted to admins.
-    delete eventData.capacity;
-    delete eventData.totalAdultEventTicketCheckins;
-    delete eventData.totalAdultMemberCheckins;
-    delete eventData.totalChildMemberCheckins;
-    delete eventData.totalChildEventTicketChecks;
+    if(!includeFullDetails) {
+        // Delete fields restricted to admins.
+        delete eventData.capacity;
+        delete eventData.totalAdultEventTicketCheckins;
+        delete eventData.totalAdultMemberCheckins;
+        delete eventData.totalChildMemberCheckins;
+        delete eventData.totalChildEventTicketChecks;
+    }
     return eventData;
 }
 

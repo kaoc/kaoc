@@ -19,9 +19,11 @@ import { SearchUsersComponent } from './admin/search-users/search-users.componen
 import { MemberProfileComponent } from './admin/member-profile/member-profile.component';
 import { ListMemberProfilesComponent } from './admin/list-member-profiles/list-member-profiles.component';
 import { ProfileLinkStatusComponent } from './profile-link-status/profile-link-status.component';
-import { LOGIN, PROFILE_LINK_STATUS, SECURED_CONTEXT, VERIFY, EVENT_TICKETS } from '../URLConstants';
+import { LOGIN, PROFILE_LINK_STATUS, SECURED_CONTEXT, VERIFY, EVENT_TICKETS, ADMIN_MANAGE_EVENTS, ADMIN_FUNCTIONS } from '../URLConstants';
 import { ScannerComponent } from './scanner/scanner.component';
 import { EventTicketsComponent } from './event-tickets/event-tickets.component';
+import { EventManagementComponent } from './admin/event-management/event-management.component';
+import { AdminFunctionsComponent } from './admin/admin-functions/admin-functions.component';
 
 
 const routes: Routes = [{
@@ -97,6 +99,20 @@ const routes: Routes = [{
         data: {
             expectedRole: 'admin'
         }
+    }, {
+      path: ADMIN_MANAGE_EVENTS,
+      component: EventManagementComponent,
+      canActivate: [AuthGuardService],
+      data: {
+          expectedRole: 'admin'
+      }
+    }, {
+      path: ADMIN_FUNCTIONS,
+      component: AdminFunctionsComponent,
+      canActivate: [AuthGuardService],
+      data: {
+          expectedRole: 'admin'
+      }
     }, {
         path: ADMIN_SCANNER,
         component: ScannerComponent,

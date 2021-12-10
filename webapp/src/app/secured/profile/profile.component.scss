@@ -31,6 +31,14 @@
   }
 }
 
+.event-checkin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0px;
+
+}
+
 .membership-state-active {
   font-weight: bold;
   color: green;

@@ -32,6 +32,8 @@ import { ScannerComponent } from './scanner/scanner.component';
 import { ZXingScannerModule } from '@zxing/ngx-scanner';
 import { CheckinComponent } from './checkin/checkin.component';
 import { EventTicketsComponent } from './event-tickets/event-tickets.component';
+import { EventManagementComponent } from './admin/event-management/event-management.component';
+import { AdminFunctionsComponent } from './admin/admin-functions/admin-functions.component';
 
 
 @NgModule({
@@ -53,7 +55,9 @@ import { EventTicketsComponent } from './event-tickets/event-tickets.component';
     AppFooterComponent,
     ScannerComponent,
     CheckinComponent,
-    EventTicketsComponent
+    EventTicketsComponent,
+    EventManagementComponent,
+    AdminFunctionsComponent
   ],
   imports: [
     CommonModule,
