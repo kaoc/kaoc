@@ -7,7 +7,7 @@ import { first } from 'rxjs/operators';
 import { map } from 'rxjs/operators';
 import { AngularFireFunctions } from '@angular/fire/functions';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { Membership, MembershipReportDetails } from './Membership';
+import { Membership, MembershipPricing, MembershipReportDetails } from './Membership';
 import { Router, NavigationExtras } from '@angular/router';
 
 @Injectable({
@@ -24,6 +24,7 @@ export class MemberService {
   public message: string;
   public membershipId: string;
   public memberEmail: string;
+  membershipPricingPromise: Promise<MembershipPricing>
 
   constructor(public db: AngularFirestore,
               private ngFireFunctions: AngularFireFunctions,
@@ -84,6 +85,19 @@ export class MemberService {
                         console.error(`Error fetching membership data for ${kaocUserId}`);
                         throw e;
                     });
+    }
+
+    getMembershipPricing(): Promise<MembershipPricing> {
+      return this.ngFireFunctions
+                    .httpsCallable('getMembershipPricing')({})
+                    .toPromise()
+                    .catch(e=> {
+                      return {
+                        'family': 100,
+                        'individual': 60,
+                        'seniorCitizen': 40
+                      };
+                });
     }
 
     getMembershipQRCode(kaocUserId: string): Promise<any> {

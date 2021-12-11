@@ -70,5 +70,9 @@ service cloud.firestore {
 	match /kaocEventTickets/{ticketId} {
       allow  read, write: if isAdmin();
     }
+
+	match /kaocPricing/{pricingId} {
+      allow  read: if request.auth && request.auth.token.email_verified == true;
+    }
 }
 }

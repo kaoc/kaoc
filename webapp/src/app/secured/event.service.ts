@@ -1,7 +1,7 @@
 import { PaymentService } from '../payment/payment.service';
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { Event } from './Event';
+import { Event, EventPricing } from './Event';
 import { MemberEventCheckIn } from './MemberEventCheckIn';
 import { AngularFireFunctions } from '@angular/fire/functions';
 
@@ -142,6 +142,18 @@ export class EventService {
                   console.error(`Error retrieving member event check-ins`);
                   throw e;
               });
+    }
+
+    getEventPricing(kaocEventId): Promise<EventPricing> {
+      return this.ngFireFunctions
+                    .httpsCallable('getEventPricing')({kaocEventId})
+                    .toPromise()
+                    .catch(e=> {
+                    return {
+                      'adult': 20,
+                      'child': 15
+                    }
+                });
     }
 
     /**

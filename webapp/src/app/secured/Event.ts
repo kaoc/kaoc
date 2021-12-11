@@ -21,3 +21,8 @@ export class GeoPoint {
     _latitude: number;
     _longitude: number;
 }
+
+export interface EventPricing {
+  adult: number;
+  child: number;
+}

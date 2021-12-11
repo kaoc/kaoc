@@ -3,7 +3,7 @@ import {Component, OnInit, ViewChild, Inject} from '@angular/core';
 import {FormBuilder, FormGroup, ValidatorFn, AbstractControl, Validators, FormArray} from '@angular/forms';
 import {MemberService} from '../../member.service';
 import {AuthService} from '../../auth/auth.service';
-import {Membership} from '../../Membership';
+import {Membership, MembershipPricing} from '../../Membership';
 import {Member} from '../../Member';
 import {MatStepper, MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material';
 import {ActivatedRoute, Router, NavigationEnd, NavigationStart} from '@angular/router';
@@ -64,6 +64,7 @@ export class MemberProfileComponent implements OnInit {
 
   data: any;
   queryByMemberId: string;
+  membershipPricing: MembershipPricing = {'family': 100, 'individual': 60, 'seniorCitizen': 40};
 
   constructor(private formBuilder: FormBuilder,
               public memberService: MemberService,
@@ -91,6 +92,13 @@ export class MemberProfileComponent implements OnInit {
         })
       }
     });
+
+    memberService
+      .getMembershipPricing()
+      .then(membershipPricing=>this.membershipPricing=membershipPricing)
+      .catch(e=>{
+          console.log(`Failed to retrieve membership pricing`, e);
+      });
 
     this.setDefaults();
     // console.log('Inside MemberProfile constructor. memberService.routedFrom= ' + this.memberService.routedFrom);
@@ -459,11 +467,11 @@ export class MemberProfileComponent implements OnInit {
 
     console.log('setPaymentAmount.membershipType=' + this.membershipTypeForm.controls.membershipType.value);
     if (this.membershipTypeForm.controls.membershipType.value === 'SRCITIZEN') {
-      this.membershipAmt = '40';
+      this.membershipAmt = this.membershipPricing.seniorCitizen+"";
     } else if (this.membershipTypeForm.controls.membershipType.value === 'INDIVIDUAL') {
-      this.membershipAmt = '40';
+      this.membershipAmt = this.membershipPricing.individual+"";
     } else if (this.membershipTypeForm.controls.membershipType.value === 'FAMILY') {
-      this.membershipAmt = '80';
+      this.membershipAmt = this.membershipPricing.family+"";
     }
     this.paymentForm.controls.paymentAmount.patchValue(this.membershipAmt);
 

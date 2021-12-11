@@ -45,3 +45,9 @@ export interface Membership {
     paymentExternalSystemRef:string;
     kaocPaymentId:string;
   }
+
+  export interface MembershipPricing {
+    family: number;
+    individual: number;
+    seniorCitizen: number;
+  }

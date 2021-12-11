@@ -73,6 +73,12 @@
         "source": "api/getNumberOfFailedEmails",
         "function": "getNumberOfFailedEmails"
       }, {
+        "source": "api/getEventPricing",
+        "function": "getEventPricing"
+      }, {
+        "source": "api/getMembershipPricing",
+        "function": "getMembershipPricing"
+      }, {
         "source": "api/:projectName/us-central1/addOrUpdateMemberAndMembership",
         "function": "addOrUpdateMemberAndMembership"
       }, {
@@ -129,6 +135,12 @@
       }, {
         "source": "api/:projectName/us-central1/retryFailedEmails",
         "function": "retryFailedEmails"
+      }, {
+        "source": "api/:projectName/us-central1/getEventPricing",
+        "function": "getEventPricing"
+      }, {
+        "source": "api/:projectName/us-central1/getMembershipPricing",
+        "function": "getMembershipPricing"
       }, {
         "source": "**",
         "destination": "/index.html"

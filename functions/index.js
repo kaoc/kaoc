@@ -1451,6 +1451,41 @@ exports.getFullEventDetails = functions.https.onCall((data, context) => {
     return _getEventDetailsById(kaocEventId, true);
 });
 
+exports.getEventPricing = functions.https.onCall((data, context) => {
+    let kaocEventId = data.kaocEventId;
+    context = _setUpTestingContext(context);
+    if(!_assertAuthenticated(context)) {
+        throw new functions.https.HttpsError(
+            'permission-denied', 
+            'This operation can only be performed by an admin');
+    }
+    return _getPricing(kaocEventId);
+});
+
+exports.getMembershipPricing = functions.https.onCall((data, context) => {
+    context = _setUpTestingContext(context);
+    if(!_assertAuthenticated(context)) {
+        throw new functions.https.HttpsError(
+            'permission-denied', 
+            'This operation can only be performed by an admin');
+    }
+    return _getPricing('Membership');
+});
+
+function _getPricing(pricingId) {
+    return admin.firestore()
+                .doc(`/kaocPricing/${pricingId}`)
+                .get()
+                .then(docSnapshot=>{
+                    if(docSnapshot.exists) {
+                        return docSnapshot.data();
+                    }
+                    return null;
+                });
+
+}
+
+
 exports.getNumberOfFailedEmails = functions.https.onCall((data, context) => {
     context = _setUpTestingContext(context);
     _assertAdminRole(context).catch(e=>{
