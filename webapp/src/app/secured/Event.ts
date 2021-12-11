@@ -14,6 +14,7 @@ export class Event {
     totalChildEventTicketChecks: number;
     totalChildMemberCheckins: number;
     mapsLink:string;
+    eventPhotos: string;
 }
 
 export class GeoPoint {

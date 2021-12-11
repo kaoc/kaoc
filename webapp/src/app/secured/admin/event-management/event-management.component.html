@@ -39,7 +39,7 @@
                   <span class="check-in-title">Child Members:</span><mat-chip class="check-in-value">{{event.totalChildEventTicketChecks}}</mat-chip>
               </div>
               <mat-card-footer>
-                  <button mat-button (click)="confirmAndSendPaasEventEmail(event.kaocEventId, event.name)">Send Paas Event Email</button>
+                  <button mat-button (click)="confirmAndSendPaasEventEmail(event.kaocEventId, event.name)">Send Event Email</button>
                   <button mat-button (click)="refreshEventDetails(event.kaocEventId)">Refresh</button>
               </mat-card-footer>
           </mat-card-content>
@@ -81,11 +81,9 @@
               <span class="check-in-title">Child Members:</span><mat-chip class="check-in-value">{{event.totalChildEventTicketChecks}}</mat-chip>
           </div>
           <mat-card-footer>
-              <button mat-button (click)="confirmAndSendPaasEventEmail(event.kaocEventId, event.name)">Send Paas Event Email</button>
               <button mat-button (click)="refreshEventDetails(event.kaocEventId)">Refresh</button>
           </mat-card-footer>
         </mat-card-content>
-
       </mat-card>
       <br>
   </div>

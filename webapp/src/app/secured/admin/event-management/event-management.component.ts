@@ -55,7 +55,10 @@ export class EventManagementComponent implements OnInit {
     getTotalCheckInCount(event) {
         let totalCount = 0;
         if(event) {
-          totalCount = Number(event.totalAdultMemberCheckins)+Number(event.totalChildMemberCheckins)+Number(event.totalAdultEventTicketCheckins)+Number(event.totalChildEventTicketChecks);
+          totalCount = Number(event.totalAdultMemberCheckins || 0)+
+                       Number(event.totalChildMemberCheckins || 0)+
+                       Number(event.totalAdultEventTicketCheckins || 0)+
+                       Number(event.totalChildEventTicketChecks || 0);
         }
         return totalCount;
     }
