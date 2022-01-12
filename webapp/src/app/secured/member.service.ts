@@ -92,10 +92,11 @@ export class MemberService {
                     .httpsCallable('getMembershipPricing')({})
                     .toPromise()
                     .catch(e=> {
+                      // fallback
                       return {
-                        'family': 100,
-                        'individual': 60,
-                        'seniorCitizen': 40
+                        'family': 90,
+                        'individual': 50,
+                        'seniorCitizen': 35
                       };
                 });
     }
