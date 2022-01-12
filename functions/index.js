@@ -105,6 +105,28 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
 });
 
 /**
+ * An API to import existing memberships to the system. 
+ * The existing membership data is currently stored in excel sheet 
+ * as record containing the member & spouse details. 
+ */
+ exports.squarePaymentHandler = functions.https.onRequest(async (req, res) => {
+
+    var apiKey = req.query['apiKey'];
+    console.debug('Square Payment called with apiKey', apiKey);
+    return validateKey(apiKey, 'squarePayment')
+    .catch(e => {
+        console.error(`Invalid key for Square Payment Handler. Reason : ${e.message}`)
+        res.status(401).send('Api Key not specified or is invalid');
+        return {'msg': `Api Key not specified or is invalid`};
+    }).then(keyData => {
+        const squarePaymentData = req.body;
+        console.log(`Square Payment data ${JSON.stringify(squarePaymentData)}`);
+        res.status(200).send({'status': true});
+        return true;
+    });
+ });
+
+/**
  * When a new User Login is created, check if KAOC profile exists
  * for the login email id. If so, use that information to update
  * the KAOC profile. 
@@ -620,6 +642,14 @@ function _addOrUpdateMemberMembershipAndPayment(members, membership, payment, au
     let {membershipYear, membershipType, legacyMembershipId, kaocMembershipId, startTime, endTime} = membership || {};
     let {paymentMethod, kaocPaymentId, paymentAmount, paymentStatus, paymentExternalSystemRef, paymentNotes} = payment || {};
 
+    if(!paymentStatus) {
+        if(paymentMethod === 'Cash') {
+            paymentStatus = PAYMENT_STATUS_PAID;
+        } else {
+            paymentStatus = PAYMENT_STATUS_PENDING;
+        }
+    }
+
     if(!(members && members.length > 0)) {
         throw new Error(`Invalid members parameter. There should be at least 1 member in the array`);
     }
@@ -874,10 +904,10 @@ function _addOrUpdatePayment(paymentObject, auth) {
     } else {
         // If payment status is not defined, use default based on the payment method.
         if(!paymentStatus) {
-            if(paymentMethod === 'Square') {
-                paymentStatus = PAYMENT_STATUS_PENDING;
-            } else {
+            if(paymentMethod === 'Cash') {
                 paymentStatus = PAYMENT_STATUS_PAID;
+            } else {
+                paymentStatus = PAYMENT_STATUS_PENDING;
             }
         }
         const kaocUserRef = admin.firestore().doc(`/kaocUsers/${kaocUserId}`); 

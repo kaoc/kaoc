@@ -171,7 +171,7 @@ export class MemberProfileComponent implements OnInit {
     });
 
     this.paymentForm = this.formBuilder.group({
-      paymentMethod: ['', Validators.required],
+      paymentMethod: ['Paypal', Validators.required],
       paymentAmount: '0',
       paymentExternalSystemRef: '',
       paymentNotes: '',
@@ -487,7 +487,7 @@ export class MemberProfileComponent implements OnInit {
         && this.paymentForm.controls.paymentExternalSystemRef.value === '') {
         this.paymentErrorMsg = 'Transaction Reference No mandatory for Check Payment';
         return;
-      } else if (this.paymentForm.controls.paymentMethod.value === 'Paypal') {
+      } else if (this.paymentForm.controls.paymentMethod.value === 'Paypal' && (!this.memberPaymentStatus || this.memberPaymentStatus.toUpperCase() !== 'PAID')) {
         this.paypalStatus = 'Pending';
       }
 

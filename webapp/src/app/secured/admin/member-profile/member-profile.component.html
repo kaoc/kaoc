@@ -208,6 +208,9 @@
                   <button (click)="setStepper(1)" class="app-button blue">
                     Back
                   </button>
+                  <button (click)="viewMember(this.queryByMemberId)" *ngIf="this.memberPaymentStatus && this.memberPaymentStatus.toUpperCase() === 'PAID'" class="app-button blue">
+                    View Profile
+                  </button>
                   <!-- TODO: update this condition on when to disable submitPayment. Right now, hardcoded to paypal -->
                   <button (click)="submitPayment()" class="app-button" *ngIf="this.paypalStatus === ''">
                     <mat-icon matTooltip="Pay KAOC">payment</mat-icon>
