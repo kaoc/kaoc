@@ -28,6 +28,9 @@
         "source": "api/squarePaymentHandler",
         "function": "squarePaymentHandler"
       }, {
+        "source": "api/paypalPaymentHandler",
+        "function": "paypalPaymentHandler"
+      }, {
         "source": "api/updatePayment",
         "function": "updatePayment"
       }, {
@@ -93,6 +96,9 @@
       }, {
         "source": "api/:projectName/us-central1/squarePaymentHandler",
         "function": "squarePaymentHandler"
+      }, {
+        "source": "api/:projectName/us-central1/paypalPaymentHandler",
+        "function": "paypalPaymentHandler"
       }, {
         "source": "api/:projectName/us-central1/updatePayment",
         "function": "updatePayment"

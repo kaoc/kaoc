@@ -105,15 +105,13 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
 });
 
 /**
- * An API to import existing memberships to the system. 
- * The existing membership data is currently stored in excel sheet 
- * as record containing the member & spouse details. 
+ * Webhook handler for square payment notifications.
  */
  exports.squarePaymentHandler = functions.https.onRequest(async (req, res) => {
 
     var apiKey = req.query['apiKey'];
     console.debug('Square Payment called with apiKey', apiKey);
-    return validateKey(apiKey, 'squarePayment')
+    return validateKey(apiKey, 'squareBackendPayment')
     .catch(e => {
         console.error(`Invalid key for Square Payment Handler. Reason : ${e.message}`)
         res.status(401).send('Api Key not specified or is invalid');
@@ -121,6 +119,27 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
     }).then(keyData => {
         const squarePaymentData = req.body;
         console.log(`Square Payment data ${JSON.stringify(squarePaymentData)}`);
+        res.status(200).send({'status': true});
+        return true;
+    });
+ });
+
+ /**
+  * Webhoook handler for paypal notificiations
+ */
+  exports.paypalPaymentHandler = functions.https.onRequest(async (req, res) => {
+
+    console.debug('Obtained paypal backend webhook notification');
+
+    var apiKey = req.query['apiKey'];
+    return validateKey(apiKey, 'paypalBackendPayment')
+    .catch(e => {
+        console.error(`Invalid key for Paypal Payment Handler. Reason : ${e.message}`)
+        res.status(401).send('Api Key not specified or is invalid');
+        return {'msg': `Api Key not specified or is invalid`};
+    }).then(keyData => {
+        const paypalPaymentData = req.body;
+        console.log(`Paypal Payment data ${JSON.stringify(paypalPaymentData)}`);
         res.status(200).send({'status': true});
         return true;
     });
