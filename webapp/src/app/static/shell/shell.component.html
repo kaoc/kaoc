@@ -1,0 +1,12 @@
+<div class="page-title">
+  <div>
+    <h2>{{staticPageTitle}}</h2>
+  </div>
+</div>
+<div class="card">
+  <mat-card style="padding:30px;">
+    <iframe [src]="staticPageUrl" title="staticPageTitle">
+      <p *ngIf="errorMessage">{{errorMessage}}</p>
+    </iframe>
+  </mat-card>
+</div>

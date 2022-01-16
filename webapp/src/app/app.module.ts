@@ -31,6 +31,7 @@ import * as $ from 'jquery';
 import {AppLayoutComponent} from './_layout/app-layout/app-layout.component';
 import {SiteHeaderComponent} from './_layout/site-header/site-header.component';
 import {SiteFooterComponent} from './_layout/site-footer/site-footer.component';
+import { ShellComponent } from './static/shell/shell.component';
 
 export function getAppName() {
   return 'KAOC';
@@ -41,6 +42,7 @@ export function getAppName() {
     AppComponent,
     KaocHistoryComponent,
     KaocByeLawComponent,
+    ShellComponent,
     MainContentAreaComponent,
     LeftFrameComponent,
     RightFrameComponent,
