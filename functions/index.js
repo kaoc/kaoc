@@ -1167,6 +1167,8 @@ exports.sendPaymentEmail = functions.https.onCall((data, context) => {
                             }]
                         });
                     });
+        } else if(paymentDoc.paymentType === 'EventTicket') {
+            console.log('Sending payment email for ticket');
         } else {
             // TODO - Add emails for other events. 
             console.error('Payment Emails only supported for membership payments. This functionality is not implemented');
@@ -1630,7 +1632,7 @@ function _marshalEventDataFromSnapshot(eventQuerySnapShot, includeFullDetails) {
         delete eventData.totalAdultEventTicketCheckins;
         delete eventData.totalAdultMemberCheckins;
         delete eventData.totalChildMemberCheckins;
-        delete eventData.totalChildEventTicketChecks;
+        delete eventData.totalChildEventTicketCheckins;
     }
     return eventData;
 }
@@ -1721,7 +1723,7 @@ exports.performEventTicketCheckIn = functions.https.onCall((data, context) => {
                         let eventTicketDetails = kaocEventTicketSnapshot.data();
                         let maxAdults = eventTicketDetails.numAdults;
                         let maxChildren = eventTicketDetails.numChildren;
-                        let attendeeRef = eventTicketDetails.kaocUserRef;
+                        let attendeeRef = kaocEventTicketSnapshot.ref;
                         let eventRef = eventTicketDetails.kaocEventRef;
 
                         if(numAdults <= maxAdults && numChildren <= maxChildren) {
@@ -1753,7 +1755,7 @@ exports.performEventTicketCheckIn = functions.https.onCall((data, context) => {
                                 // update the check in count for the event. 
                                 writeBatch.update(
                                                 eventRef, 
-                                                {'totalChildEventTicketChecks': admin.firestore.FieldValue.increment(numChildren)}
+                                                {'totalChildEventTicketCheckins': admin.firestore.FieldValue.increment(numChildren)}
                                             );
                             }
 
@@ -2274,6 +2276,36 @@ exports.getMemberEventCheckinDetails = functions.https.onCall((data, context) =>
                             checkIns.push({
                                 'kaocUserId': kaocUserId,
                                 'kaocMembershipId': checkInData.attendeeRef.id,
+                                'kaocEventId': checkInData.eventRef.id,
+                                'userType': checkInData.userType,
+                                'checkInTime': checkInData.checkInTime.toMillis()
+                            });
+                        });
+                    }
+                    return checkIns;
+                });
+});
+
+exports.getEventTicketCheckinDetails = functions.https.onCall((data, context) => {
+    context = _setUpTestingContext(context);
+    return _assertAdminRole(context)    
+                .catch(e=> {
+                    throw new functions.https.HttpsError(
+                        'permission-denied', 
+                        'User does not have the authorization to perform this operation');
+                }).then(authResponse => {
+                    let attendeeRef = admin.firestore().doc(`/kaocEventTickets/${data.kaocEventTicketId}`);
+                    return admin.firestore()
+                        .collection('/kaocEventCheckIns')
+                        .where("attendeeRef", "==", attendeeRef)
+                        .get();
+                }).then(kaocEventCheckInsSnapShot=> {
+                    let checkIns = [];
+                    if(!kaocEventCheckInsSnapShot.empty) {
+                        kaocEventCheckInsSnapShot.forEach(kaocEventCheckInDocRef=>{
+                            let checkInData = kaocEventCheckInDocRef.data();
+                            checkIns.push({
+                                'kaocEventTicketId': checkInData.attendeeRef.id,
                                 'kaocEventId': checkInData.eventRef.id,
                                 'userType': checkInData.userType,
                                 'checkInTime': checkInData.checkInTime.toMillis()

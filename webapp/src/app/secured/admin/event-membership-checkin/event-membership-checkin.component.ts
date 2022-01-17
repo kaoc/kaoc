@@ -6,7 +6,7 @@ import { Component, OnInit } from '@angular/core';
 import { Member } from '../../Member';
 import { Event } from '../../Event';
 import { MatSlider, MatSliderChange } from '@angular/material';
-import { MemberEventCheckIn } from '../../MemberEventCheckIn';
+import { EventCheckIn } from '../../EventCheckIn';
 
 @Component({
   selector: 'app-event-membership-checkin',
@@ -21,7 +21,7 @@ export class EventMembershipCheckinComponent implements OnInit {
   membership: Membership;
   profileState = '';
   membershipDetailsLoaded = false;
-  memberEventCheckIns: MemberEventCheckIn[];
+  memberEventCheckIns: EventCheckIn[];
   queryByMemberId = '';
   eventId = '';
   isCheckInSuccess = false;

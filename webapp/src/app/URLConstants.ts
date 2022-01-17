@@ -24,4 +24,4 @@ export const ADMIN_SCANNER = 'admin/scanner';
 export const ADMIN_MEMBER_CHECKIN_PREFIX =  'admin/member/checkin';
 export const ADMIN_MEMBER_CHECKIN = `${ADMIN_MEMBER_CHECKIN_PREFIX}/:memberId/:eventId`;
 export const ADMIN_TICKET_CHECKIN_PREFIX =  'admin/ticket/checkin';
-export const ADMIN_TICKET_CHECKIN =  '${ADMIN_TICKET_CHECKIN_PREFIX}/:ticketId';
+export const ADMIN_TICKET_CHECKIN =  `${ADMIN_TICKET_CHECKIN_PREFIX}/:ticketId`;

@@ -1,1 +1,80 @@
-<p>event-ticket-checkin works!</p>
+<div class="page-title">
+  <div>
+    <h2>Event Check-In</h2>
+  </div>
+</div>
+<div class="card">
+  <div class="profile">
+      <div *ngIf="ticketLookupState == 'loading'">
+        Loading Ticket Details...
+      </div>
+
+      <div *ngIf="ticketLookupState == 'ticketNotFound'">
+          Failed to locate ticket
+      </div>
+
+      <div *ngIf="ticketLookupState == 'ticketFound'" class="profile-details">
+
+          <div class="name">{{kaocUser.firstName}} {{kaocUser.lastName}}</div>
+          <div class="email">{{kaocUser.emailId}}</div>
+          <div class="phone">{{kaocUser.phoneNumber}}</div>
+          <br>
+          <div>
+              <div>
+                  Ticket Details
+              </div>
+              <div class="event-title">
+                  {{kaocEvent.name}}
+              </div>
+              <div>
+                  <span>Adults:</span>
+                  <span class="check-in-count">{{eventTicketDetails.numAdults}}</span>
+                  <span>,&nbsp;</span>
+                  <span>Children:</span>
+                  <span class="check-in-count">{{eventTicketDetails.numChildren}}</span>
+              </div>
+        </div>
+
+          <div *ngIf="ticketCheckIns && ticketCheckIns.length > 0">
+            <h4>Prior Check-Ins using the Ticket.</h4>
+            <ul *ngFor="let event of ticketCheckIns">
+                <li>{{event.userType}} at {{event.checkInTime|date:'short'}}</li>
+            </ul>
+          </div>
+
+          <div class="checkin-info">
+              <div class="event-title">Check-In</div>
+              <div id="checkInForm" *ngIf="!isCheckInSuccess && !checkInAPIProgress">
+                  <div>
+                      <div class="checkin-info-item">
+                          <div>Adults</div>
+                          <mat-slider thumbLabel min="0" max="{{maxNumAdults}}" step="1" [value]="checkInNumAdults" (input)="updateAdultCheckIn($event)"></mat-slider>
+                          <span class="check-in-count">{{checkInNumAdults}}</span>
+                      </div>
+                      <div class="checkin-info-item">
+                          <div>Kids</div>
+                          <mat-slider thumbLabel min="0" max="{{maxNumChildren}}" step="1" [value]="checkInNumKids" (input)="updateKidCheckIn($event)"></mat-slider>
+                          <span class="check-in-count">{{checkInNumKids}}</span>
+                      </div>
+                  </div>
+                  <br/>
+                  <div class="checkin-info-item">
+                      <button (click)="performUserEventCheckIn()" class="app-button" [disabled]="!validCheckIn">Check In</button>
+                  </div>
+              </div>
+              <div *ngIf="checkInAPIProgress">
+                  Checking in the member...
+              </div>
+              <div *ngIf="isCheckInSuccess">
+                  Successfully checked In.
+                  <a routerLink="/secured/admin/listmembers">
+                      View/Edit Members
+                  </a>
+              </div>
+              <div *ngIf="isCheckInFailure">
+                  Failed to Check-In User. Please retry.
+              </div>
+          </div>
+      </div>
+  </div>
+</div>

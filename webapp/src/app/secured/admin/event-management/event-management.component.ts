@@ -58,7 +58,7 @@ export class EventManagementComponent implements OnInit {
           totalCount = Number(event.totalAdultMemberCheckins || 0)+
                        Number(event.totalChildMemberCheckins || 0)+
                        Number(event.totalAdultEventTicketCheckins || 0)+
-                       Number(event.totalChildEventTicketChecks || 0);
+                       Number(event.totalChildEventTicketCheckins || 0);
         }
         return totalCount;
     }

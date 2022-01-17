@@ -2,7 +2,7 @@ import { PaymentService } from '../payment/payment.service';
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Event, EventPricing, EventTicket, EventTicketDetails } from './Event';
-import { MemberEventCheckIn } from './MemberEventCheckIn';
+import { EventCheckIn } from './EventCheckIn';
 import { AngularFireFunctions } from '@angular/fire/functions';
 
 @Injectable({
@@ -170,7 +170,7 @@ export class EventService {
      * @param kaocEventId
      * @returns
      */
-    getMemberEventCheckinDetails(kaocUserId, kaocEventId): Promise<MemberEventCheckIn[]> {
+    getMemberEventCheckinDetails(kaocUserId, kaocEventId): Promise<EventCheckIn[]> {
       return this.ngFireFunctions
               .httpsCallable('getMemberEventCheckinDetails')({kaocUserId, kaocEventId})
               .toPromise().then(userEventCheckins => {
@@ -181,6 +181,25 @@ export class EventService {
                   throw e;
               });
     }
+
+    /**
+     * Returns the check in details for the given ticket id
+     *
+     * @param kaocEventTicketId
+     * @returns
+     */
+    getEventTicketCheckinDetails(kaocEventTicketId): Promise<EventCheckIn[]> {
+      return this.ngFireFunctions
+              .httpsCallable('getEventTicketCheckinDetails')({kaocEventTicketId})
+              .toPromise().then(eventTicketCheckins => {
+                  console.log('Retrieved ticket check-ins');
+                  return eventTicketCheckins;
+              }).catch(e => {
+                  console.error(`Error retrieving event ticket check-ins`);
+                  throw e;
+              });
+    }
+
 
     getEventPricing(kaocEventId): Promise<EventPricing> {
       return this.ngFireFunctions

@@ -76,6 +76,9 @@
         "source": "api/getMemberEventCheckinDetails",
         "function": "getMemberEventCheckinDetails"
       }, {
+        "source": "api/getEventTicketCheckinDetails",
+        "function": "getEventTicketCheckinDetails"
+      }, {
         "source": "api/sendMemberDetailsEmailToMembers",
         "function": "sendMemberDetailsEmailToMembers"
       }, {
@@ -153,6 +156,9 @@
       }, {
         "source": "api/:projectName/us-central1/getMemberEventCheckinDetails",
         "function": "getMemberEventCheckinDetails"
+      }, {
+        "source": "api/:projectName/us-central1/getEventTicketCheckinDetails",
+        "function": "getEventTicketCheckinDetails"
       }, {
         "source": "api/:projectName/us-central1/sendMemberDetailsEmailToMembers",
         "function": "sendMemberDetailsEmailToMembers"

@@ -130,7 +130,7 @@ const routes: Routes = [{
             expectedRole: 'admin'
         }
     }, {
-      path:ADMIN_TICKET_CHECKIN,
+      path: ADMIN_TICKET_CHECKIN,
       component: EventTicketCheckinComponent,
       canActivate: [AuthGuardService],
       data: {

@@ -13,7 +13,7 @@ export class Event {
     startTime: number;
     totalAdultEventTicketCheckins: number;
     totalAdultMemberCheckins: number;
-    totalChildEventTicketChecks: number;
+    totalChildEventTicketCheckins: number;
     totalChildMemberCheckins: number;
     mapsLink:string;
     eventPhotos: string;
