@@ -12,29 +12,52 @@
       <div *ngIf="eventsLoaded && (upcomingEvents == null || upcomingEvents.length == 0)">No Upcoming Events.</div>
 
       <mat-card class="example-card" *ngFor="let event of upcomingEvents">
-        <mat-card-title-group>
-          <mat-card-title>{{event.name}}</mat-card-title>
-          <mat-card-subtitle>
-              <a *ngIf="event.mapsLink" [href]="event.mapsLink" target="_blank">
-                  {{event.location}}
-              </a>
-              <span *ngIf="!event.mapsLink">{{event.location}}</span>
-              <div>{{event.startTime|date:"short"}}</div>
-          </mat-card-subtitle>
-          <img mat-card-md-image [src]="event.eventThumbnailUrl" [alt]="event.name" *ngIf="!eventMemberCheckInQRCodeMap[event.kaocEventId]">
-          <img mat-card-md-image [src]="eventMemberCheckInQRCodeMap[event.kaocEventId]" [alt]="EventCheckIn" *ngIf="eventMemberCheckInQRCodeMap[event.kaocEventId]">
-        </mat-card-title-group>
-        <mat-card-content>
-          {{event.description}}
-          <br>
-          <div *ngIf="hasValidMembership && event.membershipAccessIncluded" >
-              <span class="membership-state-active">*Included with Membership&nbsp;</span>
-              <span *ngIf="eventMemberCheckInQRCodeMap[event.kaocEventId]">Present the QR Code above to check-in at the event</span>
-          </div>
-          <div *ngIf="!hasValidMembership && membershipDetailsLoaded" class="membership-state-inactive">
-            Purchase Membership or Event Tickets for access
-          </div>
-        </mat-card-content>
+          <mat-card-header>
+              <mat-card-title>{{event.name}}</mat-card-title>
+              <mat-card-subtitle>
+                  <a *ngIf="event.mapsLink" [href]="event.mapsLink" target="_blank">
+                      {{event.location}}
+                  </a>
+                  <span *ngIf="!event.mapsLink">{{event.location}}</span>
+                  <div>{{event.startTime|date:"short"}}</div>
+              </mat-card-subtitle>
+          </mat-card-header>
+          <img mat-card-image [src]="event.eventImageUrl || event.eventThumbnailUrl" [alt]="event.name">
+
+          <mat-card-content>
+            <p>
+                {{event.description}}
+            </p>
+
+            <div *ngIf="hasValidMembership && event.membershipAccessIncluded">
+                <div class="membership-state-active">Included with Membership</div>
+                <p *ngIf="eventMemberCheckInQRCodeMap[event.kaocEventId]">
+                    <img mat-card-md-image [src]="eventMemberCheckInQRCodeMap[event.kaocEventId]" [alt]="EventCheckIn">
+                    <span>Present the QR Code to check-in at the event</span>
+                </p>
+            </div>
+
+            <div>
+                <div class="membership-state-active">Purchased Tickets</div>
+                <div *ngIf="eventTicketMap[event.kaocEventId]">
+                    <p *ngFor="let eventTicket of eventTicketMap[event.kaocEventId]">
+                        <img mat-card-md-image [src]="eventTicket.qrCodeDataURL" [alt]="EventCheckIn">
+                        <span>Adults: {{eventTicket.numAdults}}</span>&nbsp;
+                        <span>Children: {{eventTicket.numChildren}}</span>&nbsp;
+                        <span>Present the QR Code to check-in at the event</span>
+
+                    </p>
+                </div>
+            </div>
+
+            <br>
+            <div *ngIf="!hasValidMembership && membershipDetailsLoaded && eventPurchasesLoaded && !eventTicketMap[event.kaocEventId]" class="membership-state-inactive">
+                Purchase Membership or Event Tickets for access
+            </div>
+          </mat-card-content>
+          <mat-card-actions>
+              <button mat-button (click)="purchaseEventTickets(event.kaocEventId)">Purchase Event Tickets</button>
+          </mat-card-actions>
       </mat-card>
       <br>
 
@@ -44,25 +67,24 @@
 
       <div *ngFor="let event of pastEvents">
         <mat-card class="example-card">
-          <mat-card-title-group>
-            <mat-card-title>{{event.name}}</mat-card-title>
-            <mat-card-subtitle>
-                <a *ngIf="event.mapsLink" [href]="event.mapsLink" target="_blank">
-                    {{event.location}}
-                </a>
-                <span *ngIf="!event.mapsLink">{{event.location}}</span>
-                <div>{{event.startTime|date:"short"}}</div>
-            </mat-card-subtitle>
-            <img mat-card-md-image [src]="event.eventThumbnailUrl" [alt]="event.name">
-          </mat-card-title-group>
-          <mat-card-content>
-            {{event.description}}
-          </mat-card-content>
+            <mat-card-header>
+                <mat-card-title>{{event.name}}</mat-card-title>
+                <mat-card-subtitle>
+                    <a *ngIf="event.mapsLink" [href]="event.mapsLink" target="_blank">
+                        {{event.location}}
+                    </a>
+                    <span *ngIf="!event.mapsLink">{{event.location}}</span>
+                    <div>{{event.startTime|date:"short"}}</div>
+                </mat-card-subtitle>
+            </mat-card-header>
+            <img mat-card-image [src]="event.eventImageUrl || event.eventThumbnailUrl" [alt]="event.name">
+            <mat-card-content>
+              {{event.description}}
+            </mat-card-content>
 
-          <mat-card-footer *ngIf="event.eventPhotos">
-            <a mat-button [href]="event.eventPhotos" target="_blank">Event Photos</a>
-          </mat-card-footer>
-
+            <mat-card-footer *ngIf="event.eventPhotos">
+                <a mat-button [href]="event.eventPhotos" target="_blank">Event Photos</a>
+            </mat-card-footer>
         </mat-card>
         <br>
       </div>

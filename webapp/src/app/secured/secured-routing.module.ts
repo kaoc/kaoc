@@ -1,4 +1,3 @@
-import { CheckinComponent } from './checkin/checkin.component';
 import {
     ADMIN_LIST_MEMBERS,
     ADMIN_VIEW_MEMBER_PROFILE,
@@ -6,7 +5,8 @@ import {
     ADMIN_SEARCH, PROFILE,
     USER_MEMBER_PROFILE,
     ADMIN_SCANNER,
-    ADMIN_MEMBER_CHECKIN
+    ADMIN_MEMBER_CHECKIN,
+    ADMIN_TICKET_CHECKIN
 } from './../URLConstants';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
@@ -24,6 +24,8 @@ import { ScannerComponent } from './scanner/scanner.component';
 import { EventTicketsComponent } from './event-tickets/event-tickets.component';
 import { EventManagementComponent } from './admin/event-management/event-management.component';
 import { AdminFunctionsComponent } from './admin/admin-functions/admin-functions.component';
+import { EventMembershipCheckinComponent } from './admin/event-membership-checkin/event-membership-checkin.component';
+import { EventTicketCheckinComponent } from './admin/event-ticket-checkin/event-ticket-checkin.component';
 
 
 const routes: Routes = [{
@@ -122,11 +124,18 @@ const routes: Routes = [{
         }
     }, {
         path: ADMIN_MEMBER_CHECKIN,
-        component: CheckinComponent,
+        component: EventMembershipCheckinComponent,
         canActivate: [AuthGuardService],
         data: {
             expectedRole: 'admin'
         }
+    }, {
+      path:ADMIN_TICKET_CHECKIN,
+      component: EventTicketCheckinComponent,
+      canActivate: [AuthGuardService],
+      data: {
+          expectedRole: 'admin'
+      }
     }, {
         path: '',
         pathMatch: 'full',

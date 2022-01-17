@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { ADMIN_MEMBER_CHECKIN, ADMIN_VIEW_MEMBER_PROFILE_PREFIX, SECURED_CONTEXT } from '../../URLConstants';
+import { ADMIN_MEMBER_CHECKIN, ADMIN_TICKET_CHECKIN, ADMIN_VIEW_MEMBER_PROFILE_PREFIX, SECURED_CONTEXT } from '../../URLConstants';
 
 const KAOC_MEMBER_ID_REGEX = /^kaocMemberId:(?<memberId>.+)$/;
 const KAOC_MEMBER_EVENT_CHECKIN_REGEX = /^kaocEventCheckIn:kaocMemberId:(?<memberId>.+):kaocEventId:(?<eventId>.+)$/;
+const KAOC_TICKET_EVENT_CHECKIN_REGEX = /^kaocEventCheckIn:kaocEventTicketId:(?<ticketId>.+)$/;
 
 @Component({
   selector: 'app-scanner',
@@ -31,7 +32,7 @@ export class ScannerComponent implements OnInit {
         const memberEventCheckInMatch = KAOC_MEMBER_EVENT_CHECKIN_REGEX.exec(result);
 
         if (memberEventCheckInMatch) {
-          this.scanResult = `Code Match Found for Event Check-In`;
+          this.scanResult = `Code Match Found for Member Event Check-In`;
           //alert(`Code Match Found for Event Check-In`);
           const memberId = memberEventCheckInMatch.groups.memberId;
           const eventId = memberEventCheckInMatch.groups.eventId;
@@ -42,6 +43,18 @@ export class ScannerComponent implements OnInit {
             }
           });
         } else {
+          const ticketEventCheckInMatch = KAOC_TICKET_EVENT_CHECKIN_REGEX.exec(result);
+          if(ticketEventCheckInMatch) {
+              this.scanResult = `Code Match found for Ticket Check-In`
+              const ticketId = memberEventCheckInMatch.groups.ticketId;
+              this.router.navigate([`${SECURED_CONTEXT}/${ADMIN_TICKET_CHECKIN}`, {ticketId}]).then(status=>{
+                if(!status) {
+                  this.scanResult = `Navigation Failed`;
+                  //alert(`Navigation Failed`);
+                }
+              });
+
+          }
           this.scanResult = `NO Match Found`;
           //alert(`NOT MATCH for Event Check-In`);
           console.error(`Unsupported QR Code ${result}`);

@@ -1,7 +1,7 @@
 import { PaymentService } from '../payment/payment.service';
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { Event, EventPricing } from './Event';
+import { Event, EventPricing, EventTicket } from './Event';
 import { MemberEventCheckIn } from './MemberEventCheckIn';
 import { AngularFireFunctions } from '@angular/fire/functions';
 
@@ -68,6 +68,7 @@ export class EventService {
      * @returns
      */
     getUpcomingEventsById(kaocEventId): Promise<Event> {
+      this.getUpcomingEvents();
       return this.upcomingEventsPromise.then(events=>{
         if(events) {
           return events.find(event=>event.kaocEventId == kaocEventId);
@@ -75,6 +76,18 @@ export class EventService {
         return null;
       });
     }
+
+    getPurchasedEventTickets(kaocUserId: string, kaocEventIds: string[], includeQRCode: boolean): Promise<EventTicket[]> {
+      return this.ngFireFunctions
+        .httpsCallable('getPurchasedEventTickets')({kaocUserId, kaocEventIds, includeQRCode})
+        .toPromise().then(eventTickets => {
+            console.log(`Succesfully purchased event tickets for user ${kaocUserId}`);
+            return eventTickets;
+        }).catch(e => {
+            console.error(`Error retrieving purchased event tickets for user ${kaocUserId}`);
+            throw e;
+        });
+  }
 
     performMemberEventCheckIn(kaocUserId: string, kaocEventId: string, numAdults: number, numChildren: number): Promise<boolean> {
         return this.ngFireFunctions

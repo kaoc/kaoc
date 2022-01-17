@@ -30,7 +30,8 @@ import {AppFooterComponent} from '../_layout/app-footer/app-footer.component';
 import {JwPaginationModule} from 'jw-angular-pagination';
 import { ScannerComponent } from './scanner/scanner.component';
 import { ZXingScannerModule } from '@zxing/ngx-scanner';
-import { CheckinComponent } from './checkin/checkin.component';
+import { EventMembershipCheckinComponent } from './admin/event-membership-checkin/event-membership-checkin.component';
+import { EventTicketCheckinComponent } from './admin/event-ticket-checkin/event-ticket-checkin.component';
 import { EventTicketsComponent } from './event-tickets/event-tickets.component';
 import { EventManagementComponent } from './admin/event-management/event-management.component';
 import { AdminFunctionsComponent } from './admin/admin-functions/admin-functions.component';
@@ -54,7 +55,8 @@ import { AdminFunctionsComponent } from './admin/admin-functions/admin-functions
     AppHeaderComponent,
     AppFooterComponent,
     ScannerComponent,
-    CheckinComponent,
+    EventMembershipCheckinComponent,
+    EventTicketCheckinComponent,
     EventTicketsComponent,
     EventManagementComponent,
     AdminFunctionsComponent

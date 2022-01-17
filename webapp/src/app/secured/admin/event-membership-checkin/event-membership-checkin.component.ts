@@ -1,19 +1,19 @@
 import { ActivatedRoute } from '@angular/router';
-import { EventService } from './../event.service';
-import { Membership } from './../Membership';
-import { MemberService } from './../member.service';
+import { EventService } from '../../event.service';
+import { Membership } from '../../Membership';
+import { MemberService } from '../../member.service';
 import { Component, OnInit } from '@angular/core';
-import { Member } from '../Member';
-import { Event } from '../Event';
+import { Member } from '../../Member';
+import { Event } from '../../Event';
 import { MatSlider, MatSliderChange } from '@angular/material';
-import { MemberEventCheckIn } from '../MemberEventCheckIn';
+import { MemberEventCheckIn } from '../../MemberEventCheckIn';
 
 @Component({
-  selector: 'app-checkin',
-  templateUrl: './checkin.component.html',
-  styleUrls: ['./checkin.component.scss']
+  selector: 'app-event-membership-checkin',
+  templateUrl: './event-membership-checkin.component.html',
+  styleUrls: ['./event-membership-checkin.component.scss']
 })
-export class CheckinComponent implements OnInit {
+export class EventMembershipCheckinComponent implements OnInit {
 
   kaocUser: Member;
   kaocEvent: Event;

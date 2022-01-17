@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CheckinComponent } from './checkin.component';
+import { EventMembershipCheckinComponent } from './event-membership-checkin.component';
 
 describe('CheckinComponent', () => {
-  let component: CheckinComponent;
-  let fixture: ComponentFixture<CheckinComponent>;
+  let component: EventMembershipCheckinComponent;
+  let fixture: ComponentFixture<EventMembershipCheckinComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ CheckinComponent ]
+      declarations: [ EventMembershipCheckinComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(CheckinComponent);
+    fixture = TestBed.createComponent(EventMembershipCheckinComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

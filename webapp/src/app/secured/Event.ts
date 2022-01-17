@@ -26,3 +26,13 @@ export interface EventPricing {
   adult: number;
   child: number;
 }
+
+export class EventTicket {
+    kaocEventTicketId: string;
+    kaocUserId: string;
+    kaocEventId: string;
+    numAdults: number;
+    numChildren: number;
+    paymentStatus: string;
+    qrCodeDataURL: string;
+}

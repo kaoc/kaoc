@@ -3,6 +3,7 @@ import { EventService } from '../event.service';
 import { AuthService } from '../auth/auth.service';
 import { MemberService } from '../member.service';
 import { Event } from '../Event';
+import { EventTicket } from '../Event';
 import { Membership } from '../Membership';
 
 @Component({
@@ -18,16 +19,22 @@ export class EventTicketsComponent implements OnInit {
     eventsLoaded: boolean = false;
     pastEventsLoaded: boolean = false;
     hasValidMembership: boolean = false;
-    memberEventCheckInQRCodeImage: string = null;
     eventMemberCheckInQRCodeMap: any = {};
     kaocUserId: string;
+    eventPurchasesLoaded: boolean = false;
+    eventTicketMap: any = {};
+    eventIdMap: Map<string, Event> = new Map();
 
     constructor(private eventService: EventService, authService: AuthService, private memberService : MemberService) {
         eventService
               .getUpcomingEvents()
               .then(events=>{
                   this.upcomingEvents=events
+                  events.forEach(event=>{
+                    this.eventIdMap.set(event.kaocEventId, event);
+                  })
                   this.eventsLoaded = true;
+                  this.loadPurchasedTickets();
                   return this.loadMemberEventCheckInForUpcomingEvents();
               });
 
@@ -35,12 +42,16 @@ export class EventTicketsComponent implements OnInit {
               .getPastEvents()
               .then(events=>{
                   this.pastEvents=events;
+                  events.forEach(event=>{
+                    this.eventIdMap.set(event.kaocEventId, event);
+                  })
                   this.pastEventsLoaded=true;
               });
         authService.kaocUser.subscribe(kaocUser => {
           if (kaocUser) {
               this.kaocUserId = kaocUser.kaocUserId;
               this.loadMembershipDetails(kaocUser.kaocUserId);
+              this.loadPurchasedTickets();
           } else {
             this.membershipDetailsLoaded = true;
           }
@@ -77,6 +88,30 @@ export class EventTicketsComponent implements OnInit {
           return Promise.all(promises);
         }
         return null;
+    }
+
+    loadPurchasedTickets() {
+        if (this.kaocUserId && this.upcomingEvents && this.upcomingEvents.length > 0) {
+            let eventIds = this.upcomingEvents.map(event=>event.kaocEventId);
+            this.eventService
+              .getPurchasedEventTickets(this.kaocUserId, eventIds, true)
+              .then(ticketPurchases=>{
+                ticketPurchases.forEach(eventTicket=> {
+                    let currEventsArray = this.eventTicketMap[eventTicket.kaocEventId];
+                    let newEventsArray = [];
+                    if(currEventsArray) {
+                        newEventsArray.push.apply(currEventsArray, newEventsArray);
+                    }
+                    newEventsArray.push(eventTicket);
+
+                    this.eventTicketMap[eventTicket.kaocEventId] = newEventsArray;
+                })
+                 this.eventPurchasesLoaded = true;
+              })
+              .catch(e=>{
+                this.eventPurchasesLoaded = true;
+              });
+        }
     }
 
     loadMemberEventCheckIn(kaocUserId, kaocEventId) {

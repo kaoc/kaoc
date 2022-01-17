@@ -1067,6 +1067,8 @@ exports.sendPaymentEmail = functions.https.onCall((data, context) => {
             let userName;
             let membershipType;
             let membershipYear;
+            let kaocUserId;
+            let member;
 
             if(paymentDoc.kaocUserRef.path) {
                 paymentDoc.kaocUserRef = paymentDoc.kaocUserRef.path;
@@ -1081,52 +1083,89 @@ exports.sendPaymentEmail = functions.https.onCall((data, context) => {
                     .get()
                     .then(userSnapshot=>{
                         if(userSnapshot.exists) {
+                            member =userSnapshot.data();
+                            kaocUserId = userSnapshot.id;
                             userEmail = userSnapshot.get('emailId');
                             userName = userSnapshot.get('firstName')+" "+userSnapshot.get('lastName');
                             console.debug(`User Information found - Email ${userEmail}, Username: ${userName}`);
                             return admin.firestore().doc(paymentDoc.paymentTypeRef).get();
                         } else {
-                            console.error(`Invalid payment reference. Cannot find user record corresponding to the payment ${userSnapshot.ref.id}`);
-                            return null;
+                            let errorMessage = `Invalid payment reference. Cannot find user record corresponding to the payment ${userSnapshot.ref.id}`;
+                            console.error(errorMessage);
+                            throw errorMessage;
                         }
                     })
                     .then(membershipSnapshot => {
-                        if (membershipSnapshot) {
-                            if(membershipSnapshot.exists) {
-                                membershipType = membershipSnapshot.get('membershipType');
-                                membershipYear = membershipSnapshot.get('startTime').toDate().getFullYear();
-                                let currentYear = (new Date()).getFullYear(); 
-                                console.debug(`Membership record found -  Type ${membershipType}, Year: ${membershipYear}`);
-                                if(membershipYear !== currentYear) {
-                                    console.info(`Membership is not for current year but ${membershipYear}. Not queueing email`);
-                                    return null;
-                                } else {
-                                    return queueEmail({
-                                        to: userEmail,
-                                        subject: `Kerala Association Membership Payment Successful for ${membershipYear}`,
-                                        html: `Hello ${userName}, <br>
-                                                    You have succesfully completed a payment of ${paymentDoc.paymentAmount}$ towards KAOC membership.<br>
-                                                    Membership Type: <b>${membershipType}</b><br>
-                                                    Year: <b>${membershipYear}</b> <br>
-                                                Thanks,<br>
-                                                KAOC Committee    
-                                                `,
-                                        text: `Hello ${userName}, 
-                                                    You have succesfully completed a payment of ${paymentDoc.paymentAmount} towards KAOC membership.
-                                                    Membership Type: ${membershipType}
-                                                    Year: ${membershipYear}.
-                                                Thanks,
-                                                KAOC Committee    
-                                                `
-                                    });
-                                }
+                        if (membershipSnapshot && membershipSnapshot.exists) {
+                            membershipType = membershipSnapshot.get('membershipType');
+                            membershipYear = membershipSnapshot.get('startTime').toDate().getFullYear();
+                            let currentYear = (new Date()).getFullYear(); 
+                            console.debug(`Membership record found -  Type ${membershipType}, Year: ${membershipYear}`);
+                            if (membershipYear !== currentYear) {
+                                let errorMessage = `Membership is not for current year but ${membershipYear}. Not queueing email`;
+                                console.info(errorMessage);
+                                throw errorMessage;
                             } else {
-                                console.error(`Invalid Payment reference. Cannot find membership record for ${membershipSnapshot.ref.id}`);
-                                return false;
+                                // Generate QR code for the member reference
+                                return  _generateQRCodeDataURL(`kaocMemberId:${kaocUserId}`)
                             }
                         } else {
-                            return false;
+                            let errorMessage = `Invalid Payment reference. Cannot find membership record for ${membershipSnapshot.ref.id}`;
+                            console.error(errorMessage);
+                            throw errorMessage;
                         }
+                    }).then(qrCodeImageData=>{
+                        return queueEmail({
+                            to: userEmail,
+                            subject: `Kerala Association Membership Payment Successful for ${membershipYear}`,
+                            html:   `Hello ${member.firstName} ${member.lastName}, <br>
+                                        <p>    
+                                        You have succesfully completed a payment of ${paymentDoc.paymentAmount}$ towards KAOC membership.
+                                        </p> 
+                                        <p>
+                                            Below is your member information with KAOC.<br>
+                                            Name: ${member.firstName} ${member.lastName}<br>
+                                            Phone Number: ${member.phoneNumber}<br>
+                                            Email: ${member.emailId}
+                                        </p>
+                                        <p>
+                                            Membership Status: Active<br>    
+                                            Membership Type: ${membershipType}<br>
+                                            Membership Year: ${membershipYear}
+                                        </p>
+                                        <p>
+                                            Please use the attached QR Code to look up your member information at event locations. <br>
+                                            <img src="${qrCodeImageData}" alt="Member Id">
+                                        </p>
+                                        <p>
+                                            Visit <a href="${hostUrl}">${hostUrl}</a> and sign-up using the email ${member.emailId} to auto-associate and manage your current membership account.<br>
+                                            <b>NOTE:</b> Google and Facebook login is also available. If the email id used to login does not match your current membership email,
+                                            you will get an option to link your profile using email verification. If you have already created the account, you will be able to login and view your membership information.
+                                        </p>                                    
+                                    Thanks,<br>
+                                    KAOC Committee    
+                                    `,
+                            text:   `Hello ${userName}, 
+                                        You have succesfully completed a payment of ${paymentDoc.paymentAmount} towards KAOC membership.
+                                        Below is your member information with KAOC.
+                                        Name: ${member.firstName} ${member.lastName}
+                                        Phone Number: ${member.phoneNumber}
+                                        Email: ${member.emailId}
+            
+                                        Membership Status: Active
+            
+                                        If you haven't already done so, we recommend creating an account at ${hostUrl} using the email ${member.emailId}.
+                                        Once logged in, you can view your membership details and QR code that can be used to check-in 
+                                        at the KAOC events. 
+            
+                                        Thanks,
+                                        KAOC Committee    
+                                    `,
+                            attachments: [{
+                                filename: 'KAOC_MemberID_QRCode.png',
+                                path: qrCodeImageData
+                            }]
+                        });
                     });
         } else {
             // TODO - Add emails for other events. 
@@ -1660,6 +1699,71 @@ exports.performMemberEventCheckIn = functions.https.onCall((data, context) => {
                     return true;
                 });
 });
+
+/**
+ * Returns event tickets with the paid status. 
+ */
+exports.getPurchasedEventTickets = functions.https.onCall((data, context) => {
+    context = _setUpTestingContext(context);
+
+    let kaocUserId = data.kaocUserId;
+    let kaocEventIds = data.kaocEventIds;
+    let includeQRCode = data.includeQRCode;
+
+    return _assertSelfOrAdminRole(context, [kaocUserId])
+            .catch(e=> {
+                throw new functions.https.HttpsError(
+                    'permission-denied', 
+                    'User does not have the authorization to perform this operation');
+            })    
+            .then(authResponse => {
+                let eventRefArray = kaocEventIds.map(kaocEventId=>admin.firestore().doc(`/kaocEvents/${kaocEventId}`));
+                let userRef = admin.firestore().doc(`/kaocUsers/${kaocUserId}`);
+                return admin.firestore()
+                            .collection('/kaocEventTickets')
+                            .where('kaocEventRef', 'in', eventRefArray)
+                            .where('kaocUserRef', '==', userRef)
+                            .where('paymentStatus', '==', PAYMENT_STATUS_PAID)
+                            .get(); 
+            })
+            .then(ticketQuerySnapShot => {
+                let eventTickets = [];
+                if(!ticketQuerySnapShot.empty) {
+                    ticketQuerySnapShot.docs.forEach(ticketDoc => {
+                        
+                        let {numAdults, numChildren, kaocEventRef, kaocUserRef} = ticketDoc.data();
+                        let eventTicket = {
+                            numAdults, 
+                            numChildren, 
+                            'kaocEventId': kaocEventRef.id,
+                            'kaocUserId': kaocUserRef.id,
+                            'kaocEventTicketId': ticketDoc.id
+                        };
+                        eventTickets.push(eventTicket);
+                    });
+
+                    if(includeQRCode) {
+                        let qrCodePromises = [];
+                        eventTickets.forEach(eventTicket=>{
+                            qrCodePromises.push(populateEventTicketQRCode(eventTicket));
+                        });
+                        return Promise.all(qrCodePromises);
+                    }
+                }
+                return eventTickets;
+            });    
+});
+
+function populateEventTicketQRCode(eventTicket) {
+    if(eventTicket && eventTicket.kaocEventTicketId && eventTicket.kaocEventId) {
+        return  _generateQRCodeDataURL(`kaocEventCheckIn:kaocEventTicketId:${eventTicket.kaocEventTicketId}:kaocEventId:${eventTicket.kaocEventId}`)
+                .then(qrCodeDataURL => {
+                    eventTicket.qrCodeDataURL = qrCodeDataURL;
+                    return eventTicket;
+                });
+    }
+    return eventTicket;
+}
 
 exports.sendMemberEventPassEmailToActiveMemberships = functions.https.onCall((data, context) => {
     context = _setUpTestingContext(context);

@@ -31,6 +31,9 @@
         "source": "api/paypalPaymentHandler",
         "function": "paypalPaymentHandler"
       }, {
+        "source": "api/getPurchasedEventTickets",
+        "function": "getPurchasedEventTickets"
+      }, {
         "source": "api/updatePayment",
         "function": "updatePayment"
       }, {
