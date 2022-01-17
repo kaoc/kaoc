@@ -1,3 +1,5 @@
+import { Member } from "./Member";
+
 export class Event {
     kaocEventId:string;
     endTime: number;
@@ -35,4 +37,13 @@ export class EventTicket {
     numChildren: number;
     paymentStatus: string;
     qrCodeDataURL: string;
+}
+
+export class EventTicketDetails {
+  kaocEventTicketId: string;
+  kaocUser: Member;
+  kaocEvent: Event;
+  numAdults: number;
+  numChildren: number;
+  paymentStatus: string;
 }

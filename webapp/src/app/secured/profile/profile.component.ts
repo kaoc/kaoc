@@ -102,7 +102,7 @@ export class ProfileComponent implements OnInit {
       }
     }
 
-    performMemberEventCheckIn(kaocUserId, kaocEventId) {
+    performEventMemberCheckIn(kaocUserId, kaocEventId) {
         const redirectURL = `/${SECURED_CONTEXT}/${ADMIN_MEMBER_CHECKIN}`
             .replace(':memberId', kaocUserId)
             .replace(':eventId', kaocEventId);

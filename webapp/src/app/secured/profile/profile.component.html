@@ -108,7 +108,7 @@
                 <div *ngFor="let event of upcomingEvents" class="event-checkin">
                     <div>{{event.name}}: {{event.startTime|date:'short'}}</div>
                     <div>
-                        <button (click)="performMemberEventCheckIn(kaocUserId, event.kaocEventId)" class="app-button profile-edit__bttn">Check In</button>
+                        <button (click)="performEventMemberCheckIn(kaocUserId, event.kaocEventId)" class="app-button profile-edit__bttn">Check In</button>
                     </div>
                 </div>
             </div>

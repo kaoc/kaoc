@@ -64,8 +64,14 @@
         "source": "api/getFullEventDetails",
         "function": "getFullEventDetails"
       }, {
-        "source": "api/performMemberEventCheckIn",
-        "function": "performMemberEventCheckIn"
+        "source": "api/getEventTicketDetails",
+        "function": "getEventTicketDetails"
+      }, {
+        "source": "api/performEventMemberCheckIn",
+        "function": "performEventMemberCheckIn"
+      }, {
+        "source": "api/performEventTicketCheckIn",
+        "function": "performEventTicketCheckIn"
       }, {
         "source": "api/getMemberEventCheckinDetails",
         "function": "getMemberEventCheckinDetails"
@@ -133,11 +139,17 @@
         "source": "api/:projectName/us-central1/getFullEventDetails",
         "function": "getFullEventDetails"
       }, {
+        "source": "api/:projectName/us-central1/getEventTicketDetails",
+        "function": "getEventTicketDetails"
+      }, {
         "source": "api/:projectName/us-central1/getNumberOfFailedEmails",
         "function": "getNumberOfFailedEmails"
       }, {
-        "source": "api/:projectName/us-central1/performMemberEventCheckIn",
-        "function": "performMemberEventCheckIn"
+        "source": "api/:projectName/us-central1/performEventMemberCheckIn",
+        "function": "performEventMemberCheckIn"
+      }, {
+        "source": "api/:projectName/us-central1/performEventTicketCheckIn",
+        "function": "performEventTicketCheckIn"
       }, {
         "source": "api/:projectName/us-central1/getMemberEventCheckinDetails",
         "function": "getMemberEventCheckinDetails"

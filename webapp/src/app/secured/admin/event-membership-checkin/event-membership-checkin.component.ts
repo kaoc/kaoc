@@ -130,7 +130,7 @@ export class EventMembershipCheckinComponent implements OnInit {
       return;
     }
     this.checkInAPIProgress = true;
-    this.eventService.performMemberEventCheckIn(
+    this.eventService.performEventMemberCheckIn(
       this.queryByMemberId,
       this.eventId,
       this.checkInNumAdults,

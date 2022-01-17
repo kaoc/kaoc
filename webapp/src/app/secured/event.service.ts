@@ -1,7 +1,7 @@
 import { PaymentService } from '../payment/payment.service';
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { Event, EventPricing, EventTicket } from './Event';
+import { Event, EventPricing, EventTicket, EventTicketDetails } from './Event';
 import { MemberEventCheckIn } from './MemberEventCheckIn';
 import { AngularFireFunctions } from '@angular/fire/functions';
 
@@ -89,9 +89,9 @@ export class EventService {
         });
   }
 
-    performMemberEventCheckIn(kaocUserId: string, kaocEventId: string, numAdults: number, numChildren: number): Promise<boolean> {
+    performEventMemberCheckIn(kaocUserId: string, kaocEventId: string, numAdults: number, numChildren: number): Promise<boolean> {
         return this.ngFireFunctions
-                    .httpsCallable('performMemberEventCheckIn')({kaocUserId, kaocEventId, numAdults, numChildren})
+                    .httpsCallable('performEventMemberCheckIn')({kaocUserId, kaocEventId, numAdults, numChildren})
                     .toPromise().then(upcomingEvents => {
                         console.log('User succesfully checked in for event');
                         return true;
@@ -100,6 +100,31 @@ export class EventService {
                         throw e;
                     });
     }
+
+    performEventTicketCheckIn(kaocEventTicketId: string, numAdults: number, numChildren: number): Promise<boolean> {
+      return this.ngFireFunctions
+                  .httpsCallable('performEventTicketCheckIn')({kaocEventTicketId, numAdults, numChildren})
+                  .toPromise().then(status => {
+                      console.log('User succesfully checked in for event using ticket');
+                      return true;
+                  }).catch(e => {
+                      console.error(`Error checking in user for event using ticket`);
+                      throw e;
+                  });
+    }
+
+    getEventTicketDetails(kaocEventTicketId): Promise<EventTicketDetails> {
+        return this.ngFireFunctions
+                .httpsCallable('getEventTicketDetails')({kaocEventTicketId})
+                .toPromise().then(eventTicketDetails => {
+                    console.log(`Succesfully retrieved event ticket details for ticket id ${kaocEventTicketId}`);
+                    return eventTicketDetails;
+                }).catch(e => {
+                    console.error(`Error retrieving event ticket details for ticket id ${kaocEventTicketId}`);
+                    throw e;
+                });
+  }
+
 
     /**
      * Returns the event by the given id.

@@ -1636,7 +1636,7 @@ function _marshalEventDataFromSnapshot(eventQuerySnapShot, includeFullDetails) {
 }
 
 
-exports.performMemberEventCheckIn = functions.https.onCall((data, context) => {
+exports.performEventMemberCheckIn = functions.https.onCall((data, context) => {
     context = _setUpTestingContext(context);
 
     let kaocUserId = data.kaocUserId;
@@ -1700,6 +1700,135 @@ exports.performMemberEventCheckIn = functions.https.onCall((data, context) => {
                 });
 });
 
+exports.performEventTicketCheckIn = functions.https.onCall((data, context) => {
+    context = _setUpTestingContext(context);
+
+    let kaocEventTicketId = data.kaocEventTicketId;
+    let numAdults   = Number(data.numAdults);
+    let numChildren = Number(data.numChildren);
+
+    return _assertAdminRole(context)    
+                .catch(e=> {
+                    throw new functions.https.HttpsError(
+                        'permission-denied', 
+                        'User does not have the authorization to perform this operation');
+                }).then(authResponse => {
+                    // retrieve event ticket information.
+                    return admin.firestore().doc(`/kaocEventTickets/${kaocEventTicketId}`).get();
+                }).then(kaocEventTicketSnapshot => {
+                    if (kaocEventTicketSnapshot && kaocEventTicketSnapshot.exists) {
+                        
+                        let eventTicketDetails = kaocEventTicketSnapshot.data();
+                        let maxAdults = eventTicketDetails.numAdults;
+                        let maxChildren = eventTicketDetails.numChildren;
+                        let attendeeRef = eventTicketDetails.kaocUserRef;
+                        let eventRef = eventTicketDetails.kaocEventRef;
+
+                        if(numAdults <= maxAdults && numChildren <= maxChildren) {
+                            // Perform check in 
+                            let attendeeType = 'EventTicket';
+                            let checkInTime = new Date();
+                            // TODO - Add check for event validity and if event supports membershipAccess    
+                            let writeBatch = admin.firestore().batch();    
+                            if(numAdults > 0) {
+                                for(let i=0;i<numAdults;i++) {
+                                    writeBatch.set(
+                                            admin.firestore().collection('/kaocEventCheckIns').doc(), 
+                                            {attendeeRef, attendeeType, checkInTime, eventRef, 'userType':'Adult'});
+                                }
+                                // update the check in count for the event. 
+                                console.log(`Incrementing adult ticket checks by ${numAdults} of type ${typeof numAdults}`);
+                                writeBatch.update(
+                                                eventRef, 
+                                                {'totalAdultEventTicketCheckins': admin.firestore.FieldValue.increment(numAdults)}
+                                            );
+                            }
+
+                            if(numChildren > 0) {
+                                for(let i=0;i<numChildren;i++) {
+                                    writeBatch.set(
+                                            admin.firestore().collection('/kaocEventCheckIns').doc(), 
+                                            {attendeeRef, attendeeType, checkInTime, eventRef, 'userType':'Child'});
+                                }
+                                // update the check in count for the event. 
+                                writeBatch.update(
+                                                eventRef, 
+                                                {'totalChildEventTicketChecks': admin.firestore.FieldValue.increment(numChildren)}
+                                            );
+                            }
+
+                            return writeBatch.commit();
+
+                        } else {
+                            let errorMessage = `Number of checkins ${numAdults} Adults & ${numChildren} Children are more than purchased count of ${maxAdults} Adults and ${maxChildren} Children`;
+                            throw errorMessage;
+                        }
+
+                    } else {
+                        let errorMessage = `Invalid Event Ticket Id ${kaocEventTicketId}`;
+                        throw errorMessage;
+                    }
+                }).then(response=> {
+                    return true;
+                });
+});
+
+/**
+ * Admin functionality - return full details associated with an event ticket including the 
+ * event details and user details. 
+ */
+ exports.getEventTicketDetails = functions.https.onCall((data, context) => {
+    context = _setUpTestingContext(context);
+
+    let kaocUser;
+    let kaocEvent;
+    let kaocTicketDetails;
+
+    return _assertAdminRole(context)
+    .catch(e=> {
+        throw new functions.https.HttpsError(
+            'permission-denied', 
+            'User does not have the authorization to perform this operation');
+    })    
+    .then(authDetails=>{
+        return admin.firestore().doc(`/kaocEventTickets/${data.kaocEventTicketId}`).get();
+    }).then(ticketSnapshot => {
+        if(ticketSnapshot && ticketSnapshot.exists) {
+            kaocTicketDetails = ticketSnapshot.data();
+            return kaocTicketDetails.kaocUserRef.get();
+        } else {
+            let errorMessage = `Invalid ticket id ${data.kaocEventTicketId}`;
+            throw errorMessage;
+        }
+    }).then(userSnapshot=> {
+        if(userSnapshot && userSnapshot.exists) {
+            kaocUser = userSnapshot.data();
+        } else {
+            // Not throwing an exception here
+            kaocUser = {};
+        }
+        return kaocTicketDetails.kaocEventRef.get();
+    }).then(eventSnapShot => {
+        if(eventSnapShot && eventSnapShot.exists) {
+            kaocEvent = _marshalEventDataFromSnapshot(eventSnapShot);
+        } else {
+            let errorMessage = `Invalid event id ${eventSnapShot.id}`;
+            throw errorMessage;
+        }
+
+        // return the full object. 
+        let {numAdults, numChildren, paymentStatus} = kaocTicketDetails;
+        let {firstName, lastName, emailId, phoneNumber, ageGroup} = kaocUser;
+        let kaocUserDetails = {firstName, lastName, emailId, phoneNumber, ageGroup};
+
+        let kaocEventTicketDetails = {numAdults, numChildren, paymentStatus};
+        kaocEventTicketDetails.kaocEvent = kaocEvent;
+        kaocEventTicketDetails.kaocUser = kaocUserDetails;
+        return kaocEventTicketDetails;
+    });
+});
+
+
 /**
  * Returns event tickets with the paid status. 
  */
@@ -1755,8 +1884,8 @@ exports.getPurchasedEventTickets = functions.https.onCall((data, context) => {
 });
 
 function populateEventTicketQRCode(eventTicket) {
-    if(eventTicket && eventTicket.kaocEventTicketId && eventTicket.kaocEventId) {
-        return  _generateQRCodeDataURL(`kaocEventCheckIn:kaocEventTicketId:${eventTicket.kaocEventTicketId}:kaocEventId:${eventTicket.kaocEventId}`)
+    if(eventTicket && eventTicket.kaocEventTicketId) {
+        return  _generateQRCodeDataURL(`kaocEventCheckIn:kaocEventTicketId:${eventTicket.kaocEventTicketId}`)
                 .then(qrCodeDataURL => {
                     eventTicket.qrCodeDataURL = qrCodeDataURL;
                     return eventTicket;
