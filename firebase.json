@@ -132,6 +132,9 @@
       }, {
         "source": "api/:projectName/us-central1/getMemberEventCheckInQRCode",
         "function": "getMemberEventCheckInQRCode"
+      }, {
+        "source": "api/:projectName/us-central1/getPurchasedEventTickets",
+        "function": "getPurchasedEventTickets"
       },  {
         "source": "api/:projectName/us-central1/getUpcomingEvents",
         "function": "getUpcomingEvents"

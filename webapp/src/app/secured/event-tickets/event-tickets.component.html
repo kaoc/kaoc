@@ -37,15 +37,14 @@
                 </p>
             </div>
 
-            <div>
+            <div *ngIf="eventTicketMap[event.kaocEventId]">
                 <div class="membership-state-active">Purchased Tickets</div>
-                <div *ngIf="eventTicketMap[event.kaocEventId]">
+                <div>
                     <p *ngFor="let eventTicket of eventTicketMap[event.kaocEventId]">
                         <img mat-card-md-image [src]="eventTicket.qrCodeDataURL" [alt]="EventCheckIn">
                         <span>Adults: {{eventTicket.numAdults}}</span>&nbsp;
                         <span>Children: {{eventTicket.numChildren}}</span>&nbsp;
                         <span>Present the QR Code to check-in at the event</span>
-
                     </p>
                 </div>
             </div>

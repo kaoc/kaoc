@@ -46,11 +46,13 @@ export class ScannerComponent implements OnInit {
           const ticketEventCheckInMatch = KAOC_TICKET_EVENT_CHECKIN_REGEX.exec(result);
           if(ticketEventCheckInMatch) {
               this.scanResult = `Code Match found for Ticket Check-In`
-              const ticketId = memberEventCheckInMatch.groups.ticketId;
+              const ticketId = ticketEventCheckInMatch.groups.ticketId;
               this.router.navigate([`${SECURED_CONTEXT}/${ADMIN_TICKET_CHECKIN}`, {ticketId}]).then(status=>{
                 if(!status) {
                   this.scanResult = `Navigation Failed`;
                   //alert(`Navigation Failed`);
+                } else {
+                  this.scanResult = `Navigation complete to ${SECURED_CONTEXT}/${ADMIN_TICKET_CHECKIN}`;
                 }
               });
 
