@@ -1726,6 +1726,11 @@ exports.performEventTicketCheckIn = functions.https.onCall((data, context) => {
                         let attendeeRef = kaocEventTicketSnapshot.ref;
                         let eventRef = eventTicketDetails.kaocEventRef;
 
+                        if(eventTicketDetails.paymentStatus !== PAYMENT_STATUS_PAID) {
+                            let error = "Ticket Payment is incomplete";
+                            throw new error;
+                        }
+
                         if(numAdults <= maxAdults && numChildren <= maxChildren) {
                             // Perform check in 
                             let attendeeType = 'EventTicket';

@@ -81,7 +81,7 @@ export class EventService {
       return this.ngFireFunctions
         .httpsCallable('getPurchasedEventTickets')({kaocUserId, kaocEventIds, includeQRCode})
         .toPromise().then(eventTickets => {
-            console.log(`Succesfully purchased event tickets for user ${kaocUserId}`);
+            console.log(`Succesfully retrieved purchased event tickets for user ${kaocUserId}`);
             return eventTickets;
         }).catch(e => {
             console.error(`Error retrieving purchased event tickets for user ${kaocUserId}`);

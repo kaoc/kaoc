@@ -20,6 +20,7 @@ export class EventTicketCheckinComponent implements OnInit {
     ticketLookupState = '';
     ticketCheckIns: EventCheckIn[];
     eventTicketId = '';
+    eventTicketPaid: boolean = false;
     eventTicketDetails:EventTicketDetails;
     isCheckInSuccess = false;
     checkInAPIProgress = false;
@@ -39,6 +40,7 @@ export class EventTicketCheckinComponent implements OnInit {
         this.eventTicketId = this.activatedRoute.snapshot.paramMap.get('ticketId');
         this.eventService.getEventTicketDetails(this.eventTicketId).then(details=>{
             this.eventTicketDetails = details;
+            this.eventTicketPaid = this.eventTicketDetails.paymentStatus.toUpperCase() == 'PAID';
             this.kaocEvent = details.kaocEvent;
             this.kaocUser = details.kaocUser;
             this.checkInNumAdults = this.eventTicketDetails.numAdults;
