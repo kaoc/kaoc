@@ -1,0 +1,122 @@
+<div class="page-title">
+  <div>
+    <h2>User Profile</h2>
+  </div>
+</div>
+<div class="card">
+  <div class="profile">
+
+      <!--TODO - Placeholder -->
+      <div *ngIf="profileState == 'loading'">
+          Locating User Profile...
+      </div>
+
+      <!--TODO - Placeholder -->
+      <div *ngIf="profileState == 'kaocUserNotFound'">
+          We could not locate a matchig user profile.<br>
+          Please create a new member<br>
+      </div>
+
+      <!--TODO - Placeholder -->
+      <div *ngIf="profileState == 'kaocUserFound'" class="profile-details">
+          <div class="name">{{kaocUser.firstName}} {{kaocUser.lastName}}</div>
+          <div class="email">{{kaocUser.emailId}}</div>
+          <div class="phone">{{kaocUser.phoneNumber}}</div>
+          <div class="active-membership" *ngIf="!membershipDetailsLoaded">
+              Loading Membership Details...
+          </div>
+
+          <div class="active-membership" *ngIf="membership && membership.membership">
+              <div>
+                  <span>Membership Status: </span>
+                  <span class="membership-state-active" *ngIf="membership.membership.paymentStatus == 'Paid'">Active</span>
+                  <span class="membership-state-inactive" *ngIf="membership.membership.paymentStatus != 'Paid'">InActive</span>
+              </div>
+              <div *ngIf="membership.membership.paymentStatus != 'Paid'">
+                  <span>Payment Status: </span>
+                  <span class="payment-state-incomplete" >{{membership.membership.paymentStatus}}</span>
+              </div>
+
+              <div>
+                  <span>Membership Type: </span>
+                  <span class="membership-type">
+                      {{membership?.membership?.membershipType}}
+                  </span>
+              </div>
+          </div>
+
+          <div class="inactive-membership" *ngIf="membership && membership.pastMembership">
+              <div>
+                  <span>Membership Status: </span>
+                  <span class="membership-state-inactive">InActive</span>
+              </div>
+              <div>
+                  <span>Membership Type: </span>
+                  <span class="membership-type">
+                      {{membership?.pastMembership?.membershipType}}
+                  </span>
+              </div>
+          </div>
+
+          <div class="inactive-membership" *ngIf="!membership && membershipDetailsLoaded">
+              <div>
+                  <span>Membership Status: </span>
+                  <span class="membership-state-inactive">No Membership</span>
+              </div>
+          </div>
+
+          <div class="family-details" *ngIf="membership && membership.members && membership.members.length >= 2">
+              <div>
+                  <span>Family Members</span>
+              </div>
+              <div>
+                  <ul *ngFor="let familyMember of  membership.members">
+                      <li *ngIf="familyMember.kaocUserId != kaocUserId">{{familyMember.firstName}} {{familyMember.lastName}}</li>
+                  </ul>
+              </div>
+          </div>
+
+          <button (click)="editUserProfile()" class="app-button profile-edit__bttn">
+              Edit
+          </button>
+
+          <br>
+          <br>
+          <div *ngIf="!!upcomingEvents">
+              <!-- Membership Checins-->
+              <div *ngIf="membership && membership.membership && membership.membership.paymentStatus == 'Paid'">
+                  <div class="event-checkin">
+                      <span class="event-checkin-title">Upcoming Events</span>
+                  </div>
+                  <div *ngFor="let event of upcomingEvents" class="event-checkin">
+                      <div>{{event.name}}: {{event.startTime|date:'short'}}</div>
+                      <div>
+                          <button (click)="performEventMemberCheckIn(kaocUserId, event.kaocEventId)" class="app-button profile-edit__bttn">Check In</button>
+                      </div>
+                  </div>
+              </div>
+              <br>
+              <br>
+              <!-- Purchased Event Tickets-->
+              <div *ngIf="purchasedEventTickets && purchasedEventTickets.length > 0">
+                  <div class="event-checkin">
+                      <span class="event-checkin-title">Purchased Event Tickets</span>
+                  </div>
+                  <div *ngFor="let eventTicket of purchasedEventTickets" class="event-checkin">
+                      <div>{{upcomingEventIdMap.get(eventTicket.kaocEventId).name}}: {{upcomingEventIdMap.get(eventTicket.kaocEventId).startTime|date:'short'}}</div>
+                      <div>
+                          <button (click)="performEventTicketCheckIn(eventTicket.kaocEventTicketId)" class="app-button profile-edit__bttn">Check In</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <br>
+          <br>
+          <div>
+              <a routerLink="/secured/admin/listmembers">
+                View/Edit Members
+              </a>
+          </div>
+      </div>
+  </div>
+</div>

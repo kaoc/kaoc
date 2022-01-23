@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { DialogData } from '../member-profile/member-profile.component';
+import { DialogData } from '../edit-member-profile/member-profile.component';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 import { Router } from '@angular/router';
 
@@ -31,7 +31,7 @@ export class DialogWinComponent implements OnInit {
     console.log('view MemberbyId :: ' + docId);
 
      this.router.navigateByUrl('/', {skipLocationChange: true}).then(() =>
-    this.router.navigate(['secured/admin/memberprofile', docId]) ); 
+    this.router.navigate(['secured/admin/memberprofile', docId]) );
     //this.router.navigate(['secured/admin/memberprofile', docId])
   }
 

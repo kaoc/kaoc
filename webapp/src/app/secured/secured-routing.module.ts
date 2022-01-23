@@ -1,7 +1,7 @@
 import {
     ADMIN_LIST_MEMBERS,
     ADMIN_VIEW_MEMBER_PROFILE,
-    ADMIN_MEMBER_PROFILE,
+    ADMIN_MEMBER_PROFILE as ADMIN_EDIT_MEMBER_PROFILE,
     ADMIN_SEARCH, PROFILE,
     USER_MEMBER_PROFILE,
     ADMIN_SCANNER,
@@ -16,7 +16,7 @@ import { SecuredComponent } from './secured.component';
 import { AuthGuardService } from './auth/auth-guard.service';
 import { VerifyEmailComponent } from './verify-email/verify-email.component';
 import { SearchUsersComponent } from './admin/search-users/search-users.component';
-import { MemberProfileComponent } from './admin/member-profile/member-profile.component';
+import { MemberProfileComponent } from './admin/edit-member-profile/member-profile.component';
 import { ListMemberProfilesComponent } from './admin/list-member-profiles/list-member-profiles.component';
 import { ProfileLinkStatusComponent } from './profile-link-status/profile-link-status.component';
 import { LOGIN, PROFILE_LINK_STATUS, SECURED_CONTEXT, VERIFY, EVENT_TICKETS, ADMIN_MANAGE_EVENTS, ADMIN_FUNCTIONS } from '../URLConstants';
@@ -26,6 +26,7 @@ import { EventManagementComponent } from './admin/event-management/event-managem
 import { AdminFunctionsComponent } from './admin/admin-functions/admin-functions.component';
 import { EventMembershipCheckinComponent } from './admin/event-membership-checkin/event-membership-checkin.component';
 import { EventTicketCheckinComponent } from './admin/event-ticket-checkin/event-ticket-checkin.component';
+import { ViewMemberProfileComponent } from './admin/view-member-profile/view-member-profile.component';
 
 
 const routes: Routes = [{
@@ -74,14 +75,15 @@ const routes: Routes = [{
             expectedRole: 'admin'
         }
     }, {
-        path: ADMIN_MEMBER_PROFILE,
+        //TODO - This looks redundant. Verif if this is required.
+        path: ADMIN_EDIT_MEMBER_PROFILE,
         component: MemberProfileComponent,
         canActivate: [AuthGuardService],
         data: {
             expectedRole: 'admin'
         }
     }, {
-        path: `${ADMIN_MEMBER_PROFILE}/:id`,
+        path: `${ADMIN_EDIT_MEMBER_PROFILE}/:id`,
         component: MemberProfileComponent,
         canActivate: [AuthGuardService],
         data: {
@@ -89,7 +91,7 @@ const routes: Routes = [{
         }
     }, {
         path: ADMIN_VIEW_MEMBER_PROFILE,
-        component: ProfileComponent,
+        component: ViewMemberProfileComponent,
         canActivate: [AuthGuardService],
         data: {
             expectedRole: 'admin'

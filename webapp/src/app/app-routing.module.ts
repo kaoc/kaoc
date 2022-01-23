@@ -8,7 +8,7 @@ import {MadhuramMalayalamComponent} from './activities/madhuram-malayalam/madhur
 import {SquarePaymentResultComponent} from './payment/square-payment-result/square-payment-result.component';
 import {AppLayoutComponent} from './_layout/app-layout/app-layout.component';
 import {ProfileComponent} from './secured/profile/profile.component';
-import {MemberProfileComponent} from './secured/admin/member-profile/member-profile.component';
+import {MemberProfileComponent} from './secured/admin/edit-member-profile/member-profile.component';
 import { ShellComponent } from './static/shell/shell.component';
 
 const routes: Routes = [

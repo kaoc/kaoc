@@ -18,10 +18,10 @@ import { NgxSpinnerModule } from 'ngx-spinner';
 import { UserTableComponent } from './admin/user-table/user-table.component';
 import { MaterialModule } from '../material.module';
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { MemberProfileComponent } from './admin/member-profile/member-profile.component';
+import { MemberProfileComponent } from './admin/edit-member-profile/member-profile.component';
 import { ListMemberProfilesComponent } from './admin/list-member-profiles/list-member-profiles.component';
 import { DialogWinComponent } from './admin/dialog-win/dialog-win.component';
-import { ConfirmDelComponent } from './admin/member-profile/confirm-del.component';
+import { ConfirmDelComponent } from './admin/edit-member-profile/confirm-del.component';
 import { ProfileLinkStatusComponent } from './profile-link-status/profile-link-status.component';
 
 import {AppHeaderComponent} from '../_layout/app-header/app-header.component';
@@ -35,6 +35,7 @@ import { EventTicketCheckinComponent } from './admin/event-ticket-checkin/event-
 import { EventTicketsComponent } from './event-tickets/event-tickets.component';
 import { EventManagementComponent } from './admin/event-management/event-management.component';
 import { AdminFunctionsComponent } from './admin/admin-functions/admin-functions.component';
+import { ViewMemberProfileComponent } from './admin/view-member-profile/view-member-profile.component';
 
 
 @NgModule({
@@ -59,7 +60,8 @@ import { AdminFunctionsComponent } from './admin/admin-functions/admin-functions
     EventTicketCheckinComponent,
     EventTicketsComponent,
     EventManagementComponent,
-    AdminFunctionsComponent
+    AdminFunctionsComponent,
+    ViewMemberProfileComponent
   ],
   imports: [
     CommonModule,
