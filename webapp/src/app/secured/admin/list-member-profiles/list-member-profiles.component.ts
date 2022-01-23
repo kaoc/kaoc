@@ -13,8 +13,8 @@ import {MatDialog, MatTableDataSource} from '@angular/material';
 
 export class ListMemberProfilesComponent implements OnInit {
   columnsToDisplay: string[] = ['firstName'];
-  membershipReportYears: string[] = ['2021', '2020'];
-  membershipReportYear: number = 2021;
+  membershipReportYears: string[] = ['2022', '2021', '2020'];
+  membershipReportYear: number = 2022;
   members: Member[];
   membersCpy: Member[];
   pageOfItems: Array<any>;
