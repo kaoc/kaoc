@@ -9,6 +9,11 @@ const PAYMENT_STATUS_UNPAID = 'UnPaid';
 const PAYMENT_STATUS_PENDING = 'Pending';
 const PAYMENT_STATUS_DECLINED = 'Declined';
 
+const PAYMENT_METHOD_CHECK = 'Check';
+const PAYMENT_METHOD_CASH = 'Cash';
+const PAYMENT_METHOD_PAYPAL = 'Paypal';
+const PAYMENT_METHOD_SQUARE = 'Square';
+
 var mailTransportOptions = functions.config().smtp;
 
 const hostUrl = functions.config().host.url || 'https://kaoc.app';
@@ -662,7 +667,7 @@ function _addOrUpdateMemberMembershipAndPayment(members, membership, payment, au
     let {paymentMethod, kaocPaymentId, paymentAmount, paymentStatus, paymentExternalSystemRef, paymentNotes} = payment || {};
 
     if(!paymentStatus) {
-        if(paymentMethod === 'Cash') {
+        if(paymentMethod === PAYMENT_METHOD_CASH || paymentMethod === PAYMENT_METHOD_CHECK) {
             paymentStatus = PAYMENT_STATUS_PAID;
         } else {
             paymentStatus = PAYMENT_STATUS_PENDING;
@@ -923,7 +928,7 @@ function _addOrUpdatePayment(paymentObject, auth) {
     } else {
         // If payment status is not defined, use default based on the payment method.
         if(!paymentStatus) {
-            if(paymentMethod === 'Cash') {
+            if(paymentMethod === PAYMENT_METHOD_CASH || paymentMethod === PAYMENT_METHOD_CHECK) {
                 paymentStatus = PAYMENT_STATUS_PAID;
             } else {
                 paymentStatus = PAYMENT_STATUS_PENDING;

@@ -100,25 +100,6 @@
             <button (click)="editUserProfile()" class="app-button profile-edit__bttn">
                 Edit
             </button>
-
-            <br>
-            <br>
-            <div *ngIf="!!upcomingEvents && membership && membership.membership && membership.membership.paymentStatus == 'Paid'" >
-                <div class="event-checkin">Event Check-Ins</div>
-                <div *ngFor="let event of upcomingEvents" class="event-checkin">
-                    <div>{{event.name}}: {{event.startTime|date:'short'}}</div>
-                    <div>
-                        <button (click)="performEventMemberCheckIn(kaocUserId, event.kaocEventId)" class="app-button profile-edit__bttn">Check In</button>
-                    </div>
-                </div>
-            </div>
-            <br>
-            <br>
-            <div *ngIf="isAdminView">
-                <a routerLink="/secured/admin/listmembers">
-                  View/Edit Members
-                </a>
-            </div>
         </div>
 
         <div *ngIf="profileState == 'kaocUserLinkEmailSent' && !isAdminView">
@@ -138,8 +119,5 @@
                 </mat-card-content>
             </mat-card>
         </div>
-        <!--
-        <app-paypal kaocPaymentsDocId="yH4luiXF1Nt6bVWSi9nL" paymentAmount="1.1" paymentDescription="TestingPaypal"></app-paypal>
-        -->
     </div>
 </div>
