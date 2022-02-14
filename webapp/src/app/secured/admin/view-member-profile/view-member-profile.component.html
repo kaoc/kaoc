@@ -58,7 +58,7 @@
               </div>
           </div>
 
-          <div class="inactive-membership" *ngIf="!membership && membershipDetailsLoaded">
+          <div class="inactive-membership" *ngIf="!(membership && (membership.membership  || membership.pastMembership)) && membershipDetailsLoaded">
               <div>
                   <span>Membership Status: </span>
                   <span class="membership-state-inactive">No Membership</span>
