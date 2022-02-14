@@ -129,13 +129,12 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
     });
  });
 
- /**
+/**
   * Webhoook handler for paypal notificiations
  */
-  exports.paypalPaymentHandler = functions.https.onRequest(async (req, res) => {
+ exports.paypalPaymentHandler = functions.https.onRequest(async (req, res) => {
 
     console.debug('Obtained paypal backend webhook notification');
-
     var apiKey = req.query['apiKey'];
     return validateKey(apiKey, 'paypalBackendPayment')
     .catch(e => {
@@ -146,7 +145,75 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
         const paypalPaymentData = req.body;
         console.log(`Paypal Payment data ${JSON.stringify(paypalPaymentData)}`);
         res.status(200).send({'status': true});
-        return true;
+
+        payerEmail = paypalPaymentData.resource.payer.email_address
+        //console.log(`Paypal Webhook Handler: Buyer ${payerEmail}`);
+        // first look for an existing kaoc profile with the given email id.
+        return admin.firestore().collection('/kaocUsers')
+            .where('emailId', '==', payerEmail)
+            .limit(1)
+            .get()
+            .then(kaocUserQuerySnapshot => {
+                if(!kaocUserQuerySnapshot.empty) {
+                    console.debug(`User record found with email id ${payerEmail}`);
+                    kaocUserId =  kaocUserQuerySnapshot.docs[0].ref.id
+                    return kaocUserId
+                } else {
+                    console.debug(`No user record found with email id ${payerEmail}. Creating new user`);
+                    let user = {
+                        'emailId':payerEmail,
+                        'createTime': admin.firestore.Timestamp.fromMillis(new Date().getTime()),
+                        'ageGroup': "Adult"
+                    };                
+                    let userCollectionRef = admin.firestore().collection('/kaocUsers');    
+                    return userCollectionRef.add(user)
+                                .then(result => {
+                                    return result.id;
+                                });         
+                }       
+            }).then(kaocUserId => {
+                // add EventTickets
+                // console.debug(`Paypal Webhook Handler: kaocUserId ${kaocUserId}`);
+                var eventId = req.query['eventId']; 
+                eventId = (eventId !== null) ? eventId:'UnknownEvent'
+
+                // console.debug(`Received paypal payment with event id ${eventId}`);
+                let kaocEventTickets = admin.firestore().collection('/kaocEventTickets')
+                let eventTicket = {'kaocEventRef' : `/kaocEvents/${eventId}`, 
+                                   'kaocUserRef':`/kaocUsers/${kaocUserId}`,
+                                   'paymentStatus': PAYMENT_STATUS_PAID};
+
+                return kaocEventTickets.add(eventTicket)
+                            .then(result => {
+                                return result.id
+                            });
+            }).then(kaocEventTicketRef => {
+                // add Payment and send email
+                // console.debug(`Paypal Webhook Handler: kaocEventTicketRef ${kaocEventTicketRef}`);
+                // console.debug(`Paypal Webhook Handler: paypalPaymentData ${JSON.stringify(paypalPaymentData)}`);
+
+                paymentMethod = PAYMENT_METHOD_PAYPAL;
+
+                // Assumption: We will get callbacks with single entry in purchase_units array
+                paymentAmount = paypalPaymentData.resource.purchase_units[0].amount.value;
+                paymentType = "Event";
+                paymentStatus = PAYMENT_STATUS_PAID;
+                paymentExternalSystemRef = paypalPaymentData.resource.purchase_units[0].reference_id;
+                paymentNotes = "";
+                kaocPaymentId = "";
+                paymentTypeRef = admin.firestore().doc(`/kaocEventTickets/${kaocEventTicketRef}`) 
+
+                paymentObject = { kaocPaymentId, kaocUserId, paymentMethod, 
+                                  paymentAmount, paymentType, 
+                                  paymentTypeRef, paymentStatus,
+                                  paymentExternalSystemRef, paymentNotes};
+                return paymentObject;
+            }).then(paymentObject => {
+                return _addOrUpdatePayment(paymentObject, null);
+            }).then(kaocPaymentId => {
+                console.debug(`Updated kaocPaymentId ${kaocPaymentId} and sending email to ${payerEmail}`);
+                return _updatePayment(kaocPaymentId, paymentObject, null)
+            });
     });
  });
 
