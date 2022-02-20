@@ -5,6 +5,8 @@ import { MemberService } from '../member.service';
 import { Event } from '../Event';
 import { EventTicket } from '../Event';
 import { Membership } from '../Membership';
+import { Router } from '@angular/router';
+import { PAYMENT, SECURED_CONTEXT } from 'src/app/URLConstants';
 
 @Component({
   selector: 'event-tickets',
@@ -25,7 +27,10 @@ export class EventTicketsComponent implements OnInit {
     eventTicketMap: any = {};
     eventIdMap: Map<string, Event> = new Map();
 
-    constructor(private eventService: EventService, authService: AuthService, private memberService : MemberService) {
+    constructor(
+            private eventService: EventService,
+            authService: AuthService, private memberService : MemberService,
+            private router: Router) {
         eventService
               .getUpcomingEvents()
               .then(events=>{
@@ -120,6 +125,16 @@ export class EventTicketsComponent implements OnInit {
                   .then(qrCodeData=>{
                     this.eventMemberCheckInQRCodeMap[kaocEventId] = qrCodeData.qrCodeImage;
                 });
+    }
+
+    purchaseEventTickets(kaocEventId) {
+        let paymentType = 'Event';
+        let paymentMeta = kaocEventId;
+        this.router.navigate([`${SECURED_CONTEXT}/${PAYMENT}`, {paymentType, paymentMeta}]).then(status=>{
+            if(!status) {
+              console.error(`Navigation Failed`);
+            }
+        });
     }
 
     ngOnInit(): void {

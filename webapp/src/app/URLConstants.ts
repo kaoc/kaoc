@@ -10,7 +10,9 @@ export const VERIFY = 'verify';
 export const PROFILE_LINK_STATUS = 'profileLinkStatus/:encodedMessage';
 export const PROFILE = 'profile';
 export const EVENT_TICKETS = 'eventtickets';
+export const PAYMENT = 'payment/:paymentType/:paymentMeta';
 export const USER_MEMBER_PROFILE = 'user/memberprofile/:id';
+
 export const ADMIN_SEARCH = 'admin/search';
 // TODO - Rename ADMIN_MEMBER_PROFILE to ADMIN_EDIT_MEMBER_PROFILE
 // to avoid confusion.

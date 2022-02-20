@@ -1,0 +1,60 @@
+<div class="page-title">
+  <div>
+    <h2><span>{{paymentType}} </span>Payment</h2>
+  </div>
+</div>
+<div class="card">
+    <div class="payment-type-details">
+        <div *ngIf="paymentType == 'Event'">
+            <!--Event Details-->
+            <div>
+                <mat-card>
+                    <mat-card-header>
+                        <mat-card-title>{{event.name}}</mat-card-title>
+                        <mat-card-subtitle>
+                            <a *ngIf="event.mapsLink" [href]="event.mapsLink" target="_blank">
+                                {{event.location}}
+                            </a>
+                            <span *ngIf="!event.mapsLink">{{event.location}}</span>
+                            <div>{{event.startTime|date:"short"}}</div>
+                        </mat-card-subtitle>
+                    </mat-card-header>
+                    <img mat-card-sm-image [src]="event.eventImageUrl || event.eventThumbnailUrl" [alt]="event.name">
+                    <mat-card-content>
+                        <p>
+                            {{event.description}}
+                        </p>
+                    </mat-card-content>
+                </mat-card>
+
+                <div class="event-payment">
+                    <div>
+                        <div class="checkin-info-item">
+                            <div>Adults</div>
+                            <mat-slider thumbLabel min="0" max="{{maxNumAdults}}" step="1" [value]="numAdultTickets" (input)="updateAdultCheckIn($event)"></mat-slider>
+                            <span class="check-in-count">{{numAdultTickets}}</span>
+                        </div>
+                        <div class="checkin-info-item">
+                            <div>Kids</div>
+                            <mat-slider thumbLabel min="0" max="{{maxNumChildren}}" step="1" [value]="numKidsTickets" (input)="updateKidCheckIn($event)"></mat-slider>
+                            <span class="check-in-count">{{numKidsTickets}}</span>
+                        </div>
+                    </div>
+                    <br/>
+
+                    <app-paypal
+                        (paypalStatusEvent)="handlePaypalStatusEvent($event)"
+                        kaocPaymentsDocId="{{eventId}}"
+                        paymentAmount="{{totalEventTicketCost}}"
+                        paymentDescription="{{paymentType}}"
+                    ></app-paypal>
+
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="paymentType == 'Membership'">
+            <!--TODO Show membership here-->
+        </div>
+    </div>
+</div>

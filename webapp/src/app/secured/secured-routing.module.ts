@@ -19,7 +19,7 @@ import { SearchUsersComponent } from './admin/search-users/search-users.componen
 import { MemberProfileComponent } from './admin/edit-member-profile/member-profile.component';
 import { ListMemberProfilesComponent } from './admin/list-member-profiles/list-member-profiles.component';
 import { ProfileLinkStatusComponent } from './profile-link-status/profile-link-status.component';
-import { LOGIN, PROFILE_LINK_STATUS, SECURED_CONTEXT, VERIFY, EVENT_TICKETS, ADMIN_MANAGE_EVENTS, ADMIN_FUNCTIONS } from '../URLConstants';
+import { LOGIN, PROFILE_LINK_STATUS, SECURED_CONTEXT, VERIFY, EVENT_TICKETS, PAYMENT, ADMIN_MANAGE_EVENTS, ADMIN_FUNCTIONS } from '../URLConstants';
 import { ScannerComponent } from './scanner/scanner.component';
 import { EventTicketsComponent } from './event-tickets/event-tickets.component';
 import { EventManagementComponent } from './admin/event-management/event-management.component';
@@ -27,6 +27,7 @@ import { AdminFunctionsComponent } from './admin/admin-functions/admin-functions
 import { EventMembershipCheckinComponent } from './admin/event-membership-checkin/event-membership-checkin.component';
 import { EventTicketCheckinComponent } from './admin/event-ticket-checkin/event-ticket-checkin.component';
 import { ViewMemberProfileComponent } from './admin/view-member-profile/view-member-profile.component';
+import { MemberPaymentComponent } from './member-payment/member-payment.component';
 
 
 const routes: Routes = [{
@@ -62,6 +63,13 @@ const routes: Routes = [{
     }, {
       path: EVENT_TICKETS,
       component: EventTicketsComponent,
+      canActivate: [AuthGuardService],
+      data: {
+          expectedRole: 'member'
+      }
+    }, {
+      path: PAYMENT,
+      component: MemberPaymentComponent,
       canActivate: [AuthGuardService],
       data: {
           expectedRole: 'member'

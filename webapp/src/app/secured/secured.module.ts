@@ -36,6 +36,7 @@ import { EventTicketsComponent } from './event-tickets/event-tickets.component';
 import { EventManagementComponent } from './admin/event-management/event-management.component';
 import { AdminFunctionsComponent } from './admin/admin-functions/admin-functions.component';
 import { ViewMemberProfileComponent } from './admin/view-member-profile/view-member-profile.component';
+import { MemberPaymentComponent } from './member-payment/member-payment.component';
 
 
 @NgModule({
@@ -61,7 +62,8 @@ import { ViewMemberProfileComponent } from './admin/view-member-profile/view-mem
     EventTicketsComponent,
     EventManagementComponent,
     AdminFunctionsComponent,
-    ViewMemberProfileComponent
+    ViewMemberProfileComponent,
+    MemberPaymentComponent
   ],
   imports: [
     CommonModule,

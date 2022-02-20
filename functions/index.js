@@ -146,7 +146,7 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
         console.log(`Paypal Payment data ${JSON.stringify(paypalPaymentData)}`);
         res.status(200).send({'status': true});
 
-        payerEmail = paypalPaymentData.resource.payer.email_address
+        let payerEmail = paypalPaymentData.resource.payer.email_address
         //console.log(`Paypal Webhook Handler: Buyer ${payerEmail}`);
         // first look for an existing kaoc profile with the given email id.
         return admin.firestore().collection('/kaocUsers')
