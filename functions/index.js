@@ -147,8 +147,8 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
         res.status(200).send({'status': true});
 
         let payerEmail = paypalPaymentData.resource.payer.email_address;
-        let payerFN = paypalPaymentData.resource.payer.name?.given_name;
-        let payerLN = paypalPaymentData.resource.payer.name?.surname;
+        let payerFN = paypalPaymentData.resource.payer.name.given_name;
+        let payerLN = paypalPaymentData.resource.payer.name.surname;
 
         console.log(`Payment recieved by ${payerFN} ${payerLN} with email ${payerEmail}`);
         //console.log(`Paypal Webhook Handler: Buyer ${payerEmail}`);
