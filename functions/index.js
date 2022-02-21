@@ -146,7 +146,11 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
         console.log(`Paypal Payment data ${JSON.stringify(paypalPaymentData)}`);
         res.status(200).send({'status': true});
 
-        let payerEmail = paypalPaymentData.resource.payer.email_address
+        let payerEmail = paypalPaymentData.resource.payer.email_address;
+        let payerFN = paypalPaymentData.resource.payer.name?.given_name;
+        let payerLN = paypalPaymentData.resource.payer.name?.surname;
+
+        console.log(`Payment recieved by ${payerFN} ${payerLN} with email ${payerEmail}`);
         //console.log(`Paypal Webhook Handler: Buyer ${payerEmail}`);
         // first look for an existing kaoc profile with the given email id.
         return admin.firestore().collection('/kaocUsers')
@@ -163,7 +167,9 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
                     let user = {
                         'emailId':payerEmail,
                         'createTime': admin.firestore.Timestamp.fromMillis(new Date().getTime()),
-                        'ageGroup': "Adult"
+                        'ageGroup': "Adult",
+                        'firstName': payerFN,
+                        'lastName': payerLN
                     };                
                     let userCollectionRef = admin.firestore().collection('/kaocUsers');    
                     return userCollectionRef.add(user)
@@ -174,14 +180,20 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
             }).then(kaocUserId => {
                 // add EventTickets
                 // console.debug(`Paypal Webhook Handler: kaocUserId ${kaocUserId}`);
-                var eventId = req.query['eventId']; 
-                eventId = (eventId !== null) ? eventId:'UnknownEvent'
+                // TODO remove default and fix the event id look up.
+                // Event id may not be passed in as a query. It is most likely part of the
+                // notification payload. 
+                let eventId = req.query['eventId'] || 'MusicNight2022'; 
+                let numAdults = 1;  //TODO - Retrieve from notification payload
+                let numChildren = 0; //TODO - Retrieve from notification payload
 
                 // console.debug(`Received paypal payment with event id ${eventId}`);
                 let kaocEventTickets = admin.firestore().collection('/kaocEventTickets')
-                let eventTicket = {'kaocEventRef' : `/kaocEvents/${eventId}`, 
-                                   'kaocUserRef':`/kaocUsers/${kaocUserId}`,
-                                   'paymentStatus': PAYMENT_STATUS_PAID};
+                let eventTicket = {'kaocEventRef' : admin.firestore().doc(`/kaocEvents/${eventId}`), 
+                                   'kaocUserRef':admin.firestore().doc(`/kaocUsers/${kaocUserId}`),
+                                   'paymentStatus': PAYMENT_STATUS_PAID,
+                                    numAdults,
+                                    numChildren};
 
                 return kaocEventTickets.add(eventTicket)
                             .then(result => {
@@ -1134,6 +1146,14 @@ exports.sendPaymentEmail = functions.https.onCall((data, context) => {
             && paymentDoc.paymentTypeRef
             && paymentDoc.kaocUserRef) {
 
+        if(paymentDoc.kaocUserRef.path) {
+            paymentDoc.kaocUserRef = paymentDoc.kaocUserRef.path;
+        }
+
+        if(paymentDoc.paymentTypeRef.path) {
+            paymentDoc.paymentTypeRef = paymentDoc.paymentTypeRef.path;
+        }
+    
         if(paymentDoc.paymentType === 'Membership') {
             let userEmail;
             let userName;
@@ -1142,13 +1162,6 @@ exports.sendPaymentEmail = functions.https.onCall((data, context) => {
             let kaocUserId;
             let member;
 
-            if(paymentDoc.kaocUserRef.path) {
-                paymentDoc.kaocUserRef = paymentDoc.kaocUserRef.path;
-            }
-
-            if(paymentDoc.paymentTypeRef.path) {
-                paymentDoc.paymentTypeRef = paymentDoc.paymentTypeRef.path;
-            }
 
             console.debug('Membership Payment record found. Fetching User & Membership details for sending email');
             return admin.firestore().doc(paymentDoc.kaocUserRef)
@@ -1158,7 +1171,14 @@ exports.sendPaymentEmail = functions.https.onCall((data, context) => {
                             member =userSnapshot.data();
                             kaocUserId = userSnapshot.id;
                             userEmail = userSnapshot.get('emailId');
-                            userName = userSnapshot.get('firstName')+" "+userSnapshot.get('lastName');
+                            let firstName = userSnapshot.get('firstName');
+                            let lastName = userSnapshot.get('lastName');
+                            userName = null;
+                            if (firstName || lastName) {
+                                userName = firstName+" "+lastName;
+                            } else {
+                                userName = userEmail;
+                            }
                             console.debug(`User Information found - Email ${userEmail}, Username: ${userName}`);
                             return admin.firestore().doc(paymentDoc.paymentTypeRef).get();
                         } else {
@@ -1239,8 +1259,121 @@ exports.sendPaymentEmail = functions.https.onCall((data, context) => {
                             }]
                         });
                     });
-        } else if(paymentDoc.paymentType === 'EventTicket') {
+        } else if(paymentDoc.paymentType === 'Event') {
             console.log('Sending payment email for ticket');
+            let userEmail;
+            let userName;
+            let kaocUserId;
+            let member;
+            let eventRef;
+            let numAdults;
+            let numChildren;
+            let eventName;
+            let eventDescription;
+            let eventLocation;
+            let eventDate;
+            let eventTicketId;
+            console.debug('Event Payment record found. Fetching User & Event details for sending email');
+            return admin.firestore().doc(paymentDoc.kaocUserRef)
+                    .get()
+                    .then(userSnapshot => {
+                        if(userSnapshot.exists) {
+                            member =userSnapshot.data();
+                            kaocUserId = userSnapshot.id;
+                            userEmail = userSnapshot.get('emailId');
+                            let firstName = userSnapshot.get('firstName');
+                            let lastName = userSnapshot.get('lastName');
+                            userName = null;
+                            if (firstName || lastName) {
+                                userName = firstName+" "+lastName;
+                            } else {
+                                userName = userEmail;
+                            }
+                            console.debug(`User Information found - Email ${userEmail}, Username: ${userName}`);
+                            return admin.firestore().doc(paymentDoc.paymentTypeRef).get();
+                        } else {
+                            let errorMessage = `Invalid payment reference. Cannot find user record corresponding to the payment ${userSnapshot.ref.id}`;
+                            console.error(errorMessage);
+                            throw errorMessage;
+                        }
+                    })
+                    .then(eventTicketSnapshot => {
+                        if(eventTicketSnapshot && eventTicketSnapshot.exists) {
+                            console.log(`Obtained Event Ticket Reference.`);
+                            eventRef = eventTicketSnapshot.get("kaocEventRef");
+                            if(eventRef && eventRef.path) {
+                                eventRef = eventRef.path;
+                            }
+                            eventTicketId = eventTicketSnapshot.id;
+                            numAdults = eventTicketSnapshot.get("numAdults") || 'N/A';
+                            numChildren = eventTicketSnapshot.get("numChildren") || 'N/A';
+                            return admin.firestore().doc(eventRef).get();
+                        } else {
+                            let errorMessage = `Invalid event ticket reference. Cannot find event ticket record corresponding to the payment ${eventTicketSnapshot.ref.id}`;
+                            console.error(errorMessage);
+                            throw errorMessage;
+                        }
+                    })
+                    .then(eventSnapshot => {
+                        if (eventSnapshot && eventSnapshot.exists) {
+                            console.log(`Obtained Event Ticket for id ${eventSnapshot.id}`);
+                            eventName = eventSnapshot.get('name');
+                            eventDescription = eventSnapshot.get('description');
+                            eventDate = eventSnapshot.get('startTime').toDate();
+                            eventLocation = eventSnapshot.get('location');
+                            console.log(`Generating QR Code for Event Ticket`);
+                            return _generateQRCodeDataURL(`kaocEventCheckIn:kaocEventTicketId:${eventTicketId}`)
+                        } else {
+                            let errorMessage = `Invalid Event reference. Cannot find event record for ${eventSnapshot.id}`;
+                            console.error(errorMessage);
+                            throw errorMessage;
+                        }
+                    }).then(qrCodeImageData=>{
+                        console.log(`Generating Email notification for Event Ticket`);
+                        return queueEmail({
+                            to: userEmail,
+                            subject: `Kerala Association Payment Successful for Event ${eventName}`,
+                            html:   `Hello ${member.firstName} ${member.lastName}, <br>
+                                        <p>    
+                                            You have succesfully completed a payment of $${paymentDoc.paymentAmount} towards the Event ${eventName}.
+                                        </p> 
+
+                                        <h2>${eventName}</h2>
+                                        <p>${eventDescription}</p>
+                                        <p>Location: ${eventLocation}</p>
+                                        <p>
+                                            Time: ${new Date(eventDate).toLocaleString('en-US', { timeZone: 'America/Denver' })}
+                                        </p>
+                                        <p>Adults: ${numAdults}</p>
+                                        <p>Children: ${numChildren}</p>
+                                        <p>
+                                            Please use the attached QR Code to check in at the event location. <br>
+                                            <img src="${qrCodeImageData}" alt="Event Ticket">
+                                        </p>
+                                    Thanks,<br>
+                                    KAOC Committee    
+                                    `,
+                            text:   `Hello ${userName}, 
+                                        You have succesfully completed a payment of ${paymentDoc.paymentAmount} towards the event ${eventName}.
+                                        Below is the ticket purchase details.
+
+                                        Event Name: ${eventName}
+                                        Event Details: ${eventDescription}
+                                        Location: ${eventLocation}
+                                        Time: ${new Date(eventDate).toLocaleString('en-US', { timeZone: 'America/Denver' })}
+                                        Adults: ${numAdults}
+                                        Children: ${numChildren}
+                                        Please use the attached QR Code to check in at the event location. 
+            
+                                        Thanks,
+                                        KAOC Committee    
+                                    `,
+                            attachments: [{
+                                filename: 'KAOC_MemberID_QRCode.png',
+                                path: qrCodeImageData
+                            }]
+                        });
+                    });
         } else {
             // TODO - Add emails for other events. 
             console.error('Payment Emails only supported for membership payments. This functionality is not implemented');
