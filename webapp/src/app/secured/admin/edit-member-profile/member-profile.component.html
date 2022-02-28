@@ -225,6 +225,8 @@
                 <app-paypal (paypalStatusEvent)="handlePaypalStatusEvent($event)"
                             kaocPaymentsDocId="{{this.getPaymentDocumentRefNo()}}"
                             paymentAmount="{{this.membershipAmt}}"
+                            paymentType="Membership"
+                            paymentReferenceId="{{kaocUserId}}"
                             paymentDescription="KAOC Membership"></app-paypal>
               </div>
             </div>

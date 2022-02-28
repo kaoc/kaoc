@@ -42,13 +42,16 @@
                     </div>
                     <br/>
 
-                    <app-paypal
-                        (paypalStatusEvent)="handlePaypalStatusEvent($event)"
-                        kaocPaymentsDocId="{{eventId}}"
-                        paymentAmount="{{totalEventTicketCost}}"
-                        paymentDescription="{{paymentType}}"
-                    ></app-paypal>
+                    <div *ngIf="totalEventTicketCost > 0">
+                        <app-paypal
+                          (paypalStatusEvent)="handlePaypalStatusEvent($event)"
+                          paymentType="{{paymentType}}"
+                          paymentReferenceId="{{eventId}}"
+                          paymentAmount="{{totalEventTicketCost}}"
+                          paymentDescription="{{paymentType}}"
+                      ></app-paypal>
 
+                    </div>
                 </div>
             </div>
         </div>

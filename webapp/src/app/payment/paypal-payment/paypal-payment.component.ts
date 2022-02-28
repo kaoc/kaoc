@@ -15,6 +15,8 @@ export class PaypalPaymentComponent implements OnInit {
   @Input() kaocPaymentsDocId: string;
   @Input() paymentAmount: number;
   @Input() paymentDescription: string;
+  @Input() paymentType: string;
+  @Input() paymentReferenceId: string;
   @ViewChild('paypal', { static: true }) paypalElement: ElementRef;
 
   @Output() paypalStatusEvent = new EventEmitter();
@@ -29,9 +31,12 @@ export class PaypalPaymentComponent implements OnInit {
       this.loadPaypalScript().then(() => {
         paypal.Buttons({
           createOrder: (data, actions) => {
+            let paymentReferenceString = this.paymentType+":"+this.paymentReferenceId;
+
             return actions.order.create({
                 purchase_units: [
                   {
+                    custom_id: paymentReferenceString,
                     description: this.paymentDescription,
                     amount: {
                       currency_code: 'USD',
@@ -70,18 +75,24 @@ export class PaypalPaymentComponent implements OnInit {
   }
 
   private updatePaymentDb(paymentId: string, paymentResult: string) {
-    console.log('updatePaymentDb called with paymentId=' + paymentId + ' status=' + paymentResult);
-    console.log('this.kaocPaymentsDocId=' + this.kaocPaymentsDocId);
+      if(this.kaocPaymentsDocId) {
+          console.log('updatePaymentDb called with paymentId=' + paymentId + ' status=' + paymentResult);
+          console.log('this.kaocPaymentsDocId=' + this.kaocPaymentsDocId);
 
-    const updatePayment = this.ngFireFunctions.httpsCallable('updatePayment');
-    updatePayment({paymentId: this.kaocPaymentsDocId, payment: {paymentStatus: paymentResult, paymentExternalSystemRef: paymentId}}).toPromise().then((result) => {
-        console.log('updatePayment returned paymentId ' + result);
-        this.paypalStatusEvent.emit(this.paymentStatus);
-    }).catch((error) => {
-      // Getting the Error details.
-      console.log('updatePayment error.code ' +  error.code);
-      console.log('updatePayment error.message ' +  error.message);
-      console.log('updatePayment error.details ' +  error.details);
-    });
+          const updatePayment = this.ngFireFunctions.httpsCallable('updatePayment');
+          updatePayment({paymentId: this.kaocPaymentsDocId, payment: {paymentStatus: paymentResult, paymentExternalSystemRef: paymentId}}).toPromise().then((result) => {
+              console.log('updatePayment returned paymentId ' + result);
+              this.paypalStatusEvent.emit(this.paymentStatus);
+          }).catch((error) => {
+            // Getting the Error details.
+            console.log('updatePayment error.code ' +  error.code);
+            console.log('updatePayment error.message ' +  error.message);
+            console.log('updatePayment error.details ' +  error.details);
+          });
+      } else {
+          console.log('Payment DOC id is not present. Skipping Update payment calls');
+          this.paypalStatusEvent.emit(this.paymentStatus);
+      }
+
   }
 }

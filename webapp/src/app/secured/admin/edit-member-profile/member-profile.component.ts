@@ -52,6 +52,7 @@ export class MemberProfileComponent implements OnInit {
   memberdet;
   paymentdet;
 
+  kaocUserId: string;
   member: Member[];
   members: FormArray;
 
@@ -111,6 +112,7 @@ export class MemberProfileComponent implements OnInit {
     // this.memberService.routedFrom=route.snapshot.paramMap.get('routeTo');
 
     this.queryByMemberId = this.route.snapshot.paramMap.get('id');
+    this.kaocUserId = this.queryByMemberId;
     console.log('queryByMemberId=' + this.queryByMemberId + 'this.memberService.routedFrom=' + this.memberService.routedFrom);
 
   }
