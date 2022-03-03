@@ -17,7 +17,6 @@ fi
 firebase use $PROJECT_ID
 cd webapp
 ng build $ANGULAR_BUILD_PARAMS
-#firebase deploy --only functions,hosting
-firebase deploy --only hosting
+firebase deploy --only functions,hosting
 cd ..
 
