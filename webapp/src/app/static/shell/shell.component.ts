@@ -22,7 +22,14 @@ export class ShellComponent implements OnInit {
                                                           "hrefPath": "bylaws/",
                                                           "description":
                                                           "KAOC is a registered non-profile organization"
-                                                        }]]);
+                                                        }],
+                                                        ["committee", {
+                                                          'title': "KAOC Committee Members",
+                                                          "hrefPath": "meet-the-team-for-2020.html",
+                                                          "description":
+                                                          "KAOC is a registered non-profile organization"
+                                                        }]
+                                                      ]);
   staticPageUrl:SafeResourceUrl;
   staticPageTitle:string;
   staticPageDescription:string;
