@@ -112,7 +112,7 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
 /**
  * Webhook handler for square payment notifications.
  */
- exports.squarePaymentHandler = functions.https.onRequest(async (req, res) => {
+exports.squarePaymentHandler = functions.https.onRequest(async (req, res) => {
 
     var apiKey = req.query['apiKey'];
     console.debug('Square Payment called with apiKey', apiKey);
@@ -136,97 +136,184 @@ exports.importMembership = functions.https.onRequest(async (req, res) => {
 
     console.debug('Obtained paypal backend webhook notification');
     var apiKey = req.query['apiKey'];
+    console.debug(`Validating API Key -- ${apiKey}`);
+
+    let payerEmail, payerFN, payerLN, paypalTransactionId;
+    let kaocUserId, kaocEventId, numAdults = 0, numChildren = 0;
+    let paymentAmount = 0;
+    let paypalPaymentData;
     return validateKey(apiKey, 'paypalBackendPayment')
     .catch(e => {
         console.error(`Invalid key for Paypal Payment Handler. Reason : ${e.message}`)
         res.status(401).send('Api Key not specified or is invalid');
-        return {'msg': `Api Key not specified or is invalid`};
+        let result = {'msg': `Api Key not specified or is invalid`};
+        res.status(400).send(result);
+        return result;
     }).then(keyData => {
-        const paypalPaymentData = req.body;
+        console.debug(`Succesfully validated API Key`);
+        paypalPaymentData = req.body;
+        let eventType = paypalPaymentData['event_type'];
         console.log(`Paypal Payment data ${JSON.stringify(paypalPaymentData)}`);
-        res.status(200).send({'status': true});
+        console.log(`Paypal Payment data for event type ${eventType}`);
 
-        let payerEmail = paypalPaymentData.resource.payer.email_address;
-        let payerFN = paypalPaymentData.resource.payer.name.given_name;
-        let payerLN = paypalPaymentData.resource.payer.name.surname;
+        if (eventType !== 'CHECKOUT.ORDER.COMPLETED' && eventType !== 'CHECKOUT.ORDER.APPROVED') {
+            let errorResponse = {
+                message: `Invalid event type ${eventType}. Only checkout order approved/completed is supported`
+            }; 
+            throw errorResponse;
+        }
+        payerEmail = paypalPaymentData.resource.payer.email_address;
+        payerFN = paypalPaymentData.resource.payer.name.given_name;
+        payerLN = paypalPaymentData.resource.payer.name.surname;
 
-        console.log(`Payment recieved by ${payerFN} ${payerLN} with email ${payerEmail}`);
-        //console.log(`Paypal Webhook Handler: Buyer ${payerEmail}`);
-        // first look for an existing kaoc profile with the given email id.
-        return admin.firestore().collection('/kaocUsers')
-            .where('emailId', '==', payerEmail)
-            .limit(1)
-            .get()
-            .then(kaocUserQuerySnapshot => {
-                if(!kaocUserQuerySnapshot.empty) {
-                    console.debug(`User record found with email id ${payerEmail}`);
-                    kaocUserId =  kaocUserQuerySnapshot.docs[0].ref.id
-                    return kaocUserId
-                } else {
-                    console.debug(`No user record found with email id ${payerEmail}. Creating new user`);
-                    let user = {
-                        'emailId':payerEmail,
-                        'createTime': admin.firestore.Timestamp.fromMillis(new Date().getTime()),
-                        'ageGroup': "Adult",
-                        'firstName': payerFN,
-                        'lastName': payerLN
-                    };                
-                    let userCollectionRef = admin.firestore().collection('/kaocUsers');    
-                    return userCollectionRef.add(user)
-                                .then(result => {
-                                    return result.id;
-                                });         
-                }       
-            }).then(kaocUserId => {
-                // add EventTickets
-                // console.debug(`Paypal Webhook Handler: kaocUserId ${kaocUserId}`);
-                // TODO remove default and fix the event id look up.
-                // Event id may not be passed in as a query. It is most likely part of the
-                // notification payload. 
-                let eventId = req.query['eventId'] || 'MusicNight2022'; 
-                let numAdults = 1;  //TODO - Retrieve from notification payload
-                let numChildren = 0; //TODO - Retrieve from notification payload
+        // get the first purchase unit and retrieve the userid (if any)
+        // and the reason for payment.
+        let purchaseUnit = paypalPaymentData.resource.purchase_units[0];
+        paypalTransactionId = paypalPaymentData.id;
+        if(purchaseUnit && purchaseUnit['custom_id']) {
 
-                // console.debug(`Received paypal payment with event id ${eventId}`);
-                let kaocEventTickets = admin.firestore().collection('/kaocEventTickets')
-                let eventTicket = {'kaocEventRef' : admin.firestore().doc(`/kaocEvents/${eventId}`), 
-                                   'kaocUserRef':admin.firestore().doc(`/kaocUsers/${kaocUserId}`),
-                                   'paymentStatus': PAYMENT_STATUS_PAID,
-                                    numAdults,
-                                    numChildren};
+            let paymentReason = purchaseUnit['custom_id'];
 
-                return kaocEventTickets.add(eventTicket)
-                            .then(result => {
-                                return result.id
-                            });
-            }).then(kaocEventTicketRef => {
-                // add Payment and send email
-                // console.debug(`Paypal Webhook Handler: kaocEventTicketRef ${kaocEventTicketRef}`);
-                // console.debug(`Paypal Webhook Handler: paypalPaymentData ${JSON.stringify(paypalPaymentData)}`);
+            // Find the reason for payment.
+            let isEventBasedPayment = false;
+            const userEventPaymentReasonPattern = new RegExp("^kaocUserId:(?<userId>.+):Event:(?<eventId>.+)$");
+            let eventBasedResult = userEventPaymentReasonPattern.exec(paymentReason);
+            if (eventBasedResult) {
+                // check if both user id and event id is known. 
+                kaocUserId = eventBasedResult.groups['userId'];
+                kaocEventId = eventBasedResult.groups['eventId'];
+                isEventBasedPayment = true;
+            } else {
+                // check for just event based payment.
+                const eventPaymentReasonPattern = new RegExp("^Event:(?<eventId>.+)$");
+                let eventBasedResult = eventPaymentReasonPattern.exec(paymentReason);
+                if (eventBasedResult) {
+                    kaocEventId = eventBasedResult.groups['eventId'];
+                    isEventBasedPayment = true;
+                }
+            }
 
-                paymentMethod = PAYMENT_METHOD_PAYPAL;
+            if(isEventBasedPayment) {
+                // Event based - Find number of tickets
+                paypalPaymentData.resource.purchase_units.forEach(purchaseUnit=>{
+                    if(purchaseUnit['reference_id']) {
+                        let refId = purchaseUnit['reference_id'];
+                        if(refId.startsWith('Adult')) {
+                            numAdults += 1;
+                        } else if(refId.startsWith('Child')) {
+                            numChildren += 1;
+                        }
+                        paymentAmount += Number(purchaseUnit.amount.value);
+                    }
+                });
 
-                // Assumption: We will get callbacks with single entry in purchase_units array
-                paymentAmount = paypalPaymentData.resource.purchase_units[0].amount.value;
-                paymentType = "Event";
-                paymentStatus = PAYMENT_STATUS_PAID;
-                paymentExternalSystemRef = paypalPaymentData.resource.purchase_units[0].reference_id;
-                paymentNotes = "";
-                kaocPaymentId = "";
-                paymentTypeRef = admin.firestore().doc(`/kaocEventTickets/${kaocEventTicketRef}`) 
+                console.log(`Event Based Payment detected for ${numAdults} Adults, ${numChildren} Children towards the event id ${kaocEventId}`)
+            }
+        }
 
-                paymentObject = { kaocPaymentId, kaocUserId, paymentMethod, 
-                                  paymentAmount, paymentType, 
-                                  paymentTypeRef, paymentStatus,
-                                  paymentExternalSystemRef, paymentNotes};
-                return paymentObject;
-            }).then(paymentObject => {
-                return _addOrUpdatePayment(paymentObject, null);
-            }).then(kaocPaymentId => {
-                console.debug(`Updated kaocPaymentId ${kaocPaymentId} and sending email to ${payerEmail}`);
-                return _updatePayment(kaocPaymentId, paymentObject, null)
-            });
+        if(kaocUserId) {
+            console.log(`Payment received for kaoc user with id ${kaocUserId}. Looking up user with the id`);
+            // look up kaoc user using the id. 
+            return admin.firestore()
+                        .collection('/kaocUsers')
+                        .where(
+                            admin.firestore.FieldPath.documentId(), 
+                            '==', 
+                            admin.firestore().doc(`/kaocUsers/${kaocUserId}`)
+                        )
+                        .get();
+        } else {
+            console.log(`Payment recieved by ${payerFN} ${payerLN} with email ${payerEmail}`);
+            //console.log(`Paypal Webhook Handler: Buyer ${payerEmail}`);
+            // first look for an existing kaoc profile with the given email id.
+            return admin.firestore().collection('/kaocUsers')
+                .where('emailId', '==', payerEmail)
+                .limit(1)
+                .get();
+        }
+    }).then(kaocUserQuerySnapshot=> {
+        // get or create user
+        if(!kaocUserQuerySnapshot.empty) {
+            console.debug(`User record found with email id ${payerEmail}, kaocUserId :${kaocUserId}`);
+            return kaocUserQuerySnapshot.docs[0].ref.id;
+        } else {
+            console.debug(`No user record found with email id ${payerEmail} or kaocUserId :${kaocUserId}. Creating new user`);
+            let user = {
+                'emailId':payerEmail,
+                'createTime': admin.firestore.Timestamp.fromMillis(new Date().getTime()),
+                'ageGroup': "Adult",
+                'firstName': payerFN,
+                'lastName': payerLN
+            };                
+            let userCollectionRef = admin.firestore().collection('/kaocUsers');    
+            return userCollectionRef.add(user);         
+        }       
+    }).then(kaocUserOrId => {
+        kaocUserId = kaocUserOrId.id || kaocUserOrId;
+        console.debug(`Payment recieved for user id ${kaocUserId}`);
+        return kaocUserId;
+    }).then(kaocUserId => {
+        // Payment for Event
+        if(kaocEventId) {
+            // add EventTickets
+            // console.debug(`Paypal Webhook Handler: kaocUserId ${kaocUserId}`);
+            // TODO remove default and fix the event id look up.
+            // Event id may not be passed in as a query. It is most likely part of the
+            // notification payload. 
+
+            // console.debug(`Received paypal payment with event id ${eventId}`);
+            let kaocEventTickets = admin.firestore().collection('/kaocEventTickets')
+            let eventTicket = {'kaocEventRef' : admin.firestore().doc(`/kaocEvents/${kaocEventId}`), 
+                                'kaocUserRef':admin.firestore().doc(`/kaocUsers/${kaocUserId}`),
+                                'paymentStatus': PAYMENT_STATUS_PAID,
+                                numAdults,
+                                numChildren};
+
+            return kaocEventTickets.add(eventTicket);
+
+        } else {
+            // TODO - Add payment for membership
+            let result = {message: 'Unsupported payment type'};
+            throw result;
+        }
+    }).then(kaocEventTicketRef => {
+        // add Payment and send email
+        // console.debug(`Paypal Webhook Handler: kaocEventTicketRef ${kaocEventTicketRef}`);
+        // console.debug(`Paypal Webhook Handler: paypalPaymentData ${JSON.stringify(paypalPaymentData)}`);
+
+        let paymentMethod = PAYMENT_METHOD_PAYPAL;
+
+        // Assumption: We will get callbacks with single entry in purchase_units array
+        //let paymentAmount = paypalPaymentData.resource.purchase_units[0].amount.value;
+        let paymentType = "Event";
+        let paymentStatus = PAYMENT_STATUS_PAID;
+        let paymentExternalSystemRef = paypalTransactionId;
+        let paymentNotes = "";
+        let kaocPaymentId = "";
+        let paymentTypeRef = admin.firestore().doc(kaocEventTicketRef.path); 
+
+        let paymentObject = { kaocPaymentId, kaocUserId, paymentMethod, 
+                          paymentAmount, paymentType, 
+                          paymentTypeRef, paymentStatus,
+                          paymentExternalSystemRef, paymentNotes};
+        return paymentObject;
+    }).then(paymentObject => {
+        console.log(`Updating Payment records for user ${paymentObject.kaocUserId} for ${paymentObject.paymentType} ${paymentObject.paymentAmount} && ${paymentObject.paymentType}`);
+        return _addOrUpdatePayment(paymentObject, null);
+    }).then(paymentRef => {
+        let result = {'status': true};
+        console.log(`Returning success status`);
+        res.status(200).send(result);
+        return result;
+    })
+    /*    
+    .catch(e => {
+        let message = e.message;
+        let result = {'status': false, message};
+        console.error(`Invalid webhook notification ${JSON.stringify(result)}`)
+        res.status(400).send(result);
     });
+    */
  });
 
 /**
