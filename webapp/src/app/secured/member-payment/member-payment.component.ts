@@ -27,7 +27,7 @@ export class MemberPaymentComponent implements OnInit {
     totalEventTicketCost: number = 0;
     checkoutItems: CheckoutItems[];
     eventPricingLoaded: boolean = false;
-    paymentComplete: boolean = true;
+    paymentComplete: boolean = false;
 
     membershipType: string
     membershipPricing: MembershipPricing;
