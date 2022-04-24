@@ -1,19 +1,19 @@
 <div *ngIf="paymentStatus === 'Pending'">
   <p><strong>Paypal Payment</strong></p>
   <p>For: {{paymentDescription}}</p>
-  <p>Amount: ${{paymentAmount}}</p>
+  <p>Amount: <b>${{paymentAmount}}</b></p>
 </div>
 
 <div *ngIf="paymentStatus === 'Paid'">
   <p><strong>Payment Successful:</strong></p>
   <p>For: {{paymentDescription}}</p>
-  <p>Amount: ${{paymentAmount}}</p>
+  <p>Amount: <b>${{paymentAmount}}</b></p>
 </div>
 
 <div *ngIf="paymentStatus === 'Failed'">
   <p><strong>Payment Failed:</strong></p>
   <p>For: {{paymentDescription}}</p>
-  <p>Amount: ${{paymentAmount}}</p>
+  <p>Amount: <b>${{paymentAmount}}</b></p>
 </div>
 
 <div [hidden]="((paymentStatus ==='Paid') || (paymentStatus === 'Failed'))" #paypal></div>

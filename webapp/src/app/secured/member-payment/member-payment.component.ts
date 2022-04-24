@@ -8,6 +8,9 @@ import { MemberService } from '../member.service';
 import { MatSliderChange } from '@angular/material';
 import { Router } from '@angular/router';
 import { EVENT_TICKETS, SECURED_CONTEXT, PROFILE } from 'src/app/URLConstants';
+import { CheckoutItems } from '../Checkout';
+import { AuthService } from '../auth/auth.service';
+import { timeStamp } from 'console';
 
 @Component({
   selector: 'member-payment',
@@ -22,19 +25,31 @@ export class MemberPaymentComponent implements OnInit {
     numAdultTickets: number = 0;
     numKidsTickets: number = 0;
     totalEventTicketCost: number = 0;
+    checkoutItems: CheckoutItems[];
+    eventPricingLoaded: boolean = false;
+    paymentComplete: boolean = true;
 
     membershipType: string
     membershipPricing: MembershipPricing;
+    kaocUserId: string;
 
     constructor(
         private eventService: EventService,
         private activatedRoute: ActivatedRoute,
         private snackBar: MatSnackBar,
         private membersService: MemberService,
-        private router:Router
+        private router:Router,
+        authService: AuthService
     ) {
         this.paymentType = this.activatedRoute.snapshot.paramMap.get('paymentType');
         let paymentMeta = this.activatedRoute.snapshot.paramMap.get('paymentMeta');
+
+        authService.kaocUser.subscribe(kaocUser => {
+          if (kaocUser) {
+              this.kaocUserId = kaocUser.kaocUserId;
+          }
+        });
+
 
         if (this.paymentType === 'Event') {
             this.eventId = paymentMeta;
@@ -47,7 +62,9 @@ export class MemberPaymentComponent implements OnInit {
                 });
             eventService.getEventPricing(this.eventId).then(eventPricing=>{
                 this.eventPricing = eventPricing;
+                this.eventPricingLoaded = true;
             }).catch(e => {
+                this.eventPricingLoaded = true;
                 console.error(`Failed to load pricing for event ${this.eventId}. `);
                 this.snackBar.open(`Failed to load event pricing information`);
             })
@@ -68,26 +85,61 @@ export class MemberPaymentComponent implements OnInit {
     }
 
     handlePaypalStatusEvent(event) {
-        let navigationPath = null;
-        if(this.paymentType == 'Event') {
-            // navigate user to event tickets page so that the ticket can be displayed back.
-            navigationPath = `${SECURED_CONTEXT}/${EVENT_TICKETS}`;
-        } else {
-            // Membership payment complete - navigate user back to profile page.
-            navigationPath = `${SECURED_CONTEXT}/${PROFILE}`;
-        }
+        this.paymentComplete = true;
+    }
 
-        this.router.navigate([navigationPath]).then(status=>{
-            if(!status) {
-              console.error(`Navigation Failed`);
+    acknowledgedPaymentStatus() {
+        let loggedIn = !!this.kaocUserId;
+        let navigationPath = null;
+        if(loggedIn) {
+            if(this.paymentType == 'Event') {
+                // navigate user to event tickets page so that the ticket can be displayed back.
+                navigationPath = `${SECURED_CONTEXT}/${EVENT_TICKETS}`;
+            } else {
+                // Membership payment complete - navigate user back to profile page.
+                navigationPath = `${SECURED_CONTEXT}/${PROFILE}`;
             }
-        });
+
+            this.router.navigate([navigationPath]).then(status=>{
+                if(!status) {
+                  console.error(`Navigation Failed`);
+                }
+            });
+        } else {
+          // Just show the payment page back.
+          // Reset the state
+          this.paymentComplete = false;
+          this.numAdultTickets = 0;
+          this.numAdultTickets = 0;
+          this.updatePaymentAmount()
+        }
     }
 
     updatePaymentAmount() {
       let adultPricing = this.eventPricing.adult * this.numAdultTickets;
       let kidsPricing = this.eventPricing.child * this.numKidsTickets;
+
+      let newCheckoutItems:CheckoutItems[] = [];
+      for(let i=0; i< this.numAdultTickets; i++) {
+          newCheckoutItems.push({
+              price: this.eventPricing.adult,
+              type: `Adult:${i+1}`
+          });
+      }
+
+      for(let i=0; i< this.numKidsTickets; i++) {
+        newCheckoutItems.push({
+            price: this.eventPricing.child,
+            type: `Child:${i+1}`
+        });
+    }
+
+      this.checkoutItems = newCheckoutItems;
       this.totalEventTicketCost = adultPricing + kidsPricing;
+    }
+
+    max(val1, val2) {
+      return Math.max(val1, val2);
     }
 
     updateAdultCheckIn(event:MatSliderChange) {
@@ -98,6 +150,26 @@ export class MemberPaymentComponent implements OnInit {
     updateKidCheckIn(event:MatSliderChange) {
         this.numKidsTickets = event.value;
         this.updatePaymentAmount();
+    }
+
+    decreaseAdultTickets() {
+      this.numAdultTickets = Math.max(this.numAdultTickets-1, 0);
+      this.updatePaymentAmount();
+    }
+
+    increaseAdultTickets() {
+      this.numAdultTickets = Math.min(this.numAdultTickets+1, 20);
+      this.updatePaymentAmount();
+    }
+
+    decreaseChildTickets() {
+      this.numKidsTickets = Math.max(this.numKidsTickets-1, 0);
+      this.updatePaymentAmount();
+    }
+
+    increaseChildTickets() {
+      this.numKidsTickets = Math.min(this.numKidsTickets+1, 20);
+      this.updatePaymentAmount();
     }
 
     ngOnInit(): void {

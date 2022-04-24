@@ -4,7 +4,7 @@
   </div>
 </div>
 <div class="card">
-    <div class="payment-type-details">
+    <div class="payment-type-details" *ngIf="!paymentComplete">
         <div *ngIf="paymentType == 'Event'">
             <!--Event Details-->
             <div>
@@ -19,7 +19,7 @@
                             <div>{{event.startTime|date:"short"}}</div>
                         </mat-card-subtitle>
                     </mat-card-header>
-                    <img mat-card-sm-image [src]="event.eventImageUrl || event.eventThumbnailUrl" [alt]="event.name">
+                    <img mat-card-image [src]="event.eventImageUrl || event.eventThumbnailUrl" [alt]="event.name">
                     <mat-card-content>
                         <p>
                             {{event.description}}
@@ -27,16 +27,36 @@
                     </mat-card-content>
                 </mat-card>
 
-                <div class="event-payment">
+                <div class="event-payment" *ngIf="!eventPricingLoaded">
+                    Loading Event Pricing..
+                </div>
+
+                <div class="event-payment" *ngIf="eventPricingLoaded && !!eventPricing">
                     <div>
                         <div class="checkin-info-item">
                             <div>Adults</div>
-                            <mat-slider thumbLabel min="0" max="{{maxNumAdults}}" step="1" [value]="numAdultTickets" (input)="updateAdultCheckIn($event)"></mat-slider>
+                            <span>
+                              <button mat-icon-button aria-label="Remove 1 adult ticket" (click)="decreaseAdultTickets()">
+                                    <mat-icon>remove</mat-icon>
+                              </button>
+                              <mat-slider thumbLabel min="0" max="{{maxNumAdults}}" step="1" [value]="numAdultTickets" (input)="updateAdultCheckIn($event)"></mat-slider>
+                              <button mat-icon-button aria-label="Add 1 more Adult Ticket" (click)="increaseAdultTickets()">
+                                  <mat-icon>add</mat-icon>
+                              </button>
+                            </span>
                             <span class="check-in-count">{{numAdultTickets}}</span>
                         </div>
                         <div class="checkin-info-item">
                             <div>Kids</div>
-                            <mat-slider thumbLabel min="0" max="{{maxNumChildren}}" step="1" [value]="numKidsTickets" (input)="updateKidCheckIn($event)"></mat-slider>
+                            <span>
+                                <button mat-icon-button aria-label="Remove 1 child ticket" (click)="decreaseChildTickets()">
+                                    <mat-icon>remove</mat-icon>
+                                </button>
+                                <mat-slider thumbLabel min="0" max="{{maxNumChildren}}" step="1" [value]="numKidsTickets" (input)="updateKidCheckIn($event)"></mat-slider>
+                                <button mat-icon-button aria-label="Add 1 more child Ticket" (click)="increaseChildTickets()">
+                                  <mat-icon>add</mat-icon>
+                                </button>
+                            </span>
                             <span class="check-in-count">{{numKidsTickets}}</span>
                         </div>
                     </div>
@@ -49,6 +69,7 @@
                           paymentReferenceId="{{eventId}}"
                           paymentAmount="{{totalEventTicketCost}}"
                           paymentDescription="{{paymentType}}"
+                          [purchaseUnits]="checkoutItems"
                       ></app-paypal>
 
                     </div>
@@ -58,6 +79,28 @@
 
         <div *ngIf="paymentType == 'Membership'">
             <!--TODO Show membership here-->
+        </div>
+    </div>
+
+    <div *ngIf="paymentComplete">
+        <div>
+          <mat-card>
+              <mat-card-header>
+                      <mat-card-title>Payment Complete</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <p>
+                    You have successfully completed payment towards the {{paymentType}}.
+                    You will be getting an email with details about your payment. <br>
+                    Please note that it may take a few minutes for the payment to be fully processed by our system.
+                    If you do not recieve the email after half hour, please contact us at
+                    <a href = "mailto:president@colorkerala.org">president@colorkerala.org</a>
+               </p>
+              </mat-card-content>
+              <mat-card-actions>
+                  <button mat-button (click)="acknowledgedPaymentStatus()">Close</button>
+              </mat-card-actions>
+          </mat-card>
         </div>
     </div>
 </div>

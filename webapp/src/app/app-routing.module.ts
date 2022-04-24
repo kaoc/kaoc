@@ -1,4 +1,4 @@
-import { KOAC_BYLAW, KOAC_HISTORY, KOAC_MEMBER_PROFILE, KOAC_PAYMENT, KOAC_STATIC_PAGES } from './URLConstants';
+import { KOAC_BYLAW, KOAC_HISTORY, KOAC_MEMBER_PROFILE, KOAC_PAYMENT, KOAC_STATIC_PAGES, PAYMENT } from './URLConstants';
 import {NgModule} from '@angular/core';
 import {Routes, RouterModule} from '@angular/router';
 import {KaocHistoryComponent} from './static/about/kaoc-history/kaoc-history.component';
@@ -10,6 +10,7 @@ import {AppLayoutComponent} from './_layout/app-layout/app-layout.component';
 import {ProfileComponent} from './secured/profile/profile.component';
 import {MemberProfileComponent} from './secured/admin/edit-member-profile/member-profile.component';
 import { ShellComponent } from './static/shell/shell.component';
+import { MemberPaymentComponent } from './secured/member-payment/member-payment.component';
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
@@ -23,6 +24,7 @@ const routes: Routes = [
       {path: KOAC_BYLAW, component: KaocByeLawComponent},
       {path: KOAC_PAYMENT, component: SquarePaymentResultComponent},
       {path: KOAC_MEMBER_PROFILE, component: MemberProfileComponent},
+      {path: PAYMENT, component: MemberPaymentComponent},
       {
         path: `${KOAC_STATIC_PAGES}/:pageId`,
         component: ShellComponent

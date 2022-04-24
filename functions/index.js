@@ -136,7 +136,7 @@ exports.squarePaymentHandler = functions.https.onRequest(async (req, res) => {
 
     console.debug('Obtained paypal backend webhook notification');
     var apiKey = req.query['apiKey'];
-    console.debug(`Validating API Key -- ${apiKey}`);
+    console.debug(`Validating API Key..`);
 
     let payerEmail, payerFN, payerLN, paypalTransactionId;
     let kaocUserId, kaocEventId, numAdults = 0, numChildren = 0;
@@ -153,7 +153,7 @@ exports.squarePaymentHandler = functions.https.onRequest(async (req, res) => {
         console.debug(`Succesfully validated API Key`);
         paypalPaymentData = req.body;
         let eventType = paypalPaymentData['event_type'];
-        console.log(`Paypal Payment data ${JSON.stringify(paypalPaymentData)}`);
+        //console.log(`Paypal Payment data ${JSON.stringify(paypalPaymentData)}`);
         console.log(`Paypal Payment data for event type ${eventType}`);
 
         if (eventType !== 'CHECKOUT.ORDER.COMPLETED' && eventType !== 'CHECKOUT.ORDER.APPROVED') {
@@ -223,7 +223,8 @@ exports.squarePaymentHandler = functions.https.onRequest(async (req, res) => {
                         )
                         .get();
         } else {
-            console.log(`Payment recieved by ${payerFN} ${payerLN} with email ${payerEmail}`);
+            //console.log(`Payment recieved by ${payerFN} ${payerLN} with email ${payerEmail}`);
+            console.log(`Payment recieved by non registed user`);
             //console.log(`Paypal Webhook Handler: Buyer ${payerEmail}`);
             // first look for an existing kaoc profile with the given email id.
             return admin.firestore().collection('/kaocUsers')
@@ -234,10 +235,12 @@ exports.squarePaymentHandler = functions.https.onRequest(async (req, res) => {
     }).then(kaocUserQuerySnapshot=> {
         // get or create user
         if(!kaocUserQuerySnapshot.empty) {
-            console.debug(`User record found with email id ${payerEmail}, kaocUserId :${kaocUserId}`);
+            //console.debug(`User record found with email id ${payerEmail}, kaocUserId :${kaocUserId}`);
+            console.debug(`User corresponding to the payment located.`);
             return kaocUserQuerySnapshot.docs[0].ref.id;
         } else {
-            console.debug(`No user record found with email id ${payerEmail} or kaocUserId :${kaocUserId}. Creating new user`);
+            console.debug(`Could not locate user corresponding to payment. Creating new user.`);
+            //console.debug(`No user record found with email id ${payerEmail} or kaocUserId :${kaocUserId}. Creating new user`);
             let user = {
                 'emailId':payerEmail,
                 'createTime': admin.firestore.Timestamp.fromMillis(new Date().getTime()),
@@ -298,7 +301,7 @@ exports.squarePaymentHandler = functions.https.onRequest(async (req, res) => {
                           paymentExternalSystemRef, paymentNotes};
         return paymentObject;
     }).then(paymentObject => {
-        console.log(`Updating Payment records for user ${paymentObject.kaocUserId} for ${paymentObject.paymentType} ${paymentObject.paymentAmount} && ${paymentObject.paymentType}`);
+        console.log(`Updating Payment records for user ${paymentObject.kaocUserId} for ${paymentObject.paymentType} for amount ${paymentObject.paymentAmount}`);
         return _addOrUpdatePayment(paymentObject, null);
     }).then(paymentRef => {
         let result = {'status': true};

@@ -1,5 +1,7 @@
 import { Component, OnInit, AfterViewChecked, ViewChild, ElementRef, Input, Output, EventEmitter } from '@angular/core';
 import { AngularFireFunctions } from '@angular/fire/functions';
+import { AuthService } from 'src/app/secured/auth/auth.service';
+import { CheckoutItems } from 'src/app/secured/Checkout';
 import { environment } from '../../../environments/environment';
 
 // Unused. We get paypal object from paypal js script. This is added just for compilation
@@ -12,18 +14,25 @@ declare let paypal: any;
 })
 
 export class PaypalPaymentComponent implements OnInit {
+  @Input() kaocUserId: string;
   @Input() kaocPaymentsDocId: string;
   @Input() paymentAmount: number;
   @Input() paymentDescription: string;
   @Input() paymentType: string;
   @Input() paymentReferenceId: string;
+  @Input() purchaseUnits: CheckoutItems[];
   @ViewChild('paypal', { static: true }) paypalElement: ElementRef;
 
   @Output() paypalStatusEvent = new EventEmitter();
   paymentStatus = 'Pending';
   didRenderPaypal = false;
 
-  constructor(private ngFireFunctions: AngularFireFunctions) {
+  constructor(private ngFireFunctions: AngularFireFunctions, authService: AuthService) {
+      authService.kaocUser.subscribe(kaocUser => {
+          if (kaocUser) {
+              this.kaocUserId = kaocUser.kaocUserId;
+          }
+      });
   }
 
   ngOnInit() {
@@ -31,19 +40,50 @@ export class PaypalPaymentComponent implements OnInit {
       this.loadPaypalScript().then(() => {
         paypal.Buttons({
           createOrder: (data, actions) => {
-            let paymentReferenceString = this.paymentType+":"+this.paymentReferenceId;
 
-            return actions.order.create({
-                purchase_units: [
-                  {
+            let references = [];
+            if(this.kaocUserId) {
+                references.push('kaocUserId');
+                references.push(this.kaocUserId);
+            }
+            references.push(this.paymentType);
+            if(this.paymentReferenceId) {
+                references.push(this.paymentReferenceId);
+            }
+            let paymentReferenceString = references.join(':');
+
+            let paypalPurchaseUnits = [];
+            if(this.purchaseUnits && this.purchaseUnits.length > 0) {
+                this.purchaseUnits.forEach(purchaseUnit => {
+                    let paypalPuchaseUnit = {
+                        reference_id: purchaseUnit.type,
+                        custom_id: paymentReferenceString,
+                        description: this.paymentDescription,
+                        amount: {
+                          currency_code: 'USD',
+                          value: purchaseUnit.price
+                        }
+                    };
+                    if(this.kaocUserId) {
+                      paypalPuchaseUnit['payment_instruction'] = {
+                        'kaocUserId' : this.kaocUserId
+                      }
+                    }
+                    paypalPurchaseUnits.push(paypalPuchaseUnit);
+                })
+            } else {
+                paypalPurchaseUnits = [{
                     custom_id: paymentReferenceString,
                     description: this.paymentDescription,
                     amount: {
                       currency_code: 'USD',
                       value: this.paymentAmount
                     }
-                  }
-                ]
+                }];
+            }
+
+            return actions.order.create({
+                purchase_units: paypalPurchaseUnits
             });
           },
           onApprove: async (data, actions) => {

@@ -11,6 +11,8 @@ export const PROFILE_LINK_STATUS = 'profileLinkStatus/:encodedMessage';
 export const PROFILE = 'profile';
 export const EVENT_TICKETS = 'eventtickets';
 export const PAYMENT = 'payment/:paymentType/:paymentMeta';
+export const EVENT_PAYMENT = 'payment/Event/:paymentMeta';
+export const MEMBERSHIP_PAYMENT = 'payment/Membership/:paymentMeta';
 export const USER_MEMBER_PROFILE = 'user/memberprofile/:id';
 
 export const ADMIN_SEARCH = 'admin/search';
