@@ -53,6 +53,10 @@ export class AppHeaderComponent implements OnInit {
     this.router.navigate(['secured/profile']);
   }
 
+  navigateToUrl(url) {
+    window.location.href=url;
+  }
+
   ngOnInit() {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {

@@ -117,21 +117,24 @@
     <button mat-menu-item routerLink="/kaocbylaw" (click)="sidenav.close()">
       <mat-icon>policy</mat-icon>
       Bylaws
-    </button> 
+    </button>
     <mat-divider></mat-divider>
-    <mat-divider></mat-divider>   
-    <a href="/assets/docs/Calendar.htm"><button>
-      Sports Calendar
-    </button></a>
-    <a href="/assets/docs/UTSAV_IDF2022.pdf"><button>
-      Indian Dance Festival
-    </button></a>
-    <a href="/assets/docs/sponsors.html"><button>
-      Sponsors
-    </button></a>
-    <a href="/assets/docs/2022/chess.pdf"><button>
-      Chess Tournament
-    </button></a>
+    <!--Sports-->
+    <button mat-menu-item (click)="navigateToUrl('/assets/docs/Calendar.htm')">
+      <mat-icon>calendar_month</mat-icon>Sports Calendar
+    </button>
+    <!--IDF-->
+    <button mat-menu-item (click)="navigateToUrl('/assets/docs/UTSAV_IDF2022.pdf')">
+      <mat-icon>festival</mat-icon>Indian Dance Festival
+    </button>
+    <!--Sponsors-->
+    <button mat-menu-item (click)="navigateToUrl('/assets/docs/sponsors.html')">
+      <mat-icon>stars</mat-icon>Sponsors
+    </button>
+    <!--Chess-->
+    <button mat-menu-item (click)="navigateToUrl('/assets/docs/2022/chess.pdf')">
+      <mat-icon>emoji_events</mat-icon>Chess Tournament
+    </button>
   </div>
 </mat-sidenav>
 

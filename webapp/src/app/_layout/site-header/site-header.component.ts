@@ -49,6 +49,11 @@ export class SiteHeaderComponent implements OnInit {
     this.router.navigate(['secured/profile']);
   }
 
+  navigateToUrl(url) {
+    window.location.href=url;
+  }
+
+
   ngOnInit() {
   }
 }
