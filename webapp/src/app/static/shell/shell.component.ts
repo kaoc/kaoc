@@ -15,17 +15,28 @@ export class StaticPageReference {
   styleUrls: ['./shell.component.css']
 })
 export class ShellComponent implements OnInit {
-  staticPageBaseHref: string = "https://www.colorkerala.org";
   pageReference:Map<string, StaticPageReference> = new Map([
                                                         ["bylaws", {
                                                           'title': "KAOC By-laws",
-                                                          "hrefPath": "bylaws/",
+                                                          "hrefPath": "https://www.colorkerala.org/bylaws/",
                                                           "description":
                                                           "KAOC is a registered non-profile organization"
                                                         }],
                                                         ["committee", {
                                                           'title': "KAOC Committee Members",
-                                                          "hrefPath": "meet-the-team-for-2020.html",
+                                                          "hrefPath": "https://www.colorkerala.org/meet-the-team-for-2020.html",
+                                                          "description":
+                                                          "KAOC is a registered non-profile organization"
+                                                        }],
+                                                        ["idf", {
+                                                          'title': "Indian Dance Festival",
+                                                          "hrefPath": "https://kaoc.app/assets/docs/UTSAV_IDF2022.pdf",
+                                                          "description":
+                                                          "KAOC is a registered non-profile organization"
+                                                        }],
+                                                        ["sponsors", {
+                                                          'title': "KAOC Sponsors",
+                                                          "hrefPath": "https://kaoc.app/assets/docs/sponsors.html",
                                                           "description":
                                                           "KAOC is a registered non-profile organization"
                                                         }]
@@ -39,7 +50,7 @@ export class ShellComponent implements OnInit {
     let pageId = this.route.snapshot.paramMap.get('pageId');
     let pageReference:StaticPageReference = this.pageReference.get(pageId);
     if(pageReference) {
-        this.staticPageUrl = this.sanitizer.bypassSecurityTrustResourceUrl(`${this.staticPageBaseHref}/${pageReference.hrefPath}`);
+        this.staticPageUrl = this.sanitizer.bypassSecurityTrustResourceUrl(`${pageReference.hrefPath}`);
         this.staticPageTitle = pageReference.title;
         this.staticPageDescription = pageReference.description;
     } else {
