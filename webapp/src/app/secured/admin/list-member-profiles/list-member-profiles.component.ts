@@ -54,7 +54,7 @@ export class ListMemberProfilesComponent implements OnInit {
     let membershipYear = this.membershipReportYear;
     this.memberService.getMembershipReport(membershipYear).then(membershipReportRecords=>{
       let csvReports = [];
-      csvReports.push(['First Name', 'Last Name', 'Email Id','Age Group', 'Membership Type','Membership Id', 'Legacy Membership Id', 'Payment Id', 'Payment Amount', 'Payment Method', 'Payment Notes','External Payment Ref', 'Payment Time'].join());
+      csvReports.push(['First Name', 'Last Name', 'Email Id','Age Group', 'Membership Type','Membership Id', 'Legacy Membership Id', 'Payment Id', 'Payment Amount', 'Payment Status', 'Payment Method', 'Payment Notes','External Payment Ref', 'Payment Time'].join());
       membershipReportRecords.forEach(memRecord=>{
         csvReports.push([
             memRecord.firstName,
@@ -66,6 +66,7 @@ export class ListMemberProfilesComponent implements OnInit {
             memRecord.legacyMembershipId,
             memRecord.kaocPaymentId,
             memRecord.paymentAmount,
+            memRecord.paymentStatus,
             memRecord.paymentMethod,
             memRecord.paymentNotes,
             memRecord.paymentExternalSystemRef,
