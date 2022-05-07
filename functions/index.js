@@ -1488,10 +1488,15 @@ exports.sendPaymentEmail = functions.https.onCall((data, context) => {
  */
 function queueEmail(email) {
     email.status = email.status || 'New';
-    console.log(`Adding Email Request about ${email.subject}`);
-    return admin.firestore().collection('kaocEmails').add(email).then(emailDoc=>{
-        return emailDoc.id;
-    });
+    if(email.to && email.to !== 'undefined') {
+        console.log(`Adding Email Request about ${email.subject}`);
+        return admin.firestore().collection('kaocEmails').add(email).then(emailDoc=>{
+            return emailDoc.id;
+        });
+    } else {
+        console.log(`Ignoring Email Request about ${email.subject} as the to email address is invalid`);
+        return Promise.resolve(false);
+    }
 }
 
 /**
@@ -2217,7 +2222,7 @@ exports.sendMemberEventPassEmailToActiveMemberships = functions.https.onCall((da
                 eventDetails = eventDtls;
                 if(!eventDetails.membershipAccessIncluded) {
                     console.log(`Event ${eventDetails.name} does not include membership access. Not sending email.`);
-                    return;
+                    return null;
                 } else {
                     console.log(`Event ${eventDetails.name} includes membership access. Sending email to members with valid memberships.`);
                 }
@@ -2229,66 +2234,85 @@ exports.sendMemberEventPassEmailToActiveMemberships = functions.https.onCall((da
                 if(kaocUserId) {
                     membershipQuery = membershipQuery.where('kaocUserRefs', 'array-contains', admin.firestore().doc(`/kaocUsers/${kaocUserId}`));
                 }
-                return membershipQuery
-                        .get()
-                        .then(querySnapShots => {
+                return membershipQuery.get();
+            }).then(querySnapShots => {
+            var userFetchPromises = [];
+            if(!querySnapShots.empty) {
+                console.log(`Obtained ${querySnapShots.size} membership records`)
 
-                            var userFetchPromises = [];
-                            if(!querySnapShots.empty) {
-                                console.log(`Obtained ${querySnapShots.size} membership records`)
+                querySnapShots.docs.forEach(membershipSnapShot => {
 
-                                querySnapShots.docs.forEach(membershipSnapShot => {
-
-                                    let membershipRef = membershipSnapShot.ref;
-                                    let membershipRecord = membershipSnapShot.data();
-                                    let {membershipType, paymentStatus, legacyMembershipId, startTime, endTime} = membershipRecord;
-                                    
-                                    if (startTime.toDate() <= dateComparison && dateComparison <= endTime.toDate()) {
-                                        console.debug(`Obtained membership for year  ${dateComparison.getFullYear()} `)
-                                        let membershipDetails = {};
-                                        membershipDetails.membership = {membershipType, paymentStatus, legacyMembershipId, kaocMembershipId: membershipRef.id};
-                                        membershipDetails.members = [];
-                                        membershipDetailsArray.push(membershipDetails);
-    
+                    let membershipRef = membershipSnapShot.ref;
+                    let membershipRecord = membershipSnapShot.data();
+                    let {membershipType, paymentStatus, legacyMembershipId, startTime, endTime} = membershipRecord;
                     
-                                        // fetch the users for the membership.
-                                        let kaocUserRefs = membershipRecord.kaocUserRefs || [];
-                                        console.debug('Querying users for membership record');
-                                        kaocUserRefs.forEach(kaocUserRef => {
-                                            let userFetchPromise = kaocUserRef.get().then(userQuerySnapShot=>{
-                                                // console.debug(`User record exists - ${userQuerySnapShot.exists}`)
-                                                if(userQuerySnapShot.exists) {
-                                                    let {firstName, lastName, emailId, ageGroup, phoneNumber} = userQuerySnapShot.data();
-                                                    membershipDetails.members.push({firstName, lastName, emailId, ageGroup, phoneNumber, kaocUserId: userQuerySnapShot.id});
-                                                }
-                                                return null;
-                                            });
-                                            userFetchPromises.push(userFetchPromise);
-                                        });
-                                    } else {
-                                        console.debug(`Ignoring membership for past year ${startTime.toDate().getFullYear()} `)
-                                    }
-                                });
-                            }
-                            return Promise.all(userFetchPromises);
-                        })
-                        .then(userFetchResults => {
-                            let emailPromises = [];
-                            membershipDetailsArray.forEach(membershipDetails => {
-                                let membershipData = membershipDetails.membership;
-                                membershipDetails.members.forEach(member=> {
-                                    let emailPromise = _sendMemberEventPassEmail(
-                                                            member.kaocUserId, 
-                                                            kaocEventId, 
-                                                            member, 
-                                                            membershipDetails, 
-                                                            eventDetails);
-                                    emailPromises.push(emailPromise);                        
-                                });
+                    if (startTime.toDate() <= dateComparison 
+                        && dateComparison <= endTime.toDate() 
+                        && paymentStatus === PAYMENT_STATUS_PAID) {
+
+                        console.debug(`Obtained membership for year  ${dateComparison.getFullYear()} `)
+                        let membershipDetails = {};
+                        membershipDetails.membership = {membershipType, paymentStatus, legacyMembershipId, kaocMembershipId: membershipRef.id};
+                        membershipDetails.members = [];
+                        membershipDetailsArray.push(membershipDetails);
+
+    
+                        // fetch the users for the membership.
+                        let kaocUserRefs = membershipRecord.kaocUserRefs || [];
+                        console.debug('Querying users for membership record');
+                        kaocUserRefs.forEach(kaocUserRef => {
+                            let userFetchPromise = kaocUserRef.get().then(userQuerySnapShot=>{
+                                // console.debug(`User record exists - ${userQuerySnapShot.exists}`)
+                                if(userQuerySnapShot.exists) {
+                                    let {firstName, lastName, emailId, ageGroup, phoneNumber} = userQuerySnapShot.data();
+                                    membershipDetails.members.push({firstName, lastName, emailId, ageGroup, phoneNumber, kaocUserId: userQuerySnapShot.id});
+                                }
+                                return null;
                             });
-                            return Promise.all(emailPromises);
+                            userFetchPromises.push(userFetchPromise);
                         });
-    });
+                    } else {
+                        console.debug(`Ignoring membership for past year ${startTime.toDate().getFullYear()} `)
+                    }
+                });
+            }
+            return Promise.all(userFetchPromises);
+        })
+        .then(userFetchResults => {
+            console.log(`Found ${membershipDetailsArray.length} memberships`);
+
+            let emailPromises = [];
+            let memberCount = 0;
+            membershipDetailsArray.forEach(membershipDetails => {
+                membershipDetails.members.forEach(member=> {
+                    memberCount++;
+                    console.log(`Queueing Membership Email #${memberCount} `);
+
+                    let emailPromise = _sendMemberEventPassEmail(
+                                            member.kaocUserId, 
+                                            kaocEventId, 
+                                            member, 
+                                            membershipDetails, 
+                                            eventDetails);
+                    emailPromises.push(emailPromise);                        
+                });
+            });
+            console.log(`Found ${memberCount} member(s). Number of emails queued - ${emailPromises.length}`);
+            return Promise.all(emailPromises);
+        }).then(reqIds=> {
+            let validEmails = 0;
+            let invalidEmails = 0;
+            reqIds.forEach(reqId=>{
+                if(reqId && reqId !== false) {
+                    validEmails++;
+                } else {
+                    invalidEmails++;
+                }
+            });
+
+            console.log(`Valid Emails: ${validEmails}. Invalid Emails: ${invalidEmails}`);
+            return {'validEmails': validEmails, 'invalidEmails': invalidEmails};
+        });
 });
 
 function _sendMemberEventPassEmail(kaocUserId, kaocEventId, userDetails, membershipDetails, eventDetails) {
