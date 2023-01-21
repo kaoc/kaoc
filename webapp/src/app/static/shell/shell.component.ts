@@ -24,7 +24,7 @@ export class ShellComponent implements OnInit {
                                                         }],
                                                         ["committee", {
                                                           'title': "KAOC Committee Members",
-                                                          "hrefPath": "https://www.colorkerala.org/meet-the-team-for-2022.html",
+                                                          "hrefPath": "https://kaoc.app/assets/docs/2023/meet_the_team_2023.pdf",
                                                           "description":
                                                           "KAOC is a registered non-profile organization"
                                                         }],
