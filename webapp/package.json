@@ -42,7 +42,7 @@
     "jw-angular-pagination": "^1.2.0",
     "ngx-auth-firebaseui": "^3.5.0",
     "ngx-spinner": "^8.1.0",
-    "npm": "^8.2.0",
+    "npm": "^8.11.0",
     "path": "^0.12.7",
     "qrcode": "^1.5.0",
     "rxjs": "~6.5.4",
